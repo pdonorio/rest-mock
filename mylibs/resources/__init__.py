@@ -13,12 +13,14 @@ def create_endpoints(resources, microservice):
     rest_api = Api(microservice, catch_all_404s=True)
 
 # // TO FIX: endpoint from the class?
-    for resource, endpoint in resources:
-        # endpoint, endkey = resource().get_endpoint()
+    for resource in resources:
+        endpoint, endkey = resource().get_endpoint()
 
         address = FIXED_APIURL + endpoint
-        print("Adding", resource.__name__, " resource to REST address", address)
+        print("Adding", resource.__name__, "resource to REST address", address)
 
         # Create restful endpoint
-        rest_api.add_resource(resource, FIXED_APIURL+endpoint)
-    #        ,\ FIXED_APIURL + endpoint +'/<'+ endkey +'>')
+        rest_api.add_resource(resource, \
+            FIXED_APIURL+endpoint,\
+            FIXED_APIURL + endpoint +'/<'+ endkey +'>')
+

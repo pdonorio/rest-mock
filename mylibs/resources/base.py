@@ -5,12 +5,29 @@
 
 from flask_restful import Resource
 
-class HelloWorld(Resource):
-    def get(self):
-        return {'hello': 'world'}
+class ExtendedApiResource(Resource):
+    """ Implement a generic Resource for Restful model """
+
+    myname = __name__
+    endtype = 'string:data_key'
+
+    @staticmethod
+    def clean_parameter(param=""):
+        """ I get parameters already with '"' quotes from curl? """
+        if param == None:
+            return param
+        return param.strip('"')
+
+    def get_endpoint(self):
+        self.myname = type(self).__name__.lower().replace("resource", "")
+        return (self.myname, self.endtype)
 
 # ####################################
 # # Flask normal end-point
 # @microservice.route("/foo")
 # def hello():
 #     return "Hello World!"
+
+class Foo(ExtendedApiResource):
+    def get(self):
+        return {'hello': 'world'}

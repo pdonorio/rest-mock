@@ -34,8 +34,8 @@ microservice = Flask(__name__)
 
 # // TO FIX: list via python objects introspection
 resources = []
-from mylibs.resources.base import HelloWorld
-resources.append((HelloWorld, 'foo'))
+from mylibs.resources.base import Foo
+resources.append(Foo)
 
 # do it
 from mylibs.resources import create_endpoints
