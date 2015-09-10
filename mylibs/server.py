@@ -32,11 +32,5 @@ microservice = Flask(__name__)
 ####################################
 # RESTful Resources
 
-# // TO FIX: list via python objects introspection
-resources = []
-from mylibs.resources.base import Foo
-resources.append(Foo)
-
-# do it
-from mylibs.resources import create_endpoints
-create_endpoints(resources, microservice)
+from mylibs.resources import create_endpoints, mock as mymodule
+create_endpoints(mymodule, microservice)

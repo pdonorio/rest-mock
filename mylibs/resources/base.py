@@ -21,13 +21,3 @@ class ExtendedApiResource(Resource):
     def get_endpoint(self):
         self.myname = type(self).__name__.lower().replace("resource", "")
         return (self.myname, self.endtype)
-
-# ####################################
-# # Flask normal end-point
-# @microservice.route("/foo")
-# def hello():
-#     return "Hello World!"
-
-class Foo(ExtendedApiResource):
-    def get(self):
-        return {'hello': 'world'}

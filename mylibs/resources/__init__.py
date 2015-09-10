@@ -6,21 +6,27 @@
 FIXED_APIURL = '/api' + '/'
 
 from flask_restful import Api
+from mylibs.meta import Meta
 
-def create_endpoints(resources, microservice):
+def create_endpoints(module, microservice):
     """ Automatic creation of endpoint from specified resources """
 
-    rest_api = Api(microservice, catch_all_404s=True)
+    resources = Meta().get_new_classes_from_module(module)
 
-# // TO FIX: endpoint from the class?
-    for resource in resources:
-        endpoint, endkey = resource().get_endpoint()
+    # Init restful plugin
+    if len(resources) > 0:
+        rest_api = Api(microservice, catch_all_404s=True)
 
-        address = FIXED_APIURL + endpoint
-        print("Adding", resource.__name__, "resource to REST address", address)
+        # For each RESTful resource i receive
+        for resource in resources:
 
-        # Create restful endpoint
-        rest_api.add_resource(resource, \
-            FIXED_APIURL+endpoint,\
-            FIXED_APIURL + endpoint +'/<'+ endkey +'>')
+            endpoint, endkey = resource().get_endpoint()
+            address = FIXED_APIURL + endpoint
+            print("Adding", resource.__name__, \
+                "resource to REST address:", address)
+
+            # Create restful endpoint
+            rest_api.add_resource(resource, \
+                FIXED_APIURL+endpoint,\
+                FIXED_APIURL + endpoint +'/<'+ endkey +'>')
 

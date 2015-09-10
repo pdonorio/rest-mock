@@ -1,6 +1,6 @@
 # rest-mock
 
-A base for my REST projects:
+The **base** for my *REST API* projects:
 
 a Flask python server with Mock configurable endpoints via YAML file
 

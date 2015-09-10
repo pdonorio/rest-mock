@@ -11,11 +11,11 @@
 TO DO:
 
  ✔ restful code and test @done (15-09-10 13:14)
- ☐ restful refactoring
+ ✔ restful refactoring @done (15-09-10 15:44)
    ✔ package with resources @done (15-09-10 14:52)
    ✔ automatic endpoint @done (15-09-10 15:05)
      ✔ property inside extended resource class @done (15-09-10 15:05)
-   ☐ pythonic resource listing from package
+   ✔ pythonic resource listing from package @done (15-09-10 15:44)
  ✘ abstract Service class @cancelled (15-09-10 14:53)
  ☐ Mock services file
  ✘ yaml reader @cancelled (15-09-10 14:50)
