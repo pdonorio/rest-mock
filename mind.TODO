@@ -1,12 +1,23 @@
 
+# Guidelines
+
+- python 3.4
+- flask & plugins
+- use six for print, items and similar?
+
+- mock as default (part of standard library)
+  - http://www.voidspace.org.uk/python/mock/
+
 TO DO:
 
  ✔ restful code and test @done (15-09-10 13:14)
- ☐ restful automatic endpoint
+ ☐ restful refactoring
+   ☐ package with resources
+   ☐ automatic endpoint
  ☐ abstract Service class
- ☐ MockService extends Service
- ☐ yaml reader
- ☐ configuration from yaml to rest endpoints
+ ☐ Mock services file
+ ✘ yaml reader @cancelled (15-09-10 14:50)
+ ✘ configuration from yaml to rest endpoints @cancelled (15-09-10 14:50)
 
 TO FIX:
   ☐ cors

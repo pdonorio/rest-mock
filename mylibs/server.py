@@ -30,32 +30,13 @@ microservice = Flask(__name__)
 """
 
 ####################################
-# RESTful
-from flask_restful import Resource, Api
-rest_api = Api(microservice, catch_all_404s=True)
+# RESTful Resources
 
-####################################
-# Uploader Resource
-FIXED_APIURL = '/api' + '/'
+# // TO FIX: list via python objects introspection
 resources = []
-
-class HelloWorld(Resource):
-    def get(self):
-        return {'hello': 'world'}
-
+from mylibs.resources.base import HelloWorld
 resources.append((HelloWorld, 'foo'))
 
-for resource, endpoint in resources:
-# // TO FIX: endpoint from the class?
-    # endpoint, endkey = resource().get_endpoint()
-    print(resource, endpoint)
-
-    # Create restful endpoint
-    rest_api.add_resource(resource, FIXED_APIURL+endpoint)
-#        ,\ FIXED_APIURL + endpoint +'/<'+ endkey +'>')
-
-# ####################################
-# # Flask normal end-points
-# @microservice.route("/foo")
-# def hello():
-#     return "Hello World!"
+# do it
+from mylibs.resources import create_endpoints
+create_endpoints(resources, microservice)
