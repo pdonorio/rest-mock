@@ -1,12 +1,16 @@
 
+# This configuration is for development only
+
 rest:
   image: pdonorio/py3api
   hostname: restapi
-  #command: sleep 123456
+  command: ./rest.py
+
   tty: true
   stdin_open: true
-  expose:
-    - 5000
+  # expose:
+  #   - 5000
+
   ports:
     - 80:8080
   volumes:

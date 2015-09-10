@@ -1,9 +1,13 @@
 
 TO DO:
 
- ☐ restful code and test
+ ✔ restful code and test @done (15-09-10 13:14)
  ☐ restful automatic endpoint
  ☐ abstract Service class
  ☐ MockService extends Service
  ☐ yaml reader
  ☐ configuration from yaml to rest endpoints
+
+TO FIX:
+  ☐ cors
+  ☐ logging
