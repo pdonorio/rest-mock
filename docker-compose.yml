@@ -1,0 +1,14 @@
+
+rest:
+  image: pdonorio/py3api
+  hostname: restapi
+  #command: sleep 123456
+  tty: true
+  stdin_open: true
+  expose:
+    - 5000
+  ports:
+    - 80:8080
+  volumes:
+    - .:/code:rw
+  working_dir: /code
