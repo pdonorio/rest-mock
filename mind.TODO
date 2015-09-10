@@ -1,0 +1,9 @@
+
+TO DO:
+
+ ☐ restful code and test
+ ☐ restful automatic endpoint
+ ☐ abstract Service class
+ ☐ MockService extends Service
+ ☐ yaml reader
+ ☐ configuration from yaml to rest endpoints

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-First base server
+First base: RESTful API python3 flask server
 """
 
 from mylibs.server import microservice as app
