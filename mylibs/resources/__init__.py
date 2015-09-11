@@ -3,13 +3,13 @@
 
 """ REST API Resources package """
 
-FIXED_APIURL = '/api' + '/'
+import logging
+logger = logging.getLogger(__name__)
 
 from flask_restful import Api
 from mylibs.meta import Meta
 
-import logging
-logger = logging.getLogger()
+FIXED_APIURL = '/api' + '/'
 
 def create_endpoints(module, microservice):
     """ Automatic creation of endpoint from specified resources """
