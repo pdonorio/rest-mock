@@ -23,5 +23,5 @@ TO DO:
 
 TO FIX:
   ☐ cors
-  ☐ logging
+  ✔ logging @done (15-09-11 11:07)
   ☐ argument parsing
