@@ -4,9 +4,7 @@
 - python 3.4
 - flask & plugins
 - use six for print, items and similar?
-
-- mock as default (part of standard library)
-  - http://www.voidspace.org.uk/python/mock/
+- mock as default
 
 TO DO:
 
@@ -24,4 +22,9 @@ TO DO:
 TO FIX:
   ✔ cors @done (15-09-11 12:46)
   ✔ logging @done (15-09-11 11:07)
+  ☐ py2/3 implementation
+    ☐ jinja2 compat?
+  ☐ changelog?
+    ☐ https://github.com/skywinder/github-changelog-generator
   ☐ argument parsing
+  ☐ configuration?
