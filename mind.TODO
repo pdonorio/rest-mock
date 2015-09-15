@@ -15,9 +15,13 @@ TO DO:
      ✔ property inside extended resource class @done (15-09-10 15:05)
    ✔ pythonic resource listing from package @done (15-09-10 15:44)
  ✘ abstract Service class @cancelled (15-09-10 14:53)
- ☐ Mock services file
+ ✘ Mock services file @cancelled (15-09-15 11:56)
  ✘ yaml reader @cancelled (15-09-10 14:50)
  ✘ configuration from yaml to rest endpoints @cancelled (15-09-10 14:50)
+ ☐ A more extensible mock
+   ☐ method inside ExtendedApiResource to specify a different endpoint
+   ☐ configuration option to specify one or more module file to look for endpoints classes
+   ☐ examples of post, put, delete
 
 TO FIX:
   ✔ cors @done (15-09-11 12:46)
