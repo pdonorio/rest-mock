@@ -2,7 +2,19 @@
 
 The **base** for my *REST API* projects:
 
-a Flask python server with Mock configurable endpoints via YAML file
+A Flask python server with Mock configurable endpoints
+mapped to class code.
+
+## Prerequisites
+
+Install docker and docker-compose. For example:
+
+```
+# Install docker
+curl -sSL https://get.docker.com/ | sh
+# Install docker-compose
+pip install -U docker-compose
+```
 
 ## How to run
 
