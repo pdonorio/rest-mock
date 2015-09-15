@@ -27,5 +27,5 @@ $ docker-compose up
 ## How to test
 
 ```
-curl http://localhost/api/foo
+curl http://localhost:8081/api/foo
 ```

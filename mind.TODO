@@ -26,6 +26,9 @@ TO DO:
 TO FIX:
   ✔ cors @done (15-09-11 12:46)
   ✔ logging @done (15-09-11 11:07)
+  ✔ Define range ports @done (15-09-15 14:35)
+    ✔ https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers @done (15-09-15 14:35)
+    ✔ 8081-8089 @done (15-09-15 14:35)
   ☐ py2/3 implementation
     ☐ jinja2 compat?
   ☐ changelog?
