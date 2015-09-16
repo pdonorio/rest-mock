@@ -3,6 +3,18 @@
 
 """ Basic Resource """
 
+##############################
+import simplejson as json
+def returnstandarddata(func):
+    """ Decorate to standard return json data """
+    def wrapper(*args):
+        data = func(*args)
+        jdata = json.dumps(data)    #, default=ownc_encoder)
+        return jdata
+    return wrapper
+
+##############################
+# Rest generic resource
 from flask_restful import Resource
 
 class ExtendedApiResource(Resource):

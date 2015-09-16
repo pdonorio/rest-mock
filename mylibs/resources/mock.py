@@ -3,9 +3,11 @@
 
 """ Mock Resource """
 
-from mylibs.resources.base import ExtendedApiResource
+from mylibs.resources.base import ExtendedApiResource, returnstandarddata
 
 class Foo(ExtendedApiResource):
+    """ Empty example for mock service """
+
+    @returnstandarddata
     def get(self):
         return {'hello': 'world'}
-
