@@ -3,6 +3,8 @@
 
 """ Mock Resource """
 
+import logging
+logger = logging.getLogger(__name__)
 from mylibs.resources.base import ExtendedApiResource, returnstandarddata
 
 class Foo(ExtendedApiResource):
@@ -10,4 +12,5 @@ class Foo(ExtendedApiResource):
 
     @returnstandarddata
     def get(self):
+        logger.debug("Get request")
         return {'hello': 'world'}
