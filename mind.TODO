@@ -19,7 +19,7 @@ TO DO:
  ✘ yaml reader @cancelled (15-09-10 14:50)
  ✘ configuration from yaml to rest endpoints @cancelled (15-09-10 14:50)
  ☐ A more extensible mock
-   ☐ method inside ExtendedApiResource to specify a different endpoint
+   ✔ method inside ExtendedApiResource to specify a different endpoint @done (15-09-16 13:56)
    ☐ configuration option to specify one or more module file to look for endpoints classes
    ☐ examples of post, put, delete
 
@@ -36,4 +36,3 @@ TO FIX:
   ☐ changelog?
     ☐ https://github.com/skywinder/github-changelog-generator
   ☐ argument parsing
-  ☐ configuration?

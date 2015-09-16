@@ -5,6 +5,7 @@
 
 ##############################
 import simplejson as json
+
 def returnstandarddata(func):
     """ Decorate to standard return json data """
     def wrapper(*args):
@@ -21,7 +22,12 @@ class ExtendedApiResource(Resource):
     """ Implement a generic Resource for Restful model """
 
     myname = __name__
+    endpoint = None
     endtype = 'string:data_key'
+
+    def __init__(self):
+        super(ExtendedApiResource, self).__init__()
+        self.set_endpoint()
 
     @staticmethod
     def clean_parameter(param=""):
@@ -30,6 +36,10 @@ class ExtendedApiResource(Resource):
             return param
         return param.strip('"')
 
+    def set_endpoint(self):
+        if self.endpoint is None:
+            self.endpoint = type(self).__name__.lower().replace("resource", "")
+        pass
+
     def get_endpoint(self):
-        self.myname = type(self).__name__.lower().replace("resource", "")
-        return (self.myname, self.endtype)
+        return (self.endpoint, self.endtype)

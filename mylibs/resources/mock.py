@@ -14,3 +14,13 @@ class Foo(ExtendedApiResource):
     def get(self):
         logger.debug("Get request")
         return {'hello': 'world'}
+
+class FooFoo(ExtendedApiResource):
+    """ Empty example with different endpoint """
+
+    endpoint = 'another/path'
+
+    @returnstandarddata
+    def get(self):
+        logger.debug("Using different endpoint")
+        return {'hello': 'new endpoint'}
