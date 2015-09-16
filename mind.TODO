@@ -21,8 +21,9 @@ TO DO:
  ☐ A more extensible mock
    ✔ method inside ExtendedApiResource to specify a different endpoint @done (15-09-16 13:56)
    ✔ configuration option to specify one or more module file to look for endpoints classes @done (15-09-16 17:25)
-     ☐ refactoring?
+     ☐ refactoring: create a configuration module
    ☐ examples of post, put, delete
+   ☐ rename mock.py in services.py
 
 TO FIX:
   ✔ cors @done (15-09-11 12:46)

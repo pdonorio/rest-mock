@@ -4,9 +4,9 @@
 rest:
   image: pdonorio/py3api
   hostname: restapi
-  command: ./rest.py
   # DEBUG
-  # command: sleep 1234567890
+  #command: sleep 1234567890
+  command: ./rest.py
   tty: true
   stdin_open: true
 #########################
