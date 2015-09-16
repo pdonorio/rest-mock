@@ -10,6 +10,7 @@ PROJECT_DIR = '.'
 CONFIG_DIR = 'confs'
 
 LOG_CONFIG = os.path.join(PROJECT_DIR, CONFIG_DIR, 'logging_config.ini')
+RES_CONFIG = os.path.join(PROJECT_DIR, CONFIG_DIR, 'endpoints.ini')
 
 # ####################################
 # LOGGING
@@ -25,7 +26,7 @@ except ImportError:
     class NullHandler(logging.Handler):
         def emit(self, record):
             pass
-#logging.getLogger(__name__).addHandler(NullHandler())
+logging.getLogger(__name__).addHandler(NullHandler())
 
 from mylibs import LOG_CONFIG
 fileConfig(LOG_CONFIG)

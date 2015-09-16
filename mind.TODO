@@ -20,7 +20,8 @@ TO DO:
  ✘ configuration from yaml to rest endpoints @cancelled (15-09-10 14:50)
  ☐ A more extensible mock
    ✔ method inside ExtendedApiResource to specify a different endpoint @done (15-09-16 13:56)
-   ☐ configuration option to specify one or more module file to look for endpoints classes
+   ✔ configuration option to specify one or more module file to look for endpoints classes @done (15-09-16 17:25)
+     ☐ refactoring?
    ☐ examples of post, put, delete
 
 TO FIX:

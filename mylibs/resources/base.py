@@ -39,7 +39,6 @@ class ExtendedApiResource(Resource):
     def set_endpoint(self):
         if self.endpoint is None:
             self.endpoint = type(self).__name__.lower().replace("resource", "")
-        pass
 
     def get_endpoint(self):
         return (self.endpoint, self.endtype)
