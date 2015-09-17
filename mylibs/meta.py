@@ -38,10 +38,25 @@ class Meta(object):
         return self.get_latest_classes()
 
     def get_module_from_string(self, modulestring):
-        # Meta language for dinamically import
+        """ Getting a module import
+        when your module is stored as a string in a variable """
+
         module = None
         try:
+            # Meta language for dinamically import
             module = import_module(modulestring)
         except ImportError as e:
             logger.critical("Failed to load resource: " + str(e))
         return module
+
+    def get_class_from_string(self, classname, module):
+        """ Get a specific class from a module using a string variable """
+
+        myclass = None
+        try:
+            # Meta language for dinamically import
+            myclass = getattr(module, classname)
+        except AttributeError as e:
+            logger.critical("Failed to load resource: " + str(e))
+
+        return myclass

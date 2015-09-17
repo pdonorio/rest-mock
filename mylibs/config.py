@@ -50,13 +50,12 @@ class MyConfigs(object):
 
             for classname, endpoint in config[section].items():
 
-                # Meta language for dinamically import
-                try:
-                    myclass = getattr(module, classname)
-                    logger.debug("Found " + section + '.' + classname)
-                except AttributeError as e:
-                    logger.critical("Failed to load resource: " + str(e))
+                myclass = meta.get_class_from_string(classname, module)
+                # Skip what you cannot use
+                if myclass is None:
                     continue
+                else:
+                    logger.debug("Found " + section + '.' + classname)
 
                 # Get the best endpoint comparing inside against configuration
                 instance = myclass()
@@ -65,8 +64,5 @@ class MyConfigs(object):
                     endpoint = oldendpoint
 
                 resources.append((myclass, instance, endpoint, endkey))
-
-                # # Load
-                # create_endpoint(rest_api, myclass, endpoint, endkey)
 
         return resources

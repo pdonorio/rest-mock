@@ -37,6 +37,7 @@ if len(resources) < 1:
 # Advanced: from a module mock
 else:
     logger.info("Using resources found in configuration")
+
     for myclass, instance, endpoint, endkey in resources:
         # Load each resource
         create_endpoint(rest_api, myclass, endpoint, endkey)
