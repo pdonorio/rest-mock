@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-""" Mock Resource """
+""" Mock Resources as Example """
 
 import logging
 logger = logging.getLogger(__name__)
+
 from mylibs.resources.base import ExtendedApiResource, returnstandarddata
 
 class Foo(ExtendedApiResource):

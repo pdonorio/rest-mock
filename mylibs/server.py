@@ -35,7 +35,7 @@ resources = MyConfigs().rest()
 # Basic: from a module mock
 if len(resources) < 1:
     logger.info("No file configuration found (or no section inside)")
-    from mylibs.resources import mock as mymodule
+    from mylibs.resources import exampleservices as mymodule
     epo.many_from_module(mymodule)
 # Advanced: from a module mock
 else:
@@ -47,4 +47,3 @@ else:
 
 ####################################
 # The End?
-####################################
