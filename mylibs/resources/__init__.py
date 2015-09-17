@@ -12,7 +12,7 @@ FIXED_APIURL = '/api' + '/'
 def create_endpoint(rest_api, resource, endpoint, endkey):
 
     address = FIXED_APIURL + endpoint
-    logger.debug("Adding '%s' resource to REST address: *%s*", \
+    logger.info("Adding '%s' resource to REST address: *%s*", \
         resource.__name__, address)
 
     # Create restful endpoint

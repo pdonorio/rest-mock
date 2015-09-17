@@ -21,7 +21,10 @@ TO DO:
  ☐ A more extensible mock
    ✔ method inside ExtendedApiResource to specify a different endpoint @done (15-09-16 13:56)
    ✔ configuration option to specify one or more module file to look for endpoints classes @done (15-09-16 17:25)
-     ☐ refactoring: create a configuration module
+     ☐ refactoring
+       ✔ create a configuration module @done (15-09-17 12:11)
+       ☐ move metas to Meta class
+       ☐ create Endpoint class for creating resources
    ☐ examples of post, put, delete
    ☐ rename mock.py in services.py
 
