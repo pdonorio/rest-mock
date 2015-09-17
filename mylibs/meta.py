@@ -3,6 +3,10 @@
 
 """ Meta thinking: python introspection """
 
+from importlib import import_module
+import logging
+logger = logging.getLogger(__name__)
+
 ################################
 ## Utilities
 
@@ -32,3 +36,12 @@ class Meta(object):
                 classes.append(value)
         self.set_latest_classes(classes)
         return self.get_latest_classes()
+
+    def get_module_from_string(self, modulestring):
+        # Meta language for dinamically import
+        module = None
+        try:
+            module = import_module(modulestring)
+        except ImportError as e:
+            logger.critical("Failed to load resource: " + str(e))
+        return module

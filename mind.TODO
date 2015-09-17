@@ -25,8 +25,8 @@ TO DO:
        ✔ create a configuration module @done (15-09-17 12:11)
        ☐ move metas to Meta class
        ☐ create Endpoint class for creating resources
+   ☐ rename mock.py in exampleservices.py
    ☐ examples of post, put, delete
-   ☐ rename mock.py in services.py
 
 TO FIX:
   ✔ cors @done (15-09-11 12:46)

@@ -6,7 +6,7 @@
 import configparser
 import logging
 from mylibs import REST_CONFIG
-from importlib import import_module
+from mylibs.meta import Meta
 
 logger = logging.getLogger(__name__)
 
@@ -36,19 +36,20 @@ class MyConfigs(object):
         sections = config.sections()
         logger.debug("Trying configuration from " + REST_CONFIG)
 
+        meta = Meta()
+
         resources = []
 
         for section in sections:
             logger.debug("Section " + section)
 
-            # Meta language for dinamically import
-            try:
-                module = import_module('mylibs.resources.' + section)
-            except ImportError as e:
-                logger.critical("Failed to load resource: " + str(e))
+            module = meta.get_module_from_string('mylibs.resources.' + section)
+            # Skip what you cannot use
+            if module is None:
                 continue
 
             for classname, endpoint in config[section].items():
+
                 # Meta language for dinamically import
                 try:
                     myclass = getattr(module, classname)
@@ -57,6 +58,7 @@ class MyConfigs(object):
                     logger.critical("Failed to load resource: " + str(e))
                     continue
 
+                # Get the best endpoint comparing inside against configuration
                 instance = myclass()
                 oldendpoint, endkey = instance.get_endpoint()
                 if endpoint.strip() == '':
