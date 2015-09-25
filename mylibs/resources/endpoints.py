@@ -3,8 +3,8 @@
 
 """ How to create endpoints into REST service """
 
-import logging
-logger = logging.getLogger(__name__)
+from mylibs import get_logger
+logger = get_logger(__name__)
 
 from mylibs.meta import Meta
 from mylibs.resources import FIXED_APIURL

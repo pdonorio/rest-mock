@@ -3,12 +3,12 @@
 
 """ Configuration handler """
 
+from mylibs import get_logger
+logger = get_logger(__name__)
+
 import configparser
-import logging
 from mylibs import REST_CONFIG
 from mylibs.meta import Meta
-
-logger = logging.getLogger(__name__)
 
 class MyConfigs(object):
     """ A class to read all of my configurations """

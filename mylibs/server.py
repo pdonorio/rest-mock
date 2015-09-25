@@ -5,8 +5,8 @@
 Main server code logic for this project
 """
 
-import logging
-logger = logging.getLogger(__name__)
+from mylibs import get_logger
+logger = get_logger(__name__)
 
 ####################################
 # Create app
@@ -19,6 +19,10 @@ microservice = Flask(__name__)
 # e.g. for JS and Upload
 from flask_cors import CORS
 CORS(microservice, headers=['Content-Type'])
+# cors write too much, let's fix it
+import logging
+corslogger = logging.getLogger('mylibs.server.cors')
+corslogger.setLevel(logging.WARNING)
 
 ####################################
 # RESTful stuff

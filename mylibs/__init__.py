@@ -30,3 +30,10 @@ logging.getLogger(__name__).addHandler(NullHandler())
 
 from mylibs import LOG_CONFIG
 fileConfig(LOG_CONFIG)
+
+LOG_LEVEL = logging.DEBUG
+
+def get_logger(name):
+    logger = logging.getLogger(name)
+    logger.setLevel(LOG_LEVEL)
+    return logger

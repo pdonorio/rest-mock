@@ -3,9 +3,9 @@
 
 """ Meta thinking: python introspection """
 
+from mylibs import get_logger
+logger = get_logger(__name__)
 from importlib import import_module
-import logging
-logger = logging.getLogger(__name__)
 
 ################################
 ## Utilities
