@@ -3,15 +3,15 @@
 
 """ Mock Resources as Example """
 
-import logging
-logger = logging.getLogger(__name__)
+from mylibs import get_logger
+logger = get_logger(__name__)
 
-from mylibs.resources.base import ExtendedApiResource, returnstandarddata
+from mylibs.resources.base import ExtendedApiResource, standardata
 
 class Foo(ExtendedApiResource):
     """ Empty example for mock service """
 
-    @returnstandarddata
+    @standardata
     def get(self):
         logger.debug("Get request")
         return {'hello': 'world'}
@@ -21,7 +21,10 @@ class FooFoo(ExtendedApiResource):
 
     endpoint = 'another/path'
 
-    @returnstandarddata
-    def get(self):
+    @standardata
+    def get(self, myid=None):
         logger.debug("Using different endpoint")
+        if myid is not None:
+            logger.info("Using data key '%s'" % myid)
+            return self.fail("error")
         return {'hello': 'new endpoint'}

@@ -67,3 +67,9 @@ http://localhost:8081/api/foo
 # Resource Two
 http://localhost:8081/api/hello/world
 ```
+
+Also as example of using a key with an endpoint
+but getting a (programmatic) error response, you may test:
+```
+curl -v http://localhost:8081/api/hello/world/keyword
+```
