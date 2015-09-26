@@ -55,7 +55,7 @@ class MyConfigs(object):
                 if myclass is None:
                     continue
                 else:
-                    logger.debug("Found " + section + '.' + classname)
+                    logger.debug("REST! Found resource: " + section + '.' + classname)
 
                 # Get the best endpoint comparing inside against configuration
                 instance = myclass()

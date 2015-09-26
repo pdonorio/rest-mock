@@ -38,6 +38,13 @@ TO FIX:
     ✔ 8081-8089 @done (15-09-15 14:35)
   ✔ standard return values @done (15-09-16 10:39)
     ✔ json dumps @done (15-09-16 10:39)
+  ☐ Decorate all methods in a class with a decorator @cool
+  ☐ add to project
+    ☐ https://github.com/danrobinson/tracestack
+from tracestack import trace
+>>> @trace
+>>> def divide_by_zero():
+...     1 / 0
   ☐ py2/3 implementation
     ☐ jinja2 compat?
   ☐ changelog?
