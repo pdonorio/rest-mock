@@ -4,6 +4,15 @@
 - flask & plugins
 - mock as base service
 
+DESIGN to plan:
+  ☐ A valid py2 and py3 implementation
+    ☐ jinja2 compat
+  ☐ Rest as @classmode
+    ☐ Flask Classy - https://github.com/apiguy/flask-classy/
+    ☐ What about other rest libs http://stackoverflow.com/a/23947463/2114395
+  ☐ Data @validation
+    ☐ http://docs.python-cerberus.org/en/latest/
+
 TO DO:
 
  ✔ restful code and test @done (15-09-10 13:14)
@@ -25,9 +34,12 @@ TO DO:
        ✔ create Endpoint class for creating resources @done (15-09-17 13:22)
        ✔ rename mock.py in exampleservices.py @done (15-09-17 14:16)
    ✔ get with the key @done (15-09-25 22:19)
-   ☐ parameters
+   ☐ parameters: parsing @argument
    ☐ parameters list
    ☐ also examples of post, put, delete
+ ☐ Blog post
+   ☐ ideas, libs, what i will slowly try to reach
+   ☐
 
 TO FIX:
   ✔ logging function (see irods2graph) @done (15-09-25 22:19)
@@ -39,14 +51,11 @@ TO FIX:
   ✔ standard return values @done (15-09-16 10:39)
     ✔ json dumps @done (15-09-16 10:39)
   ✔ Decorate all methods in a class with a decorator @cool @done (15-09-26 12:42)
+  ☐ changelog?
+    ☐ https://github.com/skywinder/github-changelog-generator
   ☐ add to project
     ☐ https://github.com/danrobinson/tracestack
 from tracestack import trace
 >>> @trace
 >>> def divide_by_zero():
 ...     1 / 0
-  ☐ py2/3 implementation
-    ☐ jinja2 compat?
-  ☐ changelog?
-    ☐ https://github.com/skywinder/github-changelog-generator
-  ☐ argument parsing

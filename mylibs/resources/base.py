@@ -49,11 +49,17 @@ class ExtendedApiResource(Resource):
     def get_endpoint(self):
         return (self.endpoint, self.endtype)
 
+    def add_parameters(self):
+        pass
+
+    def remove_id(self):
+        """ Avoid the chance to have api/method/:id """
+        pass
+
 ##############################
 # Defining a decorator for restful methods
 # to have all necessary things up with standard returns
 import simplejson as json
-import inspect
 
 def standardata(func):
     """ 

@@ -2,7 +2,25 @@
 
 The **base** for my *REST API* projects:
 
-A python 3 Flask server mapping classes into mock API end-points.
+**A python 3 Flask server mapping classes into mock API end-points.**
+
+I think this repo would be usefull to fork if you are planning to write a project where you know you want to use Flask as REST API endpoint somewhere.
+
+1. First you could write mocks for your interface to test
+2. Then implement them with whatever you want as background middleware
+    <small> e.g. FS (irods), graphDB (neo4j), whatever </small>
+
+Note: if you plan to have a DB driven API, i think you should first take a look at the awesome project of [Python Eve](http://python-eve.org/) which works with Redis, MongoDB or SQLalchemy.
+
+## What is it based on:
+
+* Flask (obviously)
+* Flask Cors
+* Flask Restful plugin (and evaluating Flask Classy, also)
+...
+* Flask Mail (*to do*)
+* Flask Admin (*to do*)
+* Flask Security (*to do*): for role based authentication and OAuth tokens
 
 ## Prerequisites
 
