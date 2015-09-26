@@ -38,7 +38,7 @@ TO FIX:
     ✔ 8081-8089 @done (15-09-15 14:35)
   ✔ standard return values @done (15-09-16 10:39)
     ✔ json dumps @done (15-09-16 10:39)
-  ☐ Decorate all methods in a class with a decorator @cool
+  ✔ Decorate all methods in a class with a decorator @cool @done (15-09-26 12:42)
   ☐ add to project
     ☐ https://github.com/danrobinson/tracestack
 from tracestack import trace
