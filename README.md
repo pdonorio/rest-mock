@@ -19,8 +19,9 @@ Note: if you plan to have a DB driven API, i think you should first take a look 
 * Flask Restful plugin (and evaluating Flask Classy, also)
 ...
 * Flask Mail (*to do*)
+* Flask Login (*to do*): role based authentication
+* Flask Security (*to do*): OAuth tokens
 * Flask Admin (*to do*)
-* Flask Security (*to do*): for role based authentication and OAuth tokens
 
 ## Prerequisites
 

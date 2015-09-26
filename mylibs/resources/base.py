@@ -54,7 +54,7 @@ class ExtendedApiResource(Resource):
 
     def remove_id(self):
         """ Avoid the chance to have api/method/:id """
-        pass
+        self.endtype = None
 
 ##############################
 # Defining a decorator for restful methods

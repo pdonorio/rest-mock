@@ -12,6 +12,9 @@ DESIGN to plan:
     ☐ What about other rest libs http://stackoverflow.com/a/23947463/2114395
   ☐ Data @validation
     ☐ http://docs.python-cerberus.org/en/latest/
+  ☐ Asynchrounous
+    ☐ gunicorn
+    ☐ twisted https://github.com/cravler/flask-twisted/
 
 TO DO:
 
@@ -39,7 +42,6 @@ TO DO:
    ☐ also examples of post, put, delete
  ☐ Blog post
    ☐ ideas, libs, what i will slowly try to reach
-   ☐
 
 TO FIX:
   ✔ logging function (see irods2graph) @done (15-09-25 22:19)

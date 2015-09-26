@@ -24,11 +24,13 @@ class Endpoints(object):
         address = FIXED_APIURL + endpoint
         logger.info("Adding '%s' resource to REST address: *%s*", \
             resource.__name__, address)
-
-        # Create restful endpoint
-        self.rest_api.add_resource(resource, \
-            FIXED_APIURL+endpoint,\
-            FIXED_APIURL + endpoint +'/<'+ endkey +'>')
+        # Normal endpoint, e.g. /api/foo
+        urls = [ address ]
+        # Special endpoint, e.g. /api/foo/:endkey
+        if endkey is not None:
+            urls.append(address +'/<'+ endkey +'>')
+        # Create restful resource with it
+        self.rest_api.add_resource(resource, *urls)
 
     def many_from_module(self, module):
         """ Automatic creation of endpoint from specified resources """
