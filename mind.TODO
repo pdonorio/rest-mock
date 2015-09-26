@@ -53,8 +53,8 @@ TO FIX:
   ✔ standard return values @done (15-09-16 10:39)
     ✔ json dumps @done (15-09-16 10:39)
   ✔ Decorate all methods in a class with a decorator @cool @done (15-09-26 12:42)
-  ☐ changelog?
-    ☐ https://github.com/skywinder/github-changelog-generator
+  ✔ changelog? @done (15-09-26 15:45)
+    ✘ https://github.com/skywinder/github-changelog-generator @cancelled (15-09-26 15:45)
   ☐ add to project
     ☐ https://github.com/danrobinson/tracestack
 from tracestack import trace
