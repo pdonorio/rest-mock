@@ -59,5 +59,23 @@ class FooTwo(ExtendedApiResource):
 class FooThree(ExtendedApiResource):
     """ Example with parameters """
 
+# // TO FIX:
+# Create it with a decorator
+    _params = {
+        "POST": {
+            "test": 'str',
+            "test2": 'int',
+        }
+    }
+
     def post(self):
         print(self._args)
+
+"""
+Note to self: [YET TO TEST]
+
+You cannot add different parameters inside the same Resource / Class.
+
+In fact you should create a separate resource each time parameters differs
+and then bind the two resources into the same endpoint:
+"""

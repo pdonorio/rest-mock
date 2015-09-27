@@ -19,6 +19,7 @@ class ExtendedApiResource(Resource):
     """
 
     myname = __name__
+    _params = {}
     endpoint = None
     endtype = 'string:myid'
 
@@ -26,7 +27,7 @@ class ExtendedApiResource(Resource):
         super(ExtendedApiResource, self).__init__()
         self.set_endpoint()
         self._parser = reqparse.RequestParser()
-        self._args = None
+        self.set_parameters()
 
     @staticmethod
     def clean_parameter(param=""):
@@ -49,23 +50,45 @@ class ExtendedApiResource(Resource):
     def get_endpoint(self):
         return (self.endpoint, self.endtype)
 
-    def set_parameters(self, params):
+    def set_parameters(self):
 
         ##############################
-        # Define a base value
-        #basevalue = unicode #Python2
+        # Basic options
         basevalue = str #Python3
+        #basevalue = unicode #Python2
+        act = 'store' #store is normal, append is a list
+        loc = ['headers', 'values'] #multiple locations
+        trim = True
 
         # # Extra parameter id for POST updates or key forcing
         # self.parser.add_argument("myid", type=basevalue)
 
-        for key, value in params:
-            logger.debug("Key is %s and value is %s" % (key,value))
+        for (method, params) in self._params.items():
             print(basevalue)
+            for param, param_type in params.items():
+
+# // TO FIX:
+# no param type selection at the moment
+                param_type = basevalue
+                required = False
+                default = ''
+
+                # I am creating an option to handle arrays:
+                if param_type == 'makearray':
+                    param_type = basevalue
+                    act = 'append'
+                self._parser.add_argument(param, type=param_type, \
+                    default=default, required=required, trim=trim, \
+                    action=act, location=loc)
+                logger.debug("Setting parameters: method %s - '%s' of type %s" \
+                    % (method.upper(), param, param_type))
 
     def remove_id(self):
         """ Avoid the chance to have api/method/:id """
         self.endtype = None
+
+# // TO FIX:
+## TO MOVE in a decorator class
 
 ##############################
 # Defining a decorator for restful methods
