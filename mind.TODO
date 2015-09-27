@@ -1,17 +1,21 @@
 
-# Guidelines
-- python 3.4
+GUIDELINES:
+- python 3.4 as now (ready for 3.5?)
 - flask & plugins
+  https://exploreflask.com/organizing.html
+  http://mattupstate.com/python/2013/06/26/how-i-structure-my-flask-applications.html
 - mock as base service
 - relative imports
-- some good read as http://mattupstate.com/python/2013/06/26/how-i-structure-my-flask-applications.html
 
 DESIGN to plan:
-  ☐ A valid py2 and py3 implementation
-    ☐ jinja2 compat
-  ☐ Rest as @classmode
+  ☐ Configuration
+  ☐ @Blueprints [and] app @factories
+  ☐ A valid @PySix [implementation]
+    ☐ e.g. jinja2 compat
+  ☐ CHECK: Rest as @classmode
     ☐ Flask Classy - https://github.com/apiguy/flask-classy/
     ☐ What about other rest libs http://stackoverflow.com/a/23947463/2114395
+  ☐ Tests: noose?
   ☐ Data @validation
     ☐ http://docs.python-cerberus.org/en/latest/
   ☐ Asynchrounous
@@ -58,9 +62,9 @@ TO FIX:
   ✔ changelog? @done (15-09-26 15:45)
     ✘ https://github.com/skywinder/github-changelog-generator @cancelled (15-09-26 15:45)
   ☐ relative imports
-  ☐ add to project
+  ☐ add to project some @libraries
     ☐ https://github.com/danrobinson/tracestack
-from tracestack import trace
->>> @trace
->>> def divide_by_zero():
-...     1 / 0
+      from tracestack import trace
+      >>> @trace
+      >>> def divide_by_zero():
+      ...     1 / 0
