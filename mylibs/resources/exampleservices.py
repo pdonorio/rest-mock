@@ -59,3 +59,5 @@ class FooTwo(ExtendedApiResource):
 class FooThree(ExtendedApiResource):
     """ Example with parameters """
 
+    def post(self):
+        print(self._args)

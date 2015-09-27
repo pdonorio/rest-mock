@@ -6,7 +6,7 @@ rest:
   hostname: restapi
   # DEBUG
   #command: sleep 1234567890
-  command: ./rest.py
+  command: ./run.py
   tty: true
   stdin_open: true
 #########################

@@ -6,6 +6,8 @@ GUIDELINES:
   http://mattupstate.com/python/2013/06/26/how-i-structure-my-flask-applications.html
 - mock as base service
 - relative imports
+- other libraries
+http://blog.yhathq.com/posts/11-python-libraries-you-might-not-know.html
 
 DESIGN to plan:
   ☐ Configuration
