@@ -12,15 +12,15 @@ from mylibs.resources.base \
 #####################################
 ## FIRST simple EXAMPLE
 
-# Reply to:
+## Works with requests to:
 # GET /api/foo
 
 @for_all_api_methods(standardata)
-class Foo(ExtendedApiResource):
+class FooOne(ExtendedApiResource):
     """ Empty example for mock service with no :id """
 
     def __init__(self):
-        super(Foo, self).__init__()
+        super(FooOne, self).__init__()
         # Make sure to avoid resource /api/foo/:id
         self.remove_id()
 
@@ -30,14 +30,14 @@ class Foo(ExtendedApiResource):
 #####################################
 ## SECOND and more complex EXAMPLE
 
-# Reply to:
+## Works with requests to:
 # GET /api/another/path
 # GET /api/another/path/:id
 # POST /api/another/path (with null)
 
 @for_all_api_methods(standardata)
-class FooFoo(ExtendedApiResource):
-    """ Empty example with different endpoint """
+class FooTwo(ExtendedApiResource):
+    """ Example with use of id """
     endpoint = 'another/path'
 
     def get(self, myid=None):
@@ -50,3 +50,12 @@ class FooFoo(ExtendedApiResource):
 
     def post(self):
         pass
+
+#####################################
+## THIRD EXAMPLE with parameters
+
+## Works with requests to:
+@for_all_api_methods(standardata)
+class FooThree(ExtendedApiResource):
+    """ Example with parameters """
+

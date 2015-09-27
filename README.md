@@ -12,16 +12,22 @@ I think this repo would be usefull to fork if you are planning to write a projec
 
 Note: if you plan to have a DB driven API, i think you should first take a look at the awesome project of [Python Eve](http://python-eve.org/) which works with Redis, MongoDB or SQLalchemy.
 
-## What is it based on:
+## What is will be based on:
 
-* Flask (obviously)
+* Flask (*obviously*)
+* Jinja2
 * Flask Cors
 * Flask Restful plugin (and evaluating Flask Classy, also)
-...
-* Flask Mail (*to do*)
-* Flask Login (*to do*): role based authentication
-* Flask Security (*to do*): OAuth tokens
-* Flask Admin (*to do*)
+
+**stil to be added**
+* Plumbum
+* Tracestack
+* Flask Security
+    Simple RBAC + OAuth tokens + encryption + user registration
+    + Mail + Login + Principal + Flask Admin interface
+* Flask Cache
+* Flask Uploads
+* Alembic? migrations for SQLalchemy
 
 ## Prerequisites
 

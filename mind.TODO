@@ -3,6 +3,8 @@
 - python 3.4
 - flask & plugins
 - mock as base service
+- relative imports
+- some good read as http://mattupstate.com/python/2013/06/26/how-i-structure-my-flask-applications.html
 
 DESIGN to plan:
   ☐ A valid py2 and py3 implementation
@@ -38,7 +40,7 @@ TO DO:
        ✔ rename mock.py in exampleservices.py @done (15-09-17 14:16)
    ✔ get with the key @done (15-09-25 22:19)
    ☐ parameters: parsing @argument
-   ☐ parameters list
+     ☐ list
    ☐ also examples of post, put, delete
  ☐ Blog post
    ☐ ideas, libs, what i will slowly try to reach
@@ -55,6 +57,7 @@ TO FIX:
   ✔ Decorate all methods in a class with a decorator @cool @done (15-09-26 12:42)
   ✔ changelog? @done (15-09-26 15:45)
     ✘ https://github.com/skywinder/github-changelog-generator @cancelled (15-09-26 15:45)
+  ☐ relative imports
   ☐ add to project
     ☐ https://github.com/danrobinson/tracestack
 from tracestack import trace

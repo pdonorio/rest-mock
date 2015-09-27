@@ -49,8 +49,19 @@ class ExtendedApiResource(Resource):
     def get_endpoint(self):
         return (self.endpoint, self.endtype)
 
-    def add_parameters(self):
-        pass
+    def set_parameters(self, params):
+
+        ##############################
+        # Define a base value
+        #basevalue = unicode #Python2
+        basevalue = str #Python3
+
+        # # Extra parameter id for POST updates or key forcing
+        # self.parser.add_argument("myid", type=basevalue)
+
+        for key, value in params:
+            logger.debug("Key is %s and value is %s" % (key,value))
+            print(basevalue)
 
     def remove_id(self):
         """ Avoid the chance to have api/method/:id """
