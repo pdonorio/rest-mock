@@ -6,13 +6,7 @@ First base: RESTful API python3 flask server
 """
 
 from mylibs.server import microservice as app
-
-options = {
-    # Open the server to requests from outside the host
-    'host': "0.0.0.0",
-    #'port': 8080,
-    #'debug': True,
-}
+from confs.config import SERVER_HOSTS, SERVER_PORT, DEBUG
 
 if __name__ == "__main__":
-    app.run(**options)
+    app.run(host=SERVER_HOSTS, port=SERVER_PORT, debug=DEBUG)
