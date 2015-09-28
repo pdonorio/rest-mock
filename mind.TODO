@@ -46,9 +46,9 @@ TO DO:
        ✔ create Endpoint class for creating resources @done (15-09-17 13:22)
        ✔ rename mock.py in exampleservices.py @done (15-09-17 14:16)
    ✔ get with the key @done (15-09-25 22:19)
-   ☐ Decorator module
-     ☐ like flask app
-     ☐ parameters as module
+   ✔ Decorator module @done (15-09-28 09:52)
+     ✔ like flask app? @done (15-09-28 09:52)
+     ✔ parameters as module @done (15-09-28 09:52)
    ☐ parameters: parsing @argument
      ☐ list
    ☐ also examples of post, put, delete
@@ -68,6 +68,7 @@ TO FIX:
   ✔ changelog? @done (15-09-26 15:45)
     ✘ https://github.com/skywinder/github-changelog-generator @cancelled (15-09-26 15:45)
   ☐ relative imports
+    ☐ uhm?!?
   ☐ add to project some @libraries
     ☐ https://github.com/danrobinson/tracestack
       from tracestack import trace

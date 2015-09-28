@@ -6,8 +6,8 @@
 from mylibs import get_logger
 logger = get_logger(__name__)
 
-from mylibs.resources.base \
-    import ExtendedApiResource, standardata, for_all_api_methods
+from mylibs.resources.base import ExtendedApiResource
+import mylibs.resources.decorators as decorate
 
 #####################################
 ## FIRST simple EXAMPLE
@@ -15,7 +15,7 @@ from mylibs.resources.base \
 ## Works with requests to:
 # GET /api/foo
 
-@for_all_api_methods(standardata)
+@decorate.all_api_methods(decorate.standardata)
 class FooOne(ExtendedApiResource):
     """ Empty example for mock service with no :id """
 
@@ -35,7 +35,7 @@ class FooOne(ExtendedApiResource):
 # GET /api/another/path/:id
 # POST /api/another/path (with null)
 
-@for_all_api_methods(standardata)
+@decorate.all_api_methods(decorate.standardata)
 class FooTwo(ExtendedApiResource):
     """ Example with use of id """
     endpoint = 'another/path'
@@ -55,7 +55,7 @@ class FooTwo(ExtendedApiResource):
 ## THIRD EXAMPLE with parameters
 
 ## Works with requests to:
-@for_all_api_methods(standardata)
+@decorate.all_api_methods(decorate.standardata)
 class FooThree(ExtendedApiResource):
     """ Example with parameters """
 
