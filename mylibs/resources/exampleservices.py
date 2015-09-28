@@ -71,6 +71,8 @@ class FooThree(ExtendedApiResource):
     def post(self):
         print(self._args)
 
+#####################################
+
 """
 Note to self: [YET TO TEST]
 

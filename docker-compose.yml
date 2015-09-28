@@ -4,15 +4,15 @@
 rest:
   image: pdonorio/py3api
   hostname: restapi
+  command: ./run.py
   # DEBUG
   #command: sleep 1234567890
-  command: ./run.py
   tty: true
   stdin_open: true
 #########################
 # Our services API want to use the HTTP range port: 8081-8089
   ports:
-    - 8081:8080
+    - 8081:5000
 #########################
   volumes:
     - .:/code:rw
