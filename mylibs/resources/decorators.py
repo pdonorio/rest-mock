@@ -6,6 +6,30 @@
 from mylibs import get_logger
 logger = get_logger(__name__)
 
+#################################
+# This decorator took me quite a lot of time
+# It is a decorator which requires special points:
+# 1. chaining: more than one decorator of the same type
+# 2. arguments: the decorator takes parameters
+# 3. works for a method of class: not a single function, but with 'self'
+class add_endpoint_parameter(object):
+    """
+    """
+
+    def __init__(self, name, ptype=str):
+        self.name = name
+        self.ptype = ptype
+
+    def __call__(self, fn, *args, **kwargs):
+        params = {
+            'name': self.name,
+            'mytype': self.ptype,
+        }
+        def new_func(self, *args, **kwargs):
+            self.add_parameter(**params)
+            return fn(self, *args, **kwargs)
+        return new_func
+
 ##############################
 # Defining a decorator for restful methods
 # to have all necessary things up with standard returns
@@ -22,6 +46,7 @@ def standardata(func):
         logger.debug("[Class: %s] %s request" % \
             (class_name, method_name) )
         # Call the parse method
+        self.apply_parameters()
         self.parse()
         data = func(self, *args, **kwargs)
 # // TO FIX:
@@ -30,6 +55,7 @@ def standardata(func):
         return jdata
     return wrapper
 
+##############################
 # Source:
 # http://stackoverflow.com/a/6307868/2114395
 def all_api_methods(decorator):

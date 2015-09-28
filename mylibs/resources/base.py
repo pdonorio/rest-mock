@@ -22,12 +22,12 @@ class ExtendedApiResource(Resource):
     _params = {}
     endpoint = None
     endtype = 'string:myid'
+    _args = {}
 
     def __init__(self):
         super(ExtendedApiResource, self).__init__()
         self.set_endpoint()
         self._parser = reqparse.RequestParser()
-        self.set_parameters()
 
     @staticmethod
     def clean_parameter(param=""):
@@ -50,7 +50,12 @@ class ExtendedApiResource(Resource):
     def get_endpoint(self):
         return (self.endpoint, self.endtype)
 
-    def set_parameters(self):
+    def add_parameter(self, name, mytype):
+        """ Save a parameter inside the class """
+        self._params[name] = mytype
+
+    def apply_parameters(self):
+        """ Use parameters received via decoration """
 
         ##############################
         # Basic options
@@ -63,25 +68,21 @@ class ExtendedApiResource(Resource):
         # # Extra parameter id for POST updates or key forcing
         # self.parser.add_argument("myid", type=basevalue)
 
-        for (method, params) in self._params.items():
-            print(basevalue)
-            for param, param_type in params.items():
-
-# // TO FIX:
-# no param type selection at the moment
+        for param, param_type in self._params.items():
+            # Decide what is left for this parameter
+            if param_type is None:
                 param_type = basevalue
-                required = False
-                default = ''
+            required = False
+            default = ''
 
-                # I am creating an option to handle arrays:
-                if param_type == 'makearray':
-                    param_type = basevalue
-                    act = 'append'
-                self._parser.add_argument(param, type=param_type, \
-                    default=default, required=required, trim=trim, \
-                    action=act, location=loc)
-                logger.debug("Setting parameters: method %s - '%s' of type %s" \
-                    % (method.upper(), param, param_type))
+            # I am creating an option to handle arrays:
+            if param_type == 'makearray':
+                param_type = basevalue
+                act = 'append'
+            self._parser.add_argument(param, type=param_type, \
+                default=default, required=required, trim=trim, \
+                action=act, location=loc)
+            logger.debug("Accept param '%s', type %s" % (param, param_type))
 
     def remove_id(self):
         """ Avoid the chance to have api/method/:id """

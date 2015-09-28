@@ -11,8 +11,11 @@ http://blog.yhathq.com/posts/11-python-libraries-you-might-not-know.html
 
 DESIGN to plan:
   ☐ Configuration
+  ☐ Exceptions
+    http://flask.pocoo.org/docs/0.10/patterns/apierrors/
   ☐ @Blueprints [and] app @factories
     http://flask-restful.readthedocs.org/en/latest/intermediate-usage.html#use-with-blueprints
+    http://flask.pocoo.org/docs/0.10/patterns/appfactories/
   ☐ A valid @PySix [implementation]
     ☐ e.g. jinja2 compat
   ☐ CHECK: Rest as @classmode
@@ -49,7 +52,12 @@ TO DO:
    ✔ Decorator module @done (15-09-28 09:52)
      ✔ like flask app? @done (15-09-28 09:52)
      ✔ parameters as module @done (15-09-28 09:52)
-   ☐ parameters: parsing @argument
+   ✔ parameters: parsing @argument @done (15-09-28 19:05)
+     ✘ decorat for a class method which also takes arguments is difficult! @cancelled (15-09-28 15:25)
+       ✔ solution? @done (15-09-28 19:05)
+       http://wrapt.readthedocs.org/en/latest/decorators.html#decorating-instance-methods
+       http://scottlobdell.me/2015/04/decorators-arguments-python/
+       ☐ decorators order
      ☐ list
    ☐ also examples of post, put, delete
  ☐ Blog post
@@ -68,7 +76,8 @@ TO FIX:
   ✔ changelog? @done (15-09-26 15:45)
     ✘ https://github.com/skywinder/github-changelog-generator @cancelled (15-09-26 15:45)
   ☐ relative imports
-    ☐ uhm?!?
+    https://exploreflask.com/conventions.html#relative-imports
+    ☐ does not work with 'import .something'! Only with 'from .somewhere import something' ...!?
   ☐ add to project some @libraries
     ☐ https://github.com/danrobinson/tracestack
       from tracestack import trace

@@ -5,11 +5,14 @@
 User configuration
 """
 
-DEBUG = False
+#DEBUG = False
+DEBUG = True
 
 SERVER_HOSTS = '0.0.0.0'
-SERVER_PORT = '5000'
+SERVER_PORT = 5000
 
+# Other configuration files you may use/need inside the 'confs' directory
 LOGGING_CONFIG_FILE = 'logging_config.ini'
-REST_CONFIG_FILE = 'endpoints.ini'
 
+# Use this to specifiy endpoints based on your resources module
+REST_CONFIG_FILE = 'endpoints.ini'

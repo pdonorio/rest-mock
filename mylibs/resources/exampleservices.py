@@ -55,19 +55,18 @@ class FooTwo(ExtendedApiResource):
 ## THIRD EXAMPLE with parameters
 
 ## Works with requests to:
-@decorate.all_api_methods(decorate.standardata)
+# POST /api/another/path
+
+#@decorate.all_api_methods(decorate.standardata)
 class FooThree(ExtendedApiResource):
     """ Example with parameters """
 
-# // TO FIX:
-# Create it with a decorator
-    _params = {
-        "POST": {
-            "test": 'str',
-            "test2": 'int',
-        }
-    }
+    # # Adding parameters with decorator
 
+    @decorate.add_endpoint_parameter(name='test')
+    @decorate.add_endpoint_parameter('test2', ptype=int)
+# // TO FIX
+    @decorate.standardata
     def post(self):
         print(self._args)
 
