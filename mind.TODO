@@ -57,9 +57,11 @@ TO DO:
        ✔ solution? @done (15-09-28 19:05)
        http://wrapt.readthedocs.org/en/latest/decorators.html#decorating-instance-methods
        http://scottlobdell.me/2015/04/decorators-arguments-python/
-       ☐ decorators order
+       ☐ decorators order??
      ☐ list
-   ☐ also examples of post, put, delete
+     ☐ also examples of post, put, delete
+   ☐ standards for extending restful
+   http://flask-restful.readthedocs.org/en/latest/extending.html
  ☐ Blog post
    ☐ ideas, libs, what i will slowly try to reach
 

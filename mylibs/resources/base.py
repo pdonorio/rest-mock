@@ -40,6 +40,13 @@ class ExtendedApiResource(Resource):
         """ Parameters may be necessary at any method """
         self._args = self._parser.parse_args()
 
+    def accepted(self, key=None):
+        if key is None:
+            key = 1
+# // TO FIX:
+# non standard...
+        return key, hcodes.HTTP_OK_CREATED
+
     def fail(self, message="geeric error"):
         return abort(hcodes.HTTP_BAD_REQUEST, message=message)
 
