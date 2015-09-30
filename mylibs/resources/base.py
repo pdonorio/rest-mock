@@ -104,6 +104,8 @@ class ExtendedApiResource(Resource):
     def response(self, obj=None, fail=False, code = hcodes.HTTP_OK_BASIC):
         """ Handle a standard response following some criteria """
 
+# // TO FIX:
+# Automatic?
         response = {
                 'data_type': 'dict',
                 'elements': 1,

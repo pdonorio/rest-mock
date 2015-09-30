@@ -27,6 +27,16 @@ DESIGN to plan:
   ☐ Asynchrounous
     ☐ gunicorn
     ☐ twisted https://github.com/cravler/flask-twisted/
+   In need of documentation:
+     ☐ Sphinx... with markdown?
+     http://sphinxcontrib-napoleon.readthedocs.org/en/latest/ Google style
+     https://read-the-docs.readthedocs.org/en/latest/getting_started.html#in-markdown
+     ☐ Alternatives
+     Yaml + markdown
+       http://www.mkdocs.org/
+     Convert markdown to ReST
+       http://pandoc.org/getting-started.html
+       http://www.unexpected-vortices.com/doc-notes/markdown-and-rest-compared.html
 
 TO DO:
    ✔ Marshals @done (15-09-30 16:50)

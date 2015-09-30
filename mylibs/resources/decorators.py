@@ -25,6 +25,7 @@ logger = get_logger(__name__)
 #################################
 # Adding an identifier to a REST class
 
+# source: https://andrefsp.wordpress.com/2012/08/23/writing-a-class-decorator-in-python/
 def enable_endpoint_identifier(name='myid', idtype='string'):
     """
     Class decorator for ExtendedApiResource objects;
