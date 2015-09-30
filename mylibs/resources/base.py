@@ -26,16 +26,21 @@ class ExtendedApiResource(Resource):
 
     ###################################
     hcode = hcodes.HTTP_OK_BASIC
+
     resource_fields = {
-        'status': fields.Integer,
-        'response': fields.Raw
+        # Hashtype, Vector, String, Int/Float, and so on
+        'data_type': fields.String,
+        # Count
+        'elements': fields.Integer,
+        # The real data
+        'data': fields.Raw,
     }
 
     def response(self, obj=None, fail=False):
         status = hcodes.HTTP_OK_BASIC
+        print(obj)
         if fail:
             status = hcodes.HTTP_BAD_REQUEST
-            print(status)
             abort(status, error=obj)
 
 # // TO FIX:
@@ -43,17 +48,17 @@ class ExtendedApiResource(Resource):
 # Could i add my own encoder for data?
 
         return {
-            'status': status,
-            # Json serialization
-            #'response': json.dumps(obj)
-            'response': obj,
-        }
+            'data_type': 'dict',
+            'elements': 1,
+            'data': obj,
+        } #, status
     ###################################
 
     def __init__(self):
         super(ExtendedApiResource, self).__init__()
-        # Be sure of using JSON
+# NOTE: you can add as many representation as you want!
         self.representations = {
+            # Be sure of handling JSON
             'application/json': output_json,
         }
         # Apply decision about the url of endpoint

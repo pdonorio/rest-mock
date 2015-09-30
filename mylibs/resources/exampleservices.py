@@ -21,37 +21,40 @@ import mylibs.resources.decorators as decorate
 
 @decorate.all_rest_methods(decorate.apimethod)
 class FooOne(ExtendedApiResource):
-    """ Empty example for mock service with no :id """
+    """ Empty example for mock service with no :myid """
 
     def __init__(self):
         super(FooOne, self).__init__()
-        # Make sure to avoid resource /api/foo/:id
+# // TO FIX:
+# use a decorator to add id to method
+        # Make sure to avoid resource /api/foo/:myid
         self.remove_id()
 
     def get(self):
-        return {'hello': 'world'}
+        return self.response('Hello world!')
 
 #####################################
 ## SECOND and more complex EXAMPLE
 
 ## Works with requests to:
 # GET /api/another/path
-# GET /api/another/path/:id
+# GET /api/another/path/:myid
 # POST /api/another/path (with null)
 
 @decorate.all_rest_methods(decorate.apimethod)
 class FooTwo(ExtendedApiResource):
-    """ Example with use of id """
+    """ Example with use of myid """
 
+    # Specify a different endpoint
     endpoint = 'another/path'
 
     def get(self, myid=None):
         logger.debug("Using different endpoint")
 
-        # I want to check if /api/another/path/id is empty
+        # I want to check if /api/another/path/myid is empty
         if myid is not None:
             logger.info("Using data key '%s'" % myid)
-            return self.fail("error")
+            return self.response("error")
 
         obj = {'hello': 'new endpoint'}
         return self.response(obj)
@@ -84,6 +87,8 @@ class FooThree(ExtendedApiResource):
     @decorate.apimethod
     def get(self):
         logger.debug("Received args %s" % self._args)
+# Test an exception
+        #return pippo
         return self.response(self._args)
 
     # Adding parameters with decorator in different ways

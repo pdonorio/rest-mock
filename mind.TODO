@@ -60,12 +60,17 @@ TO DO:
        ✘ decorators order?? @cancelled (14-09-30 07:57)
    ✔ Json output @done (15-09-30 09:08)
      http://flask-restful.readthedocs.org/en/latest/extending.html#response-formats
-   ☐ Conventions? Marshal?
-     ☐ data, code, headers
+   ✔ Conventions? Marshal? @done (15-09-30 14:48)
+     ✘ data, code, headers @cancelled (15-09-30 14:48)
      https://github.com/flask-restful/flask-restful/blob/master/flask_restful/utils/__init__.py#L14
+     ✔ type, count and data @done (15-09-30 14:49)
+   ✔ log exceptions @done (15-09-30 14:49)
    ☐ Types
      ☐ list
      ☐ also examples of post, put, delete
+   ☐ mixed resources
+   UsersByCityAPI, '/api/cities/<int:id>/users'
+   http://stackoverflow.com/a/20722760/2114395
  ☐ Blog post
    ☐ ideas, libs, what i will slowly try to reach
 

@@ -12,6 +12,7 @@ source: http://flask.pocoo.org/snippets/83/
 """
 
 import simplejson as json
+import mylibs.htmlcodes as hcodes
 from flask import Flask, jsonify, make_response
 from werkzeug.exceptions import default_exceptions
 from werkzeug.exceptions import HTTPException
@@ -29,9 +30,9 @@ def make_json_app(import_name, **kwargs):
     """ Creates a JSON-oriented Flask app. """
     def make_json_error(ex):
         response = jsonify(message=str(ex))
-        response.status_code = (ex.code
-                                if isinstance(ex, HTTPException)
-                                else 500)
+        response.status_code = \
+            (ex.code if isinstance(ex, HTTPException)
+                else hcodes.HTTP_DEFAULT_SERVICE_FAIL )
         return response
 
     app = Flask(import_name, **kwargs)

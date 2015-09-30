@@ -32,5 +32,15 @@ else:
         epo.create_single(myclass, endpoint, endkey)
 
 ####################################
+# Custom error handling: save to log
+#http://flask-restful.readthedocs.org/en/latest/extending.html#custom-error-handlers
+def log_exception(sender, exception, **extra):
+    """ Log an exception to our logging framework """
+    sender.logger.error('Got exception during processing: %s', exception)
+
+from flask import got_request_exception
+got_request_exception.connect(log_exception, microservice)
+
+####################################
 # Take this app from main
 microservice.logger.info("*** Our REST API server app is ready ***")
