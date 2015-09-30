@@ -3,43 +3,18 @@
 
 """ Basic Resource """
 
-from mylibs import get_logger
+import mylibs.htmlcodes as hcodes
+from .. import get_logger
+from ..jsonify import output_json
+from flask_restful import Resource, abort, reqparse, fields
+
 logger = get_logger(__name__)
 
 ##############################
-# Json Serialization as written in restful docs
-import simplejson as json
-from flask import make_response
-def output_json(data, code, headers=None):
-    """Makes a Flask response with a JSON encoded body"""
-    resp = make_response(json.dumps(data), code)
-    resp.headers.extend(headers or {})
-    return resp
-
-##############################
-# Define static errors for some codes
-# http://flask-restful.readthedocs.org/en/latest/extending.html#define-custom-error-messages
-import mylibs.htmlcodes as hcodes
-errors = {
-    'UserAlreadyExistsError': {
-        'message': "A user with that username already exists.",
-        'status': hcodes.HTTP_BAD_REQUEST,
-    },
-    'ResourceDoesNotExist': {
-        'message': "A resource with that ID no longer exists.",
-        'status': hcodes.HTTP_BAD_RESOURCE,
-        'extra': "Any extra information you want.",
-    },
-}
-
-##############################
 # Extending the concept of rest generic resource
-from flask_restful import Resource, abort, reqparse, fields
-
 class ExtendedApiResource(Resource):
     """
     Implement a generic Resource for Restful model.
-
     Note: PUT method differs from POST because data_key is mandatory.
     """
 
@@ -54,7 +29,6 @@ class ExtendedApiResource(Resource):
     resource_fields = {
         'status': fields.Integer,
         'response': fields.Raw
-        #'response': fields.String(default='Empty message'),
     }
 
     def response(self, obj=None, fail=False):
@@ -62,7 +36,7 @@ class ExtendedApiResource(Resource):
         if fail:
             status = hcodes.HTTP_BAD_REQUEST
             print(status)
-            abort(status) #, error=obj)
+            abort(status, error=obj)
 
 # // TO FIX:
 # How to avoid in abort case?

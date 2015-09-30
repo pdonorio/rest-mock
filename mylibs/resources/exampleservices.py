@@ -7,10 +7,10 @@
 # see some examples here to take inspiration
 # https://parse.com/docs/rest/guide
 
-from mylibs import get_logger
+from .. import get_logger
 logger = get_logger(__name__)
 
-from mylibs.resources.base import ExtendedApiResource
+from .base import ExtendedApiResource
 import mylibs.resources.decorators as decorate
 
 #####################################

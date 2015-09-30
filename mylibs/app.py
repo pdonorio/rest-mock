@@ -5,22 +5,12 @@
 App specifications
 """
 
-from mylibs.server import microservice, rest_api
-from mylibs.resources.endpoints import Endpoints
-from mylibs.config import MyConfigs
+from .server import microservice, rest_api
+from .resources.endpoints import Endpoints
+from .config import MyConfigs
 
-from mylibs import get_logger
+from . import get_logger
 logger = get_logger(__name__)
-
-######################################################
-# from flask import Response
-# from mylibs.resources.base import errors
-# for key, error in errors.items():
-#     print(error)
-#     # http://stackoverflow.com/a/8316995/2114395
-#     @microservice.errorhandler(400)
-#     def custom_400(error):
-#         return Response('<Why access is denied string goes here...>', 400, {'WWWAuthenticate':'Basic realm="Login Required"'})
 
 ######################################################
 # From my code: defining automatic Resources

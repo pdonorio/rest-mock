@@ -20,10 +20,10 @@ http://flask-restful.readthedocs.org/en/latest/fields.html#advanced-nested-field
 
 """
 
-from mylibs import get_logger
+from .. import get_logger
 logger = get_logger(__name__)
 
-from flask_restful import marshal_with, marshal
+from flask_restful import marshal
 
 #################################
 # This decorator took me quite a lot of time
