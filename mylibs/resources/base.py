@@ -10,23 +10,17 @@ from flask_restful import Resource, abort, reqparse, fields
 
 logger = get_logger(__name__)
 
-##############################
 # Extending the concept of rest generic resource
 class ExtendedApiResource(Resource):
-    """
-    Implement a generic Resource for Restful model.
-    Note: PUT method differs from POST because data_key is mandatory.
-    """
+    """ Implement a generic Resource for Restful model """
 
     myname = __name__
     _args = {}
     _params = {}
     endpoint = None
     endtype = 'string:myid'
-
-    ###################################
     hcode = hcodes.HTTP_OK_BASIC
-
+    # How to have a standard response
     resource_fields = {
         # Hashtype, Vector, String, Int/Float, and so on
         'data_type': fields.String,
@@ -35,24 +29,6 @@ class ExtendedApiResource(Resource):
         # The real data
         'data': fields.Raw,
     }
-
-    def response(self, obj=None, fail=False):
-        status = hcodes.HTTP_OK_BASIC
-        print(obj)
-        if fail:
-            status = hcodes.HTTP_BAD_REQUEST
-            abort(status, error=obj)
-
-# // TO FIX:
-# How to avoid in abort case?
-# Could i add my own encoder for data?
-
-        return {
-            'data_type': 'dict',
-            'elements': 1,
-            'data': obj,
-        } #, status
-    ###################################
 
     def __init__(self):
         super(ExtendedApiResource, self).__init__()
@@ -120,6 +96,30 @@ class ExtendedApiResource(Resource):
                 action=act, location=loc)
             logger.debug("Accept param '%s', type %s" % (param, param_type))
 
+# // TO FIX:
+# Becomes a decorator instead, specifying also the name of the key
     def remove_id(self):
         """ Avoid the chance to have api/method/:id """
         self.endtype = None
+
+    def response(self, obj=None, fail=False):
+        """ Handle a standard response following some criteria """
+
+        status = hcodes.HTTP_OK_BASIC
+        response = {
+                'data_type': 'dict',
+                'elements': 1,
+                'data': obj,
+            }
+# // TO FIX:
+# Specify status? In the decorator?
+            #, status
+
+        # I want to use the same marshal also if i say "fail"
+        if fail:
+            status = hcodes.HTTP_BAD_REQUEST
+            abort(status, **response)
+# // TO FIX:
+        # How to force exceptions?
+
+        return response

@@ -30,6 +30,30 @@ DESIGN to plan:
 
 TO DO:
 
+   ☐ Marshals
+     ☐ force in exceptions?
+     http://flask.pocoo.org/docs/0.10/patterns/apierrors/
+   ☐ Types
+     ☐ list
+     ☐ also examples of post, put, delete
+   ☐ mixed resources
+   UsersByCityAPI, '/api/cities/<int:id>/users'
+   http://stackoverflow.com/a/20722760/2114395
+ ☐ Blog post
+   ☐ ideas, libs, what i will slowly try to reach
+
+TO FIX:
+  ☐ relative imports
+    https://exploreflask.com/conventions.html#relative-imports
+    ☐ does not work with 'import .something'! Only with 'from .somewhere import something' ...!?
+  ☐ add to project some @libraries
+    ☐ https://github.com/danrobinson/tracestack
+      from tracestack import trace
+      >>> @trace
+      >>> def divide_by_zero():
+      ...     1 / 0
+
+COMPLETED:
  ✔ restful code and test @done (15-09-10 13:14)
  ✔ restful refactoring @done (15-09-10 15:44)
    ✔ package with resources @done (15-09-10 14:52)
@@ -65,16 +89,6 @@ TO DO:
      https://github.com/flask-restful/flask-restful/blob/master/flask_restful/utils/__init__.py#L14
      ✔ type, count and data @done (15-09-30 14:49)
    ✔ log exceptions @done (15-09-30 14:49)
-   ☐ Types
-     ☐ list
-     ☐ also examples of post, put, delete
-   ☐ mixed resources
-   UsersByCityAPI, '/api/cities/<int:id>/users'
-   http://stackoverflow.com/a/20722760/2114395
- ☐ Blog post
-   ☐ ideas, libs, what i will slowly try to reach
-
-TO FIX:
   ✔ logging function (see irods2graph) @done (15-09-25 22:19)
   ✔ cors @done (15-09-11 12:46)
   ✔ logging @done (15-09-11 11:07)
@@ -86,12 +100,3 @@ TO FIX:
   ✔ Decorate all methods in a class with a decorator @cool @done (15-09-26 12:42)
   ✔ changelog? @done (15-09-26 15:45)
     ✘ https://github.com/skywinder/github-changelog-generator @cancelled (15-09-26 15:45)
-  ☐ relative imports
-    https://exploreflask.com/conventions.html#relative-imports
-    ☐ does not work with 'import .something'! Only with 'from .somewhere import something' ...!?
-  ☐ add to project some @libraries
-    ☐ https://github.com/danrobinson/tracestack
-      from tracestack import trace
-      >>> @trace
-      >>> def divide_by_zero():
-      ...     1 / 0
