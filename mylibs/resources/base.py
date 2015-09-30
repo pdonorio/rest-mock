@@ -17,9 +17,24 @@ def output_json(data, code, headers=None):
     return resp
 
 ##############################
+# Define static errors for some codes
+# http://flask-restful.readthedocs.org/en/latest/extending.html#define-custom-error-messages
+import mylibs.htmlcodes as hcodes
+errors = {
+    'UserAlreadyExistsError': {
+        'message': "A user with that username already exists.",
+        'status': hcodes.HTTP_BAD_REQUEST,
+    },
+    'ResourceDoesNotExist': {
+        'message': "A resource with that ID no longer exists.",
+        'status': hcodes.HTTP_BAD_RESOURCE,
+        'extra': "Any extra information you want.",
+    },
+}
+
+##############################
 # Extending the concept of rest generic resource
 from flask_restful import Resource, abort, reqparse, fields
-import mylibs.htmlcodes as hcodes
 
 class ExtendedApiResource(Resource):
     """
@@ -46,7 +61,8 @@ class ExtendedApiResource(Resource):
         status = hcodes.HTTP_OK_BASIC
         if fail:
             status = hcodes.HTTP_BAD_REQUEST
-            abort(status, error=obj)
+            print(status)
+            abort(status) #, error=obj)
 
 # // TO FIX:
 # How to avoid in abort case?

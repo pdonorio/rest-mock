@@ -61,6 +61,9 @@ TO DO:
    ✔ Json output @done (15-09-30 09:08)
      http://flask-restful.readthedocs.org/en/latest/extending.html#response-formats
    ☐ Conventions? Marshal?
+     ☐ data, code, headers
+     https://github.com/flask-restful/flask-restful/blob/master/flask_restful/utils/__init__.py#L14
+   ☐ Types
      ☐ list
      ☐ also examples of post, put, delete
  ☐ Blog post

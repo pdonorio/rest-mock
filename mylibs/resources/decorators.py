@@ -78,7 +78,7 @@ def apimethod(func):
         # Debug
         class_name = self.__class__.__name__
         method_name = func.__name__.upper()
-        logger.debug("[Class: %s] %s request" % \
+        logger.info("[Class: %s] %s request" % \
             (class_name, method_name) )
 
         # Call the parse method
