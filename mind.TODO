@@ -11,7 +11,7 @@ http://blog.yhathq.com/posts/11-python-libraries-you-might-not-know.html
 
 DESIGN to plan:
   ☐ Configuration
-  ☐ Exceptions
+  ✔ Exceptions @done (15-09-30 16:50)
     http://flask.pocoo.org/docs/0.10/patterns/apierrors/
   ☐ @Blueprints [and] app @factories
     http://flask-restful.readthedocs.org/en/latest/intermediate-usage.html#use-with-blueprints
@@ -29,9 +29,9 @@ DESIGN to plan:
     ☐ twisted https://github.com/cravler/flask-twisted/
 
 TO DO:
-   ☐ Marshals
-     ☐ force in exceptions?
-     http://flask.pocoo.org/docs/0.10/patterns/apierrors/
+   ✔ Marshals @done (15-09-30 16:50)
+     ✘ force in exceptions? @cancelled (15-09-30 16:50)
+   ✔ Key id as class decorator @done (15-09-30 17:47)
    ☐ Types
      ☐ list
      ☐ also examples of post, put, delete

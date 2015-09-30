@@ -18,8 +18,8 @@ class ExtendedApiResource(Resource):
     myname = __name__
     _args = {}
     _params = {}
+    endtype = None
     endpoint = None
-    endtype = 'string:myid'
     hcode = hcodes.HTTP_OK_BASIC
     # How to have a standard response
     resource_fields = {
@@ -97,11 +97,9 @@ class ExtendedApiResource(Resource):
                 action=act, location=loc)
             logger.debug("Accept param '%s', type %s" % (param, param_type))
 
-# // TO FIX:
-# Becomes a decorator instead, specifying also the name of the key
-    def remove_id(self):
-        """ Avoid the chance to have api/method/:id """
-        self.endtype = None
+    def set_method_id(self, name='myid', idtype='string'):
+        """ How to have api/method/:id route possible"""
+        self.endtype = idtype + ':' + name
 
     def response(self, obj=None, fail=False, code = hcodes.HTTP_OK_BASIC):
         """ Handle a standard response following some criteria """
@@ -125,8 +123,4 @@ class ExtendedApiResource(Resource):
             else:
                 # Normal abort
                 abort(code, **response)
-
-# // TO FIX:
-        # How to force exceptions?
-
         return response

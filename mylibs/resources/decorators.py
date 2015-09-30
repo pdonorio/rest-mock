@@ -2,7 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """
-Decorating my resources.
+Decorating my REST API resources.
+
+Decorate is a cool but dangerous place in Python i guess.
+Here i am testing different kind of decorations for different problems.
+
+YET TO TEST: from functools import wraps
 
 Restful resources are Flask Views classes. Docs talks about their decoration:
 http://flask-restful.readthedocs.org/en/latest/extending.html#resource-method-decorators
@@ -11,22 +16,35 @@ http://flask.pocoo.org/docs/0.10/views/#decorating-views
 
 I didn't manage to have it play the way docs require, so i tested some slightly
 different solutions.
-YET TO TEST: from functools import wraps
-
-Also
-Restful suggests to use "with marshal" for nested outputs:
-http://flask-restful.readthedocs.org/en/latest/fields.html#advanced-nested-field
-
-
 """
 
+from flask_restful import marshal
 from .. import get_logger
 logger = get_logger(__name__)
 
-from flask_restful import marshal
+#################################
+# Adding an identifier to a REST class
+
+def enable_endpoint_identifier(name='myid', idtype='string'):
+    """
+    Class decorator for ExtendedApiResource objects;
+    Enable identifier and let you choose name and type.
+    """
+    def class_rebuilder(cls):   #decorator
+        class NewClass(cls):    #decorated
+            # Rewrite init
+            def __init__(self):
+                logger.info("[%s] Applying ID to endopoint:%s of type '%s'" \
+                    % (self.__class__.__name__, name, idtype))
+                self.set_method_id(name, idtype)
+                print("New init", name, idtype)
+                super(cls, self).__init__()
+        return NewClass
+    return class_rebuilder
 
 #################################
-# This decorator took me quite a lot of time
+# Adding a parameter to method
+# ...this decorator took me quite a lot of time...
 
 # In fact, it is a decorator which requires special points:
 # 1. chaining: more than one decorator of the same type stacked

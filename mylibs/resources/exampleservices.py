@@ -16,18 +16,11 @@ import mylibs.resources.decorators as decorate
 #####################################
 ## FIRST simple EXAMPLE
 
-## Works with requests to:
+## Works with request(s) to:
 # GET /api/foo
 
 class FooOne(ExtendedApiResource):
     """ Empty example for mock service with no :myid """
-
-    def __init__(self):
-        super(FooOne, self).__init__()
-# // TO FIX:
-# use a decorator to add id to method
-        # Make sure to avoid resource /api/foo/:myid
-        self.remove_id()
 
     @decorate.apimethod
     def get(self):
@@ -38,9 +31,10 @@ class FooOne(ExtendedApiResource):
 
 ## Works with requests to:
 # GET /api/another/path
-# GET /api/another/path/:myid
-# POST /api/another/path (with null)
+# GET /api/another/path/:identifier
+# POST /api/another/path (respond with null)
 
+@decorate.enable_endpoint_identifier('identifier')
 class FooTwo(ExtendedApiResource):
     """ Example with use of myid """
 
@@ -48,19 +42,21 @@ class FooTwo(ExtendedApiResource):
     endpoint = 'another/path'
 
     @decorate.apimethod
-    def get(self, myid=None):
+    def get(self, identifier=None):
         logger.debug("Using different endpoint")
+        key = 'hello'
 
-        # I want to check if /api/another/path/myid is empty
-        if myid is not None:
-            logger.info("Using data key '%s'" % myid)
-            return self.response("error")
+        # I want to check if /api/another/path/identifier is empty
+        if identifier is not None:
+            key += ' ' + identifier
+            logger.info("Using data key '%s'" % identifier)
+            #return self.response("error")
 
-        obj = {'hello': 'new endpoint'}
+        obj = {key: 'new endpoint'}
         return self.response(obj)
 
     @decorate.apimethod
-    def post(self):
+    def post(self, identifier=None):
         """ I do nothing """
         pass
 
