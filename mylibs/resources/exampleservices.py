@@ -47,13 +47,17 @@ class FooTwo(ExtendedApiResource):
 
     def get(self, myid=None):
         logger.debug("Using different endpoint")
+
         # I want to check if /api/another/path/id is empty
         if myid is not None:
             logger.info("Using data key '%s'" % myid)
             return self.fail("error")
-        return {'hello': 'new endpoint'}
+
+        obj = {'hello': 'new endpoint'}
+        return self.response(obj)
 
     def post(self):
+        """ I do nothing """
         pass
 
 #####################################
@@ -80,7 +84,7 @@ class FooThree(ExtendedApiResource):
     @decorate.apimethod
     def get(self):
         logger.debug("Received args %s" % self._args)
-        return self._args
+        return self.response(self._args)
 
     # Adding parameters with decorator in different ways
     @decorate.add_endpoint_parameter('arg1', str)
@@ -89,5 +93,6 @@ class FooThree(ExtendedApiResource):
     @decorate.apimethod
     def post(self):
         logger.debug("Received args %s" % self._args)
-        return self.accepted('three [arg3: %s]' % self._args['arg3'])
+        return self.response(self._args, fail=True)
         #return self.fail()
+        #return self.accepted('three [arg3: %s]' % self._args['arg3'])

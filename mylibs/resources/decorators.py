@@ -23,6 +23,8 @@ http://flask-restful.readthedocs.org/en/latest/fields.html#advanced-nested-field
 from mylibs import get_logger
 logger = get_logger(__name__)
 
+from flask_restful import marshal_with, marshal
+
 #################################
 # This decorator took me quite a lot of time
 
@@ -67,27 +69,27 @@ class add_endpoint_parameter(object):
 # N.B. will change it for marshmallow?
 # http://marshmallow.readthedocs.org/en/latest/
 
-import simplejson as json
-
 def apimethod(func):
     """ 
     Decorate methods to return the most standard json data
     and also to parse available args before using them in the function
     """
     def wrapper(self, *args, **kwargs):
+        # Debug
         class_name = self.__class__.__name__
         method_name = func.__name__.upper()
         logger.debug("[Class: %s] %s request" % \
             (class_name, method_name) )
+
         # Call the parse method
         self.apply_parameters()
         self.parse()
-        data = func(self, *args, **kwargs)
-# // TO FIX:
-# How to avoid in abort case?
-# Could i add my own encoder for data?
-        # Json serialization
-        return json.dumps(data)
+
+        # Call the wrapped function
+        out = func(self, *args, **kwargs)
+
+        # Set standards for my response as specified in base.py
+        return marshal(out, self.resource_fields)
     return wrapper
 
 ##############################

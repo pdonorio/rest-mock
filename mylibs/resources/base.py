@@ -8,8 +8,13 @@ logger = get_logger(__name__)
 
 ##############################
 # Extending the concept of rest generic resource
-from flask_restful import Resource, abort, reqparse
+from flask_restful import Resource, abort, reqparse, fields
 import mylibs.htmlcodes as hcodes
+
+######################################
+import simplejson as json
+
+######################################
 
 class ExtendedApiResource(Resource):
     """
@@ -19,10 +24,36 @@ class ExtendedApiResource(Resource):
     """
 
     myname = __name__
+    _args = {}
     _params = {}
     endpoint = None
     endtype = 'string:myid'
-    _args = {}
+
+    ###################################
+    hcode = hcodes.HTTP_OK_BASIC
+    resource_fields = {
+        'status': fields.Integer,
+        'response': fields.Raw
+        #'response': fields.String(default='Empty message'),
+    }
+
+    def response(self, obj=None, fail=False):
+        status = hcodes.HTTP_OK_BASIC
+        if fail:
+            status = hcodes.HTTP_BAD_REQUEST
+            abort(status, error=obj)
+
+# // TO FIX:
+# How to avoid in abort case?
+# Could i add my own encoder for data?
+
+        return {
+            'status': status,
+            # Json serialization
+            #'response': json.dumps(obj)
+            'response': obj,
+        }
+    ###################################
 
     def __init__(self):
         super(ExtendedApiResource, self).__init__()
@@ -39,16 +70,6 @@ class ExtendedApiResource(Resource):
     def parse(self):
         """ Parameters may be necessary at any method """
         self._args = self._parser.parse_args()
-
-    def accepted(self, key=None):
-        if key is None:
-            key = 1
-# // TO FIX:
-# non standard...
-        return key, hcodes.HTTP_OK_CREATED
-
-    def fail(self, message="geeric error"):
-        return abort(hcodes.HTTP_BAD_REQUEST, message=message)
 
     def set_endpoint(self):
         if self.endpoint is None:
