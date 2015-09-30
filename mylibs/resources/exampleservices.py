@@ -42,6 +42,7 @@ class FooOne(ExtendedApiResource):
 @decorate.all_rest_methods(decorate.apimethod)
 class FooTwo(ExtendedApiResource):
     """ Example with use of id """
+
     endpoint = 'another/path'
 
     def get(self, myid=None):
@@ -59,26 +60,34 @@ class FooTwo(ExtendedApiResource):
 ## THIRD EXAMPLE with parameters
 
 ## Works with requests to:
-# POST /api/another/path
+# GET /api/another/path?myarg=a
+# POST /api/another/path?arg2=3&arg3=test
 
-#@decorate.all_rest_methods(decorate.apimethod)
 class FooThree(ExtendedApiResource):
-    """ Example with parameters """
+    """
+    Example with parameters.
 
-    # Adding parameters with decorator
-    @decorate.add_endpoint_parameter(name='test')
-    @decorate.add_endpoint_parameter('test2', ptype=int)
+    Add as many parameter in a decorator stack on top of the method.
+
+    BEWARE that to make this work you cannot apply the decorator 'apimethod'
+    as before to the whole class with the class decorator. It has to be as
+    the most inner decorator of the method itself,
+    OTHERWISE NO PARAMETERS WILL BE SEEN.
+    """
+
+    # Adding parameter with decorator
+    @decorate.add_endpoint_parameter('myarg')
+    @decorate.apimethod
+    def get(self):
+        logger.debug("Received args %s" % self._args)
+        return self._args
+
+    # Adding parameters with decorator in different ways
+    @decorate.add_endpoint_parameter('arg1', str)
+    @decorate.add_endpoint_parameter('arg2', ptype=int)
+    @decorate.add_endpoint_parameter(name='arg3', ptype=str)
     @decorate.apimethod
     def post(self):
         logger.debug("Received args %s" % self._args)
-        return self.accepted('three')
+        return self.accepted('three [arg3: %s]' % self._args['arg3'])
         #return self.fail()
-
-"""
-Note to self: [YET TO TEST]
-
-You cannot add different parameters inside the same Resource / Class.
-
-In fact you should create a separate resource each time parameters differs
-and then bind the two resources into the same endpoint:
-"""

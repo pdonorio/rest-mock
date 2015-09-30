@@ -79,8 +79,10 @@ class ExtendedApiResource(Resource):
             # Decide what is left for this parameter
             if param_type is None:
                 param_type = basevalue
+# // TO FIX:
+# let the user specify if it's required
             required = False
-            default = ''
+            default = None
 
             # I am creating an option to handle arrays:
             if param_type == 'makearray':

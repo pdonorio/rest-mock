@@ -4,14 +4,20 @@
 """
 Decorating my resources.
 
-Restful resources are Flask Views classes.
-The documentation talks about their decoration:
+Restful resources are Flask Views classes. Docs talks about their decoration:
 http://flask-restful.readthedocs.org/en/latest/extending.html#resource-method-decorators
-So you also have to read better this section of Flask itself:
+So... you should also read better this section of Flask itself:
 http://flask.pocoo.org/docs/0.10/views/#decorating-views
 
+I didn't manage to have it play the way docs require, so i tested some slightly
+different solutions.
+YET TO TEST: from functools import wraps
+
+Also
 Restful suggests to use "with marshal" for nested outputs:
 http://flask-restful.readthedocs.org/en/latest/fields.html#advanced-nested-field
+
+
 """
 
 from mylibs import get_logger
@@ -36,7 +42,6 @@ class add_endpoint_parameter(object):
 
     def __call__(self, fn, *args, **kwargs):
 
-        #print("CALLED add parameter")
         params = {
             'name': self.name,
             'mytype': self.ptype,
@@ -70,7 +75,6 @@ def apimethod(func):
     and also to parse available args before using them in the function
     """
     def wrapper(self, *args, **kwargs):
-        #print("CALLED standardata")
         class_name = self.__class__.__name__
         method_name = func.__name__.upper()
         logger.debug("[Class: %s] %s request" % \
@@ -83,8 +87,7 @@ def apimethod(func):
 # How to avoid in abort case?
 # Could i add my own encoder for data?
         # Json serialization
-        jdata = json.dumps(data)
-        return jdata
+        return json.dumps(data)
     return wrapper
 
 ##############################
@@ -101,7 +104,6 @@ def all_rest_methods(decorator):
     api_methods = ['get', 'post', 'put', 'delete']
 
     def decorate(cls):
-        #print("CALLED decorate all methods")
         # there's propably a better way to do this
         for attr in cls.__dict__:
             # Check if method and in it's in my list
