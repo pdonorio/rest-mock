@@ -58,7 +58,7 @@ TO DO:
        http://wrapt.readthedocs.org/en/latest/decorators.html#decorating-instance-methods
        http://scottlobdell.me/2015/04/decorators-arguments-python/
        ✘ decorators order?? @cancelled (14-09-30 07:57)
-   ☐ Json output
+   ✔ Json output @done (15-09-30 09:08)
      http://flask-restful.readthedocs.org/en/latest/extending.html#response-formats
    ☐ Conventions? Marshal?
      ☐ list

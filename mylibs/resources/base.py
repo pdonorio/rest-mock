@@ -7,14 +7,19 @@ from mylibs import get_logger
 logger = get_logger(__name__)
 
 ##############################
+# Json Serialization as written in restful docs
+import simplejson as json
+from flask import make_response
+def output_json(data, code, headers=None):
+    """Makes a Flask response with a JSON encoded body"""
+    resp = make_response(json.dumps(data), code)
+    resp.headers.extend(headers or {})
+    return resp
+
+##############################
 # Extending the concept of rest generic resource
 from flask_restful import Resource, abort, reqparse, fields
 import mylibs.htmlcodes as hcodes
-
-######################################
-import simplejson as json
-
-######################################
 
 class ExtendedApiResource(Resource):
     """
@@ -57,7 +62,13 @@ class ExtendedApiResource(Resource):
 
     def __init__(self):
         super(ExtendedApiResource, self).__init__()
+        # Be sure of using JSON
+        self.representations = {
+            'application/json': output_json,
+        }
+        # Apply decision about the url of endpoint
         self.set_endpoint()
+        # Make sure you can parse arguments at every call
         self._parser = reqparse.RequestParser()
 
     @staticmethod
