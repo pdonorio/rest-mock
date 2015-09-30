@@ -19,7 +19,6 @@ import mylibs.resources.decorators as decorate
 ## Works with requests to:
 # GET /api/foo
 
-@decorate.all_rest_methods(decorate.apimethod)
 class FooOne(ExtendedApiResource):
     """ Empty example for mock service with no :myid """
 
@@ -30,6 +29,7 @@ class FooOne(ExtendedApiResource):
         # Make sure to avoid resource /api/foo/:myid
         self.remove_id()
 
+    @decorate.apimethod
     def get(self):
         return self.response('Hello world!')
 
@@ -41,13 +41,13 @@ class FooOne(ExtendedApiResource):
 # GET /api/another/path/:myid
 # POST /api/another/path (with null)
 
-@decorate.all_rest_methods(decorate.apimethod)
 class FooTwo(ExtendedApiResource):
     """ Example with use of myid """
 
     # Specify a different endpoint
     endpoint = 'another/path'
 
+    @decorate.apimethod
     def get(self, myid=None):
         logger.debug("Using different endpoint")
 
@@ -59,6 +59,7 @@ class FooTwo(ExtendedApiResource):
         obj = {'hello': 'new endpoint'}
         return self.response(obj)
 
+    @decorate.apimethod
     def post(self):
         """ I do nothing """
         pass
@@ -73,13 +74,10 @@ class FooTwo(ExtendedApiResource):
 class FooThree(ExtendedApiResource):
     """
     Example with parameters.
-
     Add as many parameter in a decorator stack on top of the method.
 
-    BEWARE that to make this work you cannot apply the decorator 'apimethod'
-    as before to the whole class with the class decorator. It has to be as
-    the most inner decorator of the method itself,
-    OTHERWISE NO PARAMETERS WILL BE SEEN.
+    BEWARE: the decorator 'apimethod' has to be the innermost in the stack
+    OTHERWISE NO PARAMETERS WILL BE SEEN
     """
 
     # Adding parameter with decorator
@@ -99,5 +97,3 @@ class FooThree(ExtendedApiResource):
     def post(self):
         logger.debug("Received args %s" % self._args)
         return self.response(self._args, fail=True)
-        #return self.fail()
-        #return self.accepted('three [arg3: %s]' % self._args['arg3'])

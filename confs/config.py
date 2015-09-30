@@ -7,6 +7,8 @@ User configuration
 
 #DEBUG = False
 DEBUG = True
+#STACKTRACE = True
+STACKTRACE = False
 
 SERVER_HOSTS = '0.0.0.0'
 SERVER_PORT = 5000

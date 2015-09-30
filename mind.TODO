@@ -29,7 +29,6 @@ DESIGN to plan:
     ☐ twisted https://github.com/cravler/flask-twisted/
 
 TO DO:
-
    ☐ Marshals
      ☐ force in exceptions?
      http://flask.pocoo.org/docs/0.10/patterns/apierrors/

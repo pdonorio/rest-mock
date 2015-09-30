@@ -4,9 +4,10 @@
 """ Basic Resource """
 
 import mylibs.htmlcodes as hcodes
+from confs.config import STACKTRACE
 from .. import get_logger
-from ..jsonify import output_json
-from flask_restful import Resource, abort, reqparse, fields
+from ..jsonify import output_json, RESTError
+from flask_restful import Resource, reqparse, fields, abort
 
 logger = get_logger(__name__)
 
@@ -102,23 +103,29 @@ class ExtendedApiResource(Resource):
         """ Avoid the chance to have api/method/:id """
         self.endtype = None
 
-    def response(self, obj=None, fail=False):
+    def response(self, obj=None, fail=False, code = hcodes.HTTP_OK_BASIC):
         """ Handle a standard response following some criteria """
 
-        status = hcodes.HTTP_OK_BASIC
         response = {
                 'data_type': 'dict',
                 'elements': 1,
                 'data': obj,
             }
 # // TO FIX:
-# Specify status? In the decorator?
-            #, status
+# Specify status?
+# Can i recover it inside the decorator code???
+            #, code
 
         # I want to use the same marshal also if i say "fail"
         if fail:
-            status = hcodes.HTTP_BAD_REQUEST
-            abort(status, **response)
+            code = hcodes.HTTP_BAD_REQUEST
+            if STACKTRACE:
+                # I could raise my exception if i need again stacktrace
+                raise RESTError(obj, status_code=code)
+            else:
+                # Normal abort
+                abort(code, **response)
+
 # // TO FIX:
         # How to force exceptions?
 

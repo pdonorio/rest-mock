@@ -5,11 +5,13 @@
 App specifications
 """
 
+from flask import got_request_exception, jsonify
 from .server import microservice, rest_api
 from .resources.endpoints import Endpoints
 from .config import MyConfigs
-
+from .jsonify import log_exception, RESTError
 from . import get_logger
+
 logger = get_logger(__name__)
 
 ######################################################
@@ -33,13 +35,15 @@ else:
 
 ####################################
 # Custom error handling: save to log
-#http://flask-restful.readthedocs.org/en/latest/extending.html#custom-error-handlers
-def log_exception(sender, exception, **extra):
-    """ Log an exception to our logging framework """
-    sender.logger.error('Got exception during processing: %s', exception)
-
-from flask import got_request_exception
 got_request_exception.connect(log_exception, microservice)
+
+####################################
+# Custom exception
+@microservice.errorhandler(RESTError)
+def handle_invalid_usage(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
 
 ####################################
 # Take this app from main
