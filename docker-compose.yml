@@ -6,7 +6,7 @@ rest:
   hostname: restapi
   command: ./run.py
   # DEBUG
-  #command: sleep 1234567890
+  #command: sleep infinity
   tty: true
   stdin_open: true
 #########################
@@ -17,3 +17,14 @@ rest:
   volumes:
     - .:/code:rw
   working_dir: /code
+
+# # Access http://IP:80/admin/user/
+# tests:
+#   image: pdonorio/py3api
+#   hostname: justatest
+#   command: sleep infinity
+#   ports:
+#     - 80:5000
+#   volumes:
+#     - ./flasktests:/code:rw
+#   working_dir: /code

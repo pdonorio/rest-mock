@@ -9,7 +9,12 @@ GUIDELINES:
 - other libraries
 http://blog.yhathq.com/posts/11-python-libraries-you-might-not-know.html
 
-DESIGN to plan:
+TODO:
+ ☐ Flask security
+   ☐ working snippet
+ ☐ Flask admin users and roles
+   ✔ working snippet @done (15-11-18 17:47)
+
   ☐ Configuration
   ✔ Exceptions @done (15-09-30 16:50)
     http://flask.pocoo.org/docs/0.10/patterns/apierrors/

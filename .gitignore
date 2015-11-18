@@ -1,3 +1,6 @@
+# sqllite dbs
+*.db
+
 # Configurations
 confs/endpoints.ini
 
