@@ -18,13 +18,14 @@ rest:
     - .:/code:rw
   working_dir: /code
 
-# # Access http://IP:80/admin/user/
-# tests:
-#   image: pdonorio/py3api
-#   hostname: justatest
-#   command: sleep infinity
-#   ports:
-#     - 80:5000
-#   volumes:
-#     - ./flasktests:/code:rw
-#   working_dir: /code
+# Access http://IP:80/admin/user/
+tests:
+  image: pdonorio/py3api
+  hostname: justatest
+  #command: sleep infinity
+  command: python3 admin.py
+  ports:
+    - 8888:5000
+  volumes:
+    - ./flasktests:/code:rw
+  working_dir: /code

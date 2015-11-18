@@ -8,11 +8,11 @@ import os
 from flask import Flask
 
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask_admin import Admin
+from flask_admin import Admin, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-dbfile = os.path.join(BASE_DIR, __name__ + '.db')
+dbfile = os.path.join(BASE_DIR, 'testmodels.db')
 # flask conf
 DEBUG= True
 HOST= '0.0.0.0'
@@ -23,7 +23,7 @@ SQLALCHEMY_TRACK_MODIFICATIONS= False
 
 #############################
 # Create application
-app = Flask(__name__)
+app = Flask(__name__, template_folder=BASE_DIR)
 app.config.from_object(__name__)
 db = SQLAlchemy(app)
 
@@ -41,9 +41,7 @@ db.create_all()
 
 #############################
 admin = Admin(app, name='microblog', template_mode='bootstrap3')
-# Add administrative views here
 admin.add_view(ModelView(User, db.session))
-
 
 #############################
 if __name__ == '__main__':
