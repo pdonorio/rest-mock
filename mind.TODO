@@ -16,11 +16,12 @@ DESIGN to plan:
   ☐ @Blueprints [and] app @factories
     http://flask-restful.readthedocs.org/en/latest/intermediate-usage.html#use-with-blueprints
     http://flask.pocoo.org/docs/0.10/patterns/appfactories/
-  ☐ A valid @PySix [implementation]
-    ☐ e.g. jinja2 compat
+
   ☐ CHECK: Rest as @classmode
     ☐ Flask Classy - https://github.com/apiguy/flask-classy/
     ☐ What about other rest libs http://stackoverflow.com/a/23947463/2114395
+    ☐ apispec https://github.com/jmcarp/flask-apispec (and restful plus)
+
   ☐ Tests: noose?
   ☐ Data @validation
     ☐ http://docs.python-cerberus.org/en/latest/
@@ -37,6 +38,8 @@ DESIGN to plan:
      Convert markdown to ReST
        http://pandoc.org/getting-started.html
        http://www.unexpected-vortices.com/doc-notes/markdown-and-rest-compared.html
+  ☐ A valid @PySix [implementation]
+    ☐ e.g. jinja2 compat
 
 TO DO:
    ✔ Marshals @done (15-09-30 16:50)
