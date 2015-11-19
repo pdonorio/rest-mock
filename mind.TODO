@@ -11,7 +11,7 @@ http://blog.yhathq.com/posts/11-python-libraries-you-might-not-know.html
 
 TODO:
  ☐ Flask security
-   ☐ working snippet
+   ✔ working snippet @done (15-11-19 10:30)
  ☐ Flask admin users and roles
    ✔ working snippet @done (15-11-18 17:47)
 
