@@ -1,5 +1,21 @@
 # -*- coding: utf-8 -*-
-""" A secured app """
+"""
+A secured app from:
+https://pythonhosted.org/Flask-Security/quickstart.html
+Using the blog post:
+http://mandarvaze.github.io/2015/01/token-auth-with-flask-security.html
+
+To check your sqllite db:
+$ docker run -it -v (pwd):/code -p 80:80 clue/adminer
+Then go into your browser, choose sqllite3 and file is /code/YOURDB.db
+
+To test token with httpie:
+http yourhost:8888/login email=test@test.it password=password
+http yourhostwesome.dev:8888/authtest Authentication-Token:TOKENRECEIVED
+# If you have admin role:
+http yourhostwesome.dev:8888/admin Authentication-Token:TOKENRECEIVED
+
+"""
 
 ####################################
 import os

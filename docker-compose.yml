@@ -23,7 +23,8 @@ tests:
   image: pdonorio/py3api
   hostname: justatest
   #command: sleep infinity
-  command: python3 admin.py
+  #command: python3 admin.py
+  command: python3 security.py
   ports:
     - 8888:5000
   volumes:
