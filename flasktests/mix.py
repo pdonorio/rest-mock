@@ -1,30 +1,37 @@
 # -*- coding: utf-8 -*-
 """
 Token authentication coupled with user admin interface endpoints
+
+https://github.com/flask-admin/flask-admin/blob/master/examples/auth
 """
 
 ####################################
 import os
-from flask import Flask
+from flask import Flask, redirect, url_for
 # SQL
 from flask.ext.sqlalchemy import SQLAlchemy
 # REST classes
-from flask.ext.restful import Api, Resource
+from flask.ext.restful import Api, Resource, abort, request
 # Authentication
 from flask.ext.security \
-    import Security, SQLAlchemyUserDatastore, \
+    import Security, SQLAlchemyUserDatastore, current_user, \
     UserMixin, RoleMixin, roles_required, auth_token_required
+from flask_security.utils import encrypt_password
+
 # Admin interface
 from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
+from flask_admin.contrib import sqla
+from flask_admin import helpers as admin_helpers
 # The base user
 USER = 'test@test.it'
 PWD = 'pwd'
-ROLE_ADMIN = 'adminer'
 
 ####################################
 # CONFIGURATION
 DEBUG = True
+ROLE_ADMIN = 'adminer'
+ROLE_USER = 'justauser'
+
 HOST = '0.0.0.0'
 PORT = int(os.environ.get('PORT', 5000))
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -50,51 +57,74 @@ app.config.from_object(__name__)
 api = Api(app)
 # Create database connection object
 db = SQLAlchemy(app)
-
+# Admininistration
+admin = Admin(app, name='mytest', template_mode='bootstrap3')
 
 ####################################
 # Define models
+roles_users = db.Table(
+    'roles_users',
+    db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+    db.Column('role_id', db.Integer(), db.ForeignKey('role.id'))
+)
+
+
 class Role(db.Model, RoleMixin):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), unique=True)
     description = db.Column(db.String(255))
 
-roles_users = \
-    db.Table('roles_users',
-             db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),
-             db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+    def __str__(self):
+        return self.name
 
 
-# Note: do not use 'User' as it may mix with postgresql keyword
-class Users(db.Model, UserMixin):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(255))
+    last_name = db.Column(db.String(255))
     email = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
     active = db.Column(db.Boolean())
-    auth_token = db.Column(db.String(255))
+    confirmed_at = db.Column(db.DateTime())
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))
+
+    def __str__(self):
+        return self.email
 
 
 ####################################
 # Setup Flask-Security
-user_datastore = SQLAlchemyUserDatastore(db, Users, Role)
-security = Security(app, user_datastore)
+udstore = SQLAlchemyUserDatastore(db, User, Role)
+security = Security(app, udstore)
+
 
 ####################################
+# Prepare database and tables
 try:
+    db.drop_all()
     db.create_all()
-    print("Connected")
-    # Create a user to test with
-    if not Users.query.first():
-        user_datastore.create_user(email=USER, password=PWD)
-        user_datastore.create_role(name=ROLE_ADMIN, description='I am Master')
-        # user_datastore.find_or_create_role(ROLE_ADMIN)
-        user_datastore.add_role_to_user(USER, ROLE_ADMIN)
-        print("Database initizialized")
-        db.session.commit()
+    print("DB: Connected and ready")
 except Exception as e:
     print("Database connection failure: %s" % str(e))
+
+
+@app.before_first_request
+def database_init():
+
+    # Create a user to test with
+    if not User.query.first():
+        try:
+            udstore.create_role(name=ROLE_ADMIN, description='I am Master')
+            udstore.create_role(name=ROLE_USER, description='I am Normal')
+            udstore.create_user(
+                first_name='User', last_name='IAm',
+                email=USER, password=encrypt_password(PWD))
+            udstore.add_role_to_user(USER, ROLE_ADMIN)
+            db.session.commit()
+        except Exception as e:
+            print("DB init fail: %s" % str(e))
+        print("Database initizialized")
 
 
 ####################################
@@ -126,11 +156,37 @@ api.add_resource(AuthTest, '/' + AuthTest.__name__.lower())
 api.add_resource(Restricted, '/' + Restricted.__name__.lower())
 print("REST Resources ready")
 
+
 #############################
-# Admininistration
-admin = Admin(app, name='microblog', template_mode='bootstrap3')
-admin.add_view(ModelView(Users, db.session))
-admin.add_view(ModelView(Role, db.session))
+# Create admin views
+class MyModelView(sqla.ModelView):
+
+    def is_accessible(self):
+        if not current_user.is_active or not current_user.is_authenticated:
+            return False
+        if current_user.has_role(ROLE_ADMIN):
+            return True
+        return False
+
+    def _handle_view(self, name, **kwargs):
+        """ Override builtin _handle_view to redirect users """
+        if not self.is_accessible():
+            if current_user.is_authenticated():
+                abort(403)  # permission denied
+            else:  # login
+                return redirect(url_for('security.login', next=request.url))
+
+admin.add_view(MyModelView(User, db.session))
+admin.add_view(MyModelView(Role, db.session))
+
+
+# Define a context processor for merging flask-admin's template context
+# into the flask-security views
+@security.context_processor
+def security_context_processor():
+    return dict(admin_base_template=admin.base_template,
+                admin_view=admin.index_view, h=admin_helpers)
+
 
 #############################
 if __name__ == '__main__':
