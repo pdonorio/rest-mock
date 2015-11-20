@@ -161,6 +161,9 @@ print("REST Resources ready")
 # Create admin views
 class MyModelView(sqla.ModelView):
 
+    column_display_pk = True
+    column_hide_backrefs = False
+
     def is_accessible(self):
         if not current_user.is_active or not current_user.is_authenticated:
             return False
@@ -171,13 +174,30 @@ class MyModelView(sqla.ModelView):
     def _handle_view(self, name, **kwargs):
         """ Override builtin _handle_view to redirect users """
         if not self.is_accessible():
-            if current_user.is_authenticated():
+            if current_user.is_authenticated:
                 abort(403)  # permission denied
             else:  # login
                 return redirect(url_for('security.login', next=request.url))
 
-admin.add_view(MyModelView(User, db.session))
-admin.add_view(MyModelView(Role, db.session))
+
+class RoleView(MyModelView):
+    can_delete = False  # disable model deletion
+    # can_edit = False
+
+
+class UserView(MyModelView):
+    column_searchable_list = ['first_name', 'email']
+    column_filters = ['roles']
+    column_editable_list = ['first_name', 'last_name']
+    column_list = ('first_name', 'last_name', 'email', 'active', 'roles')
+    edit_modal = True
+    can_export = True
+    # create_modal = True
+    # column_exclude_list = ['password', 'confirmed_at']
+    # form_ajax_refs = {'roles': {'fields': (Role.name,)}}
+
+admin.add_view(UserView(User, db.session))
+admin.add_view(RoleView(Role, db.session))
 
 
 # Define a context processor for merging flask-admin's template context

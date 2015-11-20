@@ -17,7 +17,7 @@ TODO:
  ☐ A mix of the previous two
    ✔ working snippet @done (15-11-20 08:55)
    ✔ use security auth for blocking admin pages @done (15-11-20 10:37)
-   ☐ flask admin for user_role relationship?
+   ✔ flask admin for user_role relationship? @done (15-11-20 11:35)
  ☐ JWT
    ☐ working snippet
 
