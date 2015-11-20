@@ -8,18 +8,18 @@ import os
 from flask import Flask
 
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask_admin import Admin, BaseView, expose
+from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 dbfile = os.path.join(BASE_DIR, 'testmodels.db')
 # flask conf
-DEBUG= True
-HOST= '0.0.0.0'
-PORT= int(os.environ.get('PORT', 5000))
-SECRET_KEY= 'my precious'
-SQLALCHEMY_DATABASE_URI= 'sqlite:///' + dbfile
-SQLALCHEMY_TRACK_MODIFICATIONS= False
+DEBUG = True
+HOST = '0.0.0.0'
+PORT = int(os.environ.get('PORT', 5000))
+SECRET_KEY = 'my precious'
+SQLALCHEMY_DATABASE_URI = 'sqlite:///' + dbfile
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 #############################
 # Create application

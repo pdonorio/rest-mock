@@ -1,35 +1,25 @@
 # -*- coding: utf-8 -*-
 """
-A secured app from:
-https://pythonhosted.org/Flask-Security/quickstart.html
-Using the blog post:
-http://mandarvaze.github.io/2015/01/token-auth-with-flask-security.html
-
-To check your sqllite db:
-$ docker run -it -v (pwd):/code -p 80:80 clue/adminer
-Then go into your browser, choose sqllite3 and file is /code/YOURDB.db
-
-To test token with httpie:
-http yourhost:8888/login email=test@test.it password=password
-http yourhostwesome.dev:8888/authtest Authentication-Token:TOKENRECEIVED
-# If you have admin role:
-http yourhostwesome.dev:8888/admin Authentication-Token:TOKENRECEIVED
-
+Token authentication coupled with user admin interface endpoints
 """
 
 ####################################
 import os
 from flask import Flask
-
+# SQL
 from flask.ext.sqlalchemy import SQLAlchemy
+# REST classes
 from flask.ext.restful import Api, Resource
+# Authentication
 from flask.ext.security \
     import Security, SQLAlchemyUserDatastore, \
     UserMixin, RoleMixin, roles_required, auth_token_required
-
-# INIT DATA
+# Admin interface
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+# The base user
 USER = 'test@test.it'
-PWD = 'password'
+PWD = 'pwd'
 ROLE_ADMIN = 'adminer'
 
 ####################################
@@ -38,7 +28,7 @@ DEBUG = True
 HOST = '0.0.0.0'
 PORT = int(os.environ.get('PORT', 5000))
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-dbfile = os.path.join(BASE_DIR, 'testsecurity.db')
+dbfile = os.path.join(BASE_DIR, 'latest.db')
 SECRET_KEY = 'my-super-secret-keyword'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + dbfile
 SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -49,11 +39,11 @@ SECURITY_TOKEN_MAX_AGE = 3600
 # Add security to password
 # https://pythonhosted.org/Flask-Security/configuration.html
 SECURITY_PASSWORD_HASH = "pbkdf2_sha512"
-SECURITY_PASSWORD_SALT = "ifiwantobeinproductionihavetousesecretsalt"
+SECURITY_PASSWORD_SALT = "thishastobelongenoughtosayislonglongverylong"
 
 ####################################
 # Create app
-app = Flask(__name__)
+app = Flask(__name__, template_folder=BASE_DIR)
 # Load configuration from above
 app.config.from_object(__name__)
 # Add REST resources
@@ -124,7 +114,7 @@ class AuthTest(Resource):
         return ret_dict, 200
 
 
-class Admin(Resource):
+class Restricted(Resource):
 
     @auth_token_required
     @roles_required(ROLE_ADMIN)  # , 'another')
@@ -133,8 +123,14 @@ class Admin(Resource):
         return "I am admin!"
 
 api.add_resource(AuthTest, '/' + AuthTest.__name__.lower())
-api.add_resource(Admin, '/' + Admin.__name__.lower())
+api.add_resource(Restricted, '/' + Restricted.__name__.lower())
 print("REST Resources ready")
+
+#############################
+# Admininistration
+admin = Admin(app, name='microblog', template_mode='bootstrap3')
+admin.add_view(ModelView(Users, db.session))
+admin.add_view(ModelView(Role, db.session))
 
 #############################
 if __name__ == '__main__':
