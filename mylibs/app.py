@@ -5,12 +5,19 @@
 App specifications
 """
 
+################################
+from __future__ import division, print_function, absolute_import
+from . import myself, lic, get_logger
+
 from flask import got_request_exception, jsonify
 from .server import microservice, rest_api
 from .resources.endpoints import Endpoints
 from .config import MyConfigs
 from .jsonify import log_exception, RESTError
-from . import get_logger
+
+__author__ = myself
+__copyright__ = myself
+__license__ = lic
 
 logger = get_logger(__name__)
 
@@ -48,4 +55,4 @@ def handle_invalid_usage(error):
 
 ####################################
 # Take this app from main
-microservice.logger.info("*** Our REST API server app is ready ***")
+microservice.logger.info("*** Our REST API server/app is ready ***")
