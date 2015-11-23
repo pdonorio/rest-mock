@@ -1,32 +1,36 @@
 
-GUIDELINES:
-- python 3.4 as now (ready for 3.5?)
-- flask & plugins
-  https://exploreflask.com/organizing.html
-  http://mattupstate.com/python/2013/06/26/how-i-structure-my-flask-applications.html
+GUIDELINES
+- python 3.4
 - mock as base service
 - relative imports
-- other libraries
-http://blog.yhathq.com/posts/11-python-libraries-you-might-not-know.html
 
 TODO:
- ☐ Flask security
+ ✔ Flask security @done (15-11-23 15:36)
    ✔ working snippet @done (15-11-19 10:30)
- ☐ Flask admin users and roles
+ ✔ Flask admin users and roles @done (15-11-23 15:36)
    ✔ working snippet @done (15-11-18 17:47)
- ☐ A mix of the previous two
+ ✔ A mix of the previous two @done (15-11-23 15:36)
    ✔ working snippet @done (15-11-20 08:55)
    ✔ use security auth for blocking admin pages @done (15-11-20 10:37)
    ✔ flask admin for user_role relationship? @done (15-11-20 11:35)
- ☐ JWT
-   ☐ working snippet
+ ✔ basic code cleaning @done (15-11-23 16:24)
+ ☐ Add admin and security to current project
+   ☐ optional?
 
-  ☐ Configuration
+ ☐ PyJWT
+   ☐ working snippet
+   ☐ full integrated example
+   https://github.com/graup/flask-restless-security
+ ☐ Rest blueprint
+ http://flask-restful-cn.readthedocs.org/en/0.3.4/intermediate-usage.html#use-with-blueprints
+ ☐ Restful interesting
+   ☐ cors decorator
+   ☐ crypto
+   ☐ paging
+☐ Configuration
   ✔ Exceptions @done (15-09-30 16:50)
     http://flask.pocoo.org/docs/0.10/patterns/apierrors/
-  ☐ @Blueprints [and] app @factories
-    http://flask-restful.readthedocs.org/en/latest/intermediate-usage.html#use-with-blueprints
-    http://flask.pocoo.org/docs/0.10/patterns/appfactories/
+  ☐  app @factory
 
   ☐ CHECK: Rest as @classmode
     ☐ Flask Classy - https://github.com/apiguy/flask-classy/

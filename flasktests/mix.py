@@ -128,15 +128,16 @@ def database_init():
 
 
 ####################################
-# Views
-@app.route('/')
-def home():
-    return "Hello world", 200
+# API restful
+@api.resource('/', '/hello')
+class Hello(Resource):
+    """ Example with no authentication """
+    def get(self):
+        return "Hello world", 200
 
 
-####################################
-# API restful test
 class AuthTest(Resource):
+    """ Token authentication test """
 
     @auth_token_required
     def get(self):
@@ -145,6 +146,7 @@ class AuthTest(Resource):
 
 
 class Restricted(Resource):
+    """ Token and Role authentication test """
 
     @auth_token_required
     @roles_required(ROLE_ADMIN)  # , 'another')

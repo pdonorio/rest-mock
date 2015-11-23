@@ -15,12 +15,13 @@ import simplejson as json
 from flask import Flask, jsonify, make_response
 from werkzeug.exceptions import default_exceptions
 from werkzeug.exceptions import HTTPException
-import mylibs.htmlcodes as hcodes
+from . import htmlcodes as hcodes
 
 __all__ = ['make_json_app']
 
+
 ##############################
-# Json Serialization for more than simple returns
+# Json Serialization for more than simple returns
 
 # // TO FIX:
 # Could this be moved/improved?
@@ -30,9 +31,8 @@ def make_json_app(import_name, **kwargs):
     """ Creates a JSON-oriented Flask app. """
     def make_json_error(ex):
         response = jsonify(message=str(ex))
-        response.status_code = \
-            (ex.code if isinstance(ex, HTTPException)
-                else hcodes.HTTP_DEFAULT_SERVICE_FAIL )
+        response.status_code = (ex.code if isinstance(ex, HTTPException)
+                                else hcodes.HTTP_DEFAULT_SERVICE_FAIL)
         return response
 
     app = Flask(import_name, **kwargs)
@@ -42,23 +42,27 @@ def make_json_app(import_name, **kwargs):
 
     return app
 
+
 ##############################
-# Json Serialization as written in restful docs
+# Json Serialization as written in restful docs
 def output_json(data, code, headers=None):
     """Makes a Flask response with a JSON encoded body"""
     resp = make_response(json.dumps(data), code)
     resp.headers.extend(headers or {})
     return resp
 
+
 ####################################
-# Custom error handling: SAVE TO LOG
-#http://flask-restful.readthedocs.org/en/latest/extending.html#custom-error-handlers
+# Custom error handling: SAVE TO LOG
+# http://flask-restful.readthedocs.org/en/latest/
+# extending.html#custom-error-handlers
 def log_exception(sender, exception, **extra):
     """ Log an exception to our logging framework """
     sender.logger.error('Got exception during processing: %s', exception)
 
+
 ##############################
-# My rest exception class, extending Flask
+# My rest exception class, extending Flask
 # http://flask.pocoo.org/docs/0.10/patterns/apierrors/#simple-exception-class
 class RESTError(Exception):
 
@@ -67,7 +71,7 @@ class RESTError(Exception):
     def __init__(self, message, status_code=None, payload=None):
         # My exception
         Exception.__init__(self)
-        # Variables
+        # Variables
         self.message = message
         if status_code is not None:
             self.status_code = status_code

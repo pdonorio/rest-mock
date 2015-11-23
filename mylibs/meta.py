@@ -3,13 +3,13 @@
 
 """ Meta thinking: python introspection """
 
-from mylibs import get_logger
-logger = get_logger(__name__)
 from importlib import import_module
+from . import get_logger
+logger = get_logger(__name__)
+
 
 ################################
-## Utilities
-
+# Utilities
 class Meta(object):
     """Utilities with meta in mind"""
 
@@ -23,8 +23,9 @@ class Meta(object):
 
     def get_classes_from_module(self, module):
         """ Find classes inside a python module file """
-        classes = dict([(name, cls) \
-            for name, cls in module.__dict__.items() if isinstance(cls, type)])
+        classes = dict([(name, cls)
+                       for name, cls in module.__dict__.items()
+                       if isinstance(cls, type)])
         self.set_latest_classes(classes)
         return self.get_latest_classes()
 
@@ -43,7 +44,7 @@ class Meta(object):
 
         module = None
         try:
-            # Meta language for dinamically import
+            # Meta language for dinamically import
             module = import_module(modulestring)
         except ImportError as e:
             logger.critical("Failed to load resource: " + str(e))
@@ -54,7 +55,7 @@ class Meta(object):
 
         myclass = None
         try:
-            # Meta language for dinamically import
+            # Meta language for dinamically import
             myclass = getattr(module, classname)
         except AttributeError as e:
             logger.critical("Failed to load resource: " + str(e))

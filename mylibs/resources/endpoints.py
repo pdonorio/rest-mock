@@ -3,11 +3,12 @@
 
 """ How to create endpoints into REST service """
 
-from mylibs import get_logger
+from .. import get_logger
+from ..meta import Meta
+from . import FIXED_APIURL
+
 logger = get_logger(__name__)
 
-from mylibs.meta import Meta
-from mylibs.resources import FIXED_APIURL
 
 class Endpoints(object):
     """ Handling endpoints creation"""
@@ -22,13 +23,13 @@ class Endpoints(object):
         """ Adding a single restpoint from a Resource Class """
 
         address = FIXED_APIURL + endpoint
-        logger.info("Adding '%s' resource to REST address: *%s*", \
-            resource.__name__, address)
-        # Normal endpoint, e.g. /api/foo
-        urls = [ address ]
-        # Special endpoint, e.g. /api/foo/:endkey
+        logger.info("Adding '%s' resource to REST address: *%s*",
+                    resource.__name__, address)
+        # Normal endpoint, e.g. /api/foo
+        urls = [address]
+        # Special endpoint, e.g. /api/foo/:endkey
         if endkey is not None:
-            urls.append(address +'/<'+ endkey +'>')
+            urls.append(address + '/<' + endkey + '>')
         # Create restful resource with it
         self.rest_api.add_resource(resource, *urls)
 

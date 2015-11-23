@@ -3,37 +3,31 @@
 
 """ Mock Resources as Example """
 
-# In case you do not know how API endpoints usually looks,
+# In case you do not know how API endpoints usually looks,
 # see some examples here to take inspiration
 # https://parse.com/docs/rest/guide
 
 from .. import get_logger
+from .base import ExtendedApiResource
+from . import decorators as decorate
+
 logger = get_logger(__name__)
 
-from .base import ExtendedApiResource
-import mylibs.resources.decorators as decorate
 
 #####################################
-## FIRST simple EXAMPLE
-
-## Works with request(s) to:
-# GET /api/foo
-
+# 1) Simplest example
 class FooOne(ExtendedApiResource):
     """ Empty example for mock service with no :myid """
 
     @decorate.apimethod
     def get(self):
         return self.response('Hello world!')
+    # Works with request(s) to:
+    # GET /api/foo
+
 
 #####################################
-## SECOND and more complex EXAMPLE
-
-## Works with requests to:
-# GET /api/another/path
-# GET /api/another/path/:identifier
-# POST /api/another/path (respond with null)
-
+# 2) Little more complex example
 @decorate.enable_endpoint_identifier('identifier')
 class FooTwo(ExtendedApiResource):
     """ Example with use of myid """
@@ -50,23 +44,23 @@ class FooTwo(ExtendedApiResource):
         if identifier is not None:
             key += ' ' + identifier
             logger.info("Using data key '%s'" % identifier)
-            #return self.response("error")
 
         obj = {key: 'new endpoint'}
         return self.response(obj)
+    # Works with requests to:
+    # GET /api/another/path
+    # GET /api/another/path/:identifier
 
     @decorate.apimethod
     def post(self, identifier=None):
         """ I do nothing """
         pass
+    # Works with requests to:
+    # POST /api/another/path (respond with null)
+
 
 #####################################
-## THIRD EXAMPLE with parameters
-
-## Works with requests to:
-# GET /api/another/path?myarg=a
-# POST /api/another/path?arg2=3&arg3=test
-
+# 3) Example with parameters
 class FooThree(ExtendedApiResource):
     """
     Example with parameters.
@@ -81,9 +75,9 @@ class FooThree(ExtendedApiResource):
     @decorate.apimethod
     def get(self):
         logger.debug("Received args %s" % self._args)
-# Test an exception
-        #return pippo
         return self.response(self._args)
+    # Works with requests to:
+    # GET /api/another/path?myarg=a
 
     # Adding parameters with decorator in different ways
     @decorate.add_endpoint_parameter('arg1', str)
@@ -93,3 +87,5 @@ class FooThree(ExtendedApiResource):
     def post(self):
         logger.debug("Received args %s" % self._args)
         return self.response(self._args, fail=True)
+    # Works with requests to:
+    # POST /api/another/path?arg2=3&arg3=test

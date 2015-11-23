@@ -1,14 +1,13 @@
 
+##############################################
 # This configuration is for development only
 
 rest:
   image: pdonorio/py3api
   hostname: restapi
-  command: ./run.py
   # DEBUG
   #command: sleep infinity
-  tty: true
-  stdin_open: true
+  command: ./run.py
 #########################
 # Our services API want to use the HTTP range port: 8081-8089
   ports:
@@ -18,15 +17,18 @@ rest:
     - .:/code:rw
   working_dir: /code
 
-# Access http://IP:80/admin/user/
-tests:
-  image: pdonorio/py3api
-  hostname: justatest
-  #command: python3 admin.py
-  #command: python3 security.py
-  command: sleep infinity
-  ports:
-    - 8888:5000
-  volumes:
-    - ./flasktests:/code:rw
-  working_dir: /code
+# ##############################################
+# # MY RANDOM TESTS
+# # Access http://IP:80/admin/user/
+# tests:
+#   image: pdonorio/py3api
+#   hostname: justatest
+#   #command: python3 admin.py
+#   #command: python3 security.py
+#   command: sleep infinity
+#   ports:
+#     - 8888:5000
+#   volumes:
+#     - ./flasktests:/code:rw
+#   working_dir: /code
+# ##############################################
