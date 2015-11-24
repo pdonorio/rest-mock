@@ -14,6 +14,8 @@ from confs.config import LOGGING_CONFIG_FILE, REST_CONFIG_FILE, DEBUG
 myself = "Paolo D'Onorio De Meo <p.donoriodemeo@gmail.com>"
 lic = "MIT"
 
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
 ################
 # From the directory where the app is launched
 PROJECT_DIR = '.'

@@ -60,22 +60,33 @@ def create_app(name=__name__, **kwargs):
     from .models import db, User, Role
     db.init_app(microservice)
     logger.info("FLASKING! Injected sqlalchemy")
-    # Prepare database and tables
-    with microservice.app_context():
-        try:
-            if config.REMOVE_DATA_AT_INIT_TIME:
-                db.drop_all()
-            db.create_all()
-            logger.info("DB: Connected and ready")
-        except Exception as e:
-            logger.critical("Database connection failure: %s" % str(e))
-            exit(1)
 
     ##############################
     # Flask security
     from flask.ext.security import Security, SQLAlchemyUserDatastore
     udstore = SQLAlchemyUserDatastore(db, User, Role)
     security = Security(microservice, udstore)
+
+    # Prepare database and tables
+    with microservice.app_context():
+        try:
+            if config.REMOVE_DATA_AT_INIT_TIME:
+                db.drop_all()
+            db.create_all()
+            if not User.query.first():
+                udstore.create_role(name=config.ROLE_ADMIN, description='King')
+                udstore.create_role(name=config.ROLE_USER, description='User')
+                from flask_security.utils import encrypt_password
+                udstore.create_user(first_name='User', last_name='IAm',
+                                    email=config.USER,
+                                    password=encrypt_password(config.PWD))
+                udstore.add_role_to_user(config.USER, config.ROLE_ADMIN)
+                db.session.commit()
+                logger.info("Database initizialized with user/roles from conf")
+            logger.info("DB: Connected and ready")
+        except Exception as e:
+            logger.critical("Database connection failure: %s" % str(e))
+            exit(1)
 
     ##############################
     # Restful plugin

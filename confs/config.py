@@ -6,12 +6,15 @@ User configuration
 """
 
 import os
+import re
 
 #################################
 # what you could change
 DEBUG = False
 STACKTRACE = False
 REMOVE_DATA_AT_INIT_TIME = False
+USER = 'user@nomail.org'
+PWD = 'test'
 SQLLITE_DBFILE = 'latest.db'
 
 
@@ -33,7 +36,9 @@ PROPAGATE_EXCEPTIONS = False
 ROLE_ADMIN = 'adminer'
 ROLE_USER = 'justauser'
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+# I am inside the conf dir.
+# The base dir is one level up from here
+BASE_DIR = re.sub(__package__, '', os.path.abspath(os.path.dirname(__file__)))
 
 #################################
 # SQLALCHEMY
@@ -44,8 +49,6 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 #################################
 # SECURITY
-ROLE_ADMIN = 'adminer'
-ROLE_USER = 'justauser'
 
 # Bug fixing for csrf problem via CURL/token
 WTF_CSRF_ENABLED = False
