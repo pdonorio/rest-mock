@@ -82,6 +82,16 @@ To write a javascript client take a look at `Angularjs` and `Restangular` lib.
 
 ---
 
+## Security
+
+This is a new feature.
+Security is enabled by default,
+with a primary user/pwd/admin_role in sqlllite db.
+
+*Documentation to be written!*
+
+---
+
 ## How to add an endpoint
 
 #### A quick way
