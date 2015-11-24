@@ -2,40 +2,60 @@
 # -*- coding: utf-8 -*-
 
 """
-Main server factory
+Main server factory.
+We create all the components here!
 """
 
-import logging
+from __future__ import division, print_function, absolute_import
+from . import myself, lic, get_logger
+
 from .jsonify import make_json_app
+from confs import config
+# Handle cors...
 from flask_cors import CORS
+# REST
 from flask_restful import Api
-from . import get_logger
+# SQL
+from flask.ext.sqlalchemy import SQLAlchemy
+# Admin interface
+from flask_admin import Admin
+
+__author__ = myself
+__copyright__ = myself
+__license__ = lic
 
 logger = get_logger(__name__)
 
 ####################################
 # Create app - with json responses also in exception
-microservice = make_json_app(__name__)
-# OLD FASHION:
-#from flask import Flask
-#microservice = Flask(__name__)
+# (this is where i create the Flask app: called 'microservice')
+microservice = make_json_app(__name__, template_folder=config.BASE_DIR)
 logger.debug("Created application")
-
-# Flask Confs?
-# // TO FIX: move it in a file
-microservice.config["TRAP_BAD_REQUEST_ERRORS"] = True
-microservice.config["PROPAGATE_EXCEPTIONS"] = False
+microservice.config.from_object(config)
 
 ####################################
 # Allow cross-domain requests
 # e.g. for JS and Upload
 CORS(microservice, headers=['Content-Type'])
-# cors write too much, let's fix it
-corslogger = logging.getLogger('mylibs.server.cors')
-corslogger.setLevel(logging.WARNING)
+logger.debug("Flask: adding CORS")
+
+# # WARNING: in case 'cors' write too much, you could fix it like this
+# import logging
+# corslogger = logging.getLogger('.server.cors')
+# corslogger.setLevel(logging.WARNING)
 
 ####################################
-# RESTful stuff activation
-errors = {}
-#http://flask-restful.readthedocs.org/en/latest/extending.html#define-custom-error-messages
+# RESTful stuff activation
+errors = {}  # for defining future custom errors
 rest_api = Api(microservice, catch_all_404s=True, errors=errors)
+logger.debug("Flask: adding REST")
+
+####################################
+# Create database connection object
+db = SQLAlchemy(microservice)
+logger.debug("Flask: adding SQLAlchemy")
+
+####################################
+# Admininistration
+admin = Admin(microservice, name='mytest', template_mode='bootstrap3')
+logger.debug("Flask: adding Admininistration")

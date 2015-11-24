@@ -11,13 +11,21 @@ Which breaks the clients who expect JSON back even in case of errors.
 source: http://flask.pocoo.org/snippets/83/
 """
 
+from __future__ import division, print_function, absolute_import
+from . import myself, lic, get_logger
+
 import simplejson as json
 from flask import Flask, jsonify, make_response
 from werkzeug.exceptions import default_exceptions
 from werkzeug.exceptions import HTTPException
 from . import htmlcodes as hcodes
 
+__author__ = myself
+__copyright__ = myself
+__license__ = lic
 __all__ = ['make_json_app']
+
+logger = get_logger(__name__)
 
 
 ##############################
@@ -36,6 +44,7 @@ def make_json_app(import_name, **kwargs):
         return response
 
     app = Flask(import_name, **kwargs)
+    logger.info("Create Flask app")
 
     for code in default_exceptions.keys():
         app.error_handler_spec[None][code] = make_json_error
