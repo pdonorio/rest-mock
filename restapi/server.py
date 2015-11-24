@@ -22,7 +22,7 @@ __license__ = lic
 logger = get_logger(__name__)
 
 
-def create_app(name=__name__, security=True, **kwargs):
+def create_app(name=__name__, enable_security=True, **kwargs):
     """ Create the istance for Flask application """
 
     #################################################
@@ -74,42 +74,34 @@ def create_app(name=__name__, security=True, **kwargs):
     cors.init_app(microservice)
     logger.info("FLASKING! Injected CORS")
 
-    if security:
-        ##############################
-        # DB
-        from .models import db, User, Role
-        db.init_app(microservice)
-        logger.info("FLASKING! Injected sqlalchemy")
+    ##############################
+    # DB
+    from .models import db
+    db.init_app(microservice)
+    logger.info("FLASKING! Injected sqlalchemy. (please use it)")
 
-        ##############################
-        # Flask security
-        from flask.ext.security import Security, SQLAlchemyUserDatastore
-        udstore = SQLAlchemyUserDatastore(db, User, Role)
-        auth = Security(microservice, udstore)
+    ##############################
+    # Flask security
+    if enable_security:
+        from .security import security
+        security.init_app(microservice)
         logger.info("FLASKING! Injected security")
 
-        # Prepare database and tables
-        with microservice.app_context():
-            try:
-                if config.REMOVE_DATA_AT_INIT_TIME:
-                    db.drop_all()
-                db.create_all()
-                if not User.query.first():
-                    udstore.create_role(name=config.ROLE_ADMIN,
-                                        description='King')
-                    udstore.create_role(name=config.ROLE_USER,
-                                        description='User')
-                    from flask_security.utils import encrypt_password
-                    udstore.create_user(first_name='User', last_name='IAm',
-                                        email=config.USER,
-                                        password=encrypt_password(config.PWD))
-                    udstore.add_role_to_user(config.USER, config.ROLE_ADMIN)
-                    db.session.commit()
-                    logger.info("Database init with user/roles from conf")
-                logger.info("DB: Connected and ready")
-            except Exception as e:
-                logger.critical("Database connection failure: %s" % str(e))
-                exit(1)
+    # Prepare database and tables
+    with microservice.app_context():
+        try:
+            if config.REMOVE_DATA_AT_INIT_TIME:
+                db.drop_all()
+            db.create_all()
+            logger.info("DB: Connected and ready")
+        except Exception as e:
+            logger.critical("Database connection failure: %s" % str(e))
+            exit(1)
+
+        if enable_security:
+            # Prepare user/roles
+            from .security import db_auth
+            db_auth()
 
     ##############################
     # Restful plugin
@@ -117,23 +109,23 @@ def create_app(name=__name__, security=True, **kwargs):
     rest.init_app(microservice)
     logger.info("FLASKING! Injected rest endpoints")
 
-    ##############################
-    # Flask admin
-    if security:
-        from .admin import admin, UserView, RoleView
-        from flask_admin import helpers as admin_helpers
-        admin.init_app(microservice)
-        admin.add_view(UserView(User, db.session))
-        admin.add_view(RoleView(Role, db.session))
+    # ##############################
+    # # Flask admin
+    # if enable_security:
+    #     from .admin import admin, UserView, RoleView
+    #     from flask_admin import helpers as admin_helpers
+    #     admin.init_app(microservice)
+    #     admin.add_view(UserView(User, db.session))
+    #     admin.add_view(RoleView(Role, db.session))
 
-        # Define a context processor for merging flask-admin's template context
-        # into the flask-security views
-        @auth.context_processor
-        def security_context_processor():
-            return dict(admin_base_template=admin.base_template,
-                        admin_view=admin.index_view, h=admin_helpers)
+    #     # Context processor for merging flask-admin's template context
+    #     # into the flask-security views
+    #     @security.context_processor
+    #     def security_context_processor():
+    #         return dict(admin_base_template=admin.base_template,
+    #                     admin_view=admin.index_view, h=admin_helpers)
 
-        logger.info("FLASKING! Injected admin endpoints")
+    #     logger.info("FLASKING! Injected admin endpoints")
 
     ##############################
     # App is ready

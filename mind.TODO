@@ -19,6 +19,8 @@ TODO:
  ✔ Add admin and security to current project @done (15-11-24 14:24)
    ✔ optional? @done (15-11-24 15:08)
  ✔ restful intercept abort if not logged @done (15-11-24 15:33)
+ ✔ Fix security code into a separate file @done (15-11-24 17:34)
+ ☐ Fix back admin
  ☐ print as info request for flask?
    ☐ problem with logging into rest resources
 

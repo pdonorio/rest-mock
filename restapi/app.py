@@ -27,7 +27,7 @@ if not args.security:
 
 #############################
 # BE FLASK
-microservice = create_app(name='REST', security=args.security)
+microservice = create_app(name='REST', enable_security=args.security)
 # We are now ready
 logger.info("*** Our REST API server/app is ready ***")
 # Some code may take this app from here

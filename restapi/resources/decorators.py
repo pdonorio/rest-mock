@@ -109,6 +109,10 @@ def apimethod(func):
         # Debug
         class_name = self.__class__.__name__
         method_name = func.__name__.upper()
+# How to LOG with RESTful:
+#   endpoint?
+#   address?
+#   response code?
         logger.info("[Class: %s] %s request" % (class_name, method_name))
         # Call the parse method
         self.apply_parameters()
@@ -116,7 +120,7 @@ def apimethod(func):
         # Call the wrapped function
         try:
             out = func(self, *args, **kwargs)
-        except Exception as e:
+        except KeyError as e:
             if str(e).strip("'") == "security":
                 return {'message': "FAIL: problems with auth check"}, 404
             raise e
