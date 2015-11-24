@@ -16,9 +16,12 @@ TODO:
  ✔ basic code cleaning @done (15-11-23 16:24)
  ✔ Rename libs @done (15-11-24 10:50)
  ✔ A good refactor @done (15-11-24 12:28)
- ☐ Add admin and security to current project
-   ☐ optional?
+ ✔ Add admin and security to current project @done (15-11-24 14:24)
+   ✔ optional? @done (15-11-24 15:08)
+ ☐ restful intercept abort if not logged?
+   ☐ when solved remove auth tests inside rest.py
  ☐ print as info request for flask?
+   ☐ problem with logging into rest resources
 
  ☐ PyJWT
    ☐ working snippet

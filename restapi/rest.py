@@ -10,9 +10,9 @@ from . import myself, lic, get_logger
 
 from flask_restful import Api, Resource
 from .config import MyConfigs
-from confs import config
 from .resources.endpoints import Endpoints
-from flask.ext.security import roles_required, auth_token_required
+# from flask.ext.security import roles_required, auth_token_required
+# from confs import config
 
 __author__ = myself
 __copyright__ = myself
@@ -54,27 +54,28 @@ class Hello(Resource):
     def get(self):
         return "Hello world", 200
 
-####################################
-# Security endpoints
+
+logger.debug("Hello world")
+
+# ####################################
+# # Security endpoints: (just a test)
+# class AuthTest(Resource):
+#     """ Token authentication test """
+
+#     @auth_token_required
+#     def get(self):
+#         ret_dict = {"Key1": "Value1", "Key2": "value2"}
+#         return ret_dict, 200
 
 
-class AuthTest(Resource):
-    """ Token authentication test """
+# class Restricted(Resource):
+#     """ Token and Role authentication test """
 
-    @auth_token_required
-    def get(self):
-        ret_dict = {"Key1": "Value1", "Key2": "value2"}
-        return ret_dict, 200
+#     @auth_token_required
+#     @roles_required(config.ROLE_ADMIN)  # , 'another')
+#     def get(self):
+#         return "I am admin!"
 
-
-class Restricted(Resource):
-    """ Token and Role authentication test """
-
-    @auth_token_required
-    @roles_required(config.ROLE_ADMIN)  # , 'another')
-    def get(self):
-        return "I am admin!"
-
-rest.add_resource(AuthTest, '/' + AuthTest.__name__.lower())
-rest.add_resource(Restricted, '/' + Restricted.__name__.lower())
-logger.info("SECURITY! REST Resources ready")
+# rest.add_resource(AuthTest, '/' + AuthTest.__name__.lower())
+# rest.add_resource(Restricted, '/' + Restricted.__name__.lower())
+# logger.info("SECURITY! REST Resources ready")
