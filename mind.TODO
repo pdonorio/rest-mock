@@ -15,9 +15,10 @@ TODO:
    ✔ flask admin for user_role relationship? @done (15-11-20 11:35)
  ✔ basic code cleaning @done (15-11-23 16:24)
  ✔ Rename libs @done (15-11-24 10:50)
- ☐ A good refactor
+ ✔ A good refactor @done (15-11-24 12:28)
  ☐ Add admin and security to current project
    ☐ optional?
+ ☐ print as info request for flask?
 
  ☐ PyJWT
    ☐ working snippet

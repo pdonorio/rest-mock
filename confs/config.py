@@ -8,13 +8,15 @@ User configuration
 import os
 
 #################################
-# DEBUG = True
+# what you could change
 DEBUG = False
-# STACKTRACE = True
 STACKTRACE = False
-#################################
+REMOVE_DATA_AT_INIT_TIME = False
+SQLLITE_DBFILE = 'latest.db'
 
 
+###################################################
+###################################################
 SERVER_HOSTS = '0.0.0.0'
 SERVER_PORT = int(os.environ.get('PORT', 5000))
 
@@ -35,7 +37,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 #################################
 # SQLALCHEMY
-dbfile = os.path.join(BASE_DIR, 'latest.db')
+dbfile = os.path.join(BASE_DIR, SQLLITE_DBFILE)
 SECRET_KEY = 'my-super-secret-keyword'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + dbfile
 SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -51,3 +53,5 @@ SECURITY_TOKEN_MAX_AGE = 3600
 # https://pythonhosted.org/Flask-Security/configuration.html
 SECURITY_PASSWORD_HASH = "pbkdf2_sha512"
 SECURITY_PASSWORD_SALT = "thishastobelongenoughtosayislonglongverylong"
+###################################################
+###################################################
