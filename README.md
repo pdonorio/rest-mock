@@ -86,13 +86,13 @@ To write a javascript client take a look at `Angularjs` and `Restangular` lib.
 
 #### A quick way
 
-Edit `mylibs/resources/exampleservices.py` and add a rest class:
+Edit `restapi/resources/exampleservices.py` and add a rest class:
 
 * The class must extend `ExtendedApiResource`
 * The class should use the decorator `@for_all_api_methods(standardata)`
 * Provide at least the `get` method
 
-The base code is found inside the `mylibs.resources.base` module. Please check the provided examples inside the module to write the right code.
+The base code is found inside the `restapi.resources.base` module. Please check the provided examples inside the module to write the right code.
 
 **Test it**: if your class is called `MyClass`, it will be reachable at the address `http://HOST:PORT/api/myclass` address of the running server.
 You can also specify a different address, by overiding the attribute `endpoint` of your class.
@@ -106,7 +106,7 @@ Define a file `confs/endpoints.ini` with the following syntax:
 class=endpoint
 ```
 
-For example, after creating a file `myresource.py` inside `mylibs/resources`,
+For example, after creating a file `myresource.py` inside `restapi/resources`,
 containing two classes `One` and `Two`, you could use:
 
 ```

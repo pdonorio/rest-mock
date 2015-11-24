@@ -14,6 +14,7 @@ TODO:
    ✔ use security auth for blocking admin pages @done (15-11-20 10:37)
    ✔ flask admin for user_role relationship? @done (15-11-20 11:35)
  ✔ basic code cleaning @done (15-11-23 16:24)
+ ✔ Rename libs @done (15-11-24 10:50)
  ☐ Add admin and security to current project
    ☐ optional?
 

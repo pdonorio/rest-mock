@@ -41,9 +41,10 @@ class MyConfigs(object):
         resources = []
 
         for section in sections:
-            logger.debug("Section " + section)
+            logger.critical("Section " + section)
 
-            module = meta.get_module_from_string('mylibs.resources.' + section)
+            module = meta.get_module_from_string(
+                __package__ + '.resources.' + section)
             # Skip what you cannot use
             if module is None:
                 continue
