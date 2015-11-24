@@ -15,6 +15,7 @@ TODO:
    ✔ flask admin for user_role relationship? @done (15-11-20 11:35)
  ✔ basic code cleaning @done (15-11-23 16:24)
  ✔ Rename libs @done (15-11-24 10:50)
+ ☐ A good refactor
  ☐ Add admin and security to current project
    ☐ optional?
 
@@ -28,10 +29,10 @@ TODO:
    ☐ cors decorator
    ☐ crypto
    ☐ paging
-☐ Configuration
+✔ Configuration @done (15-11-24 12:00)
   ✔ Exceptions @done (15-09-30 16:50)
     http://flask.pocoo.org/docs/0.10/patterns/apierrors/
-  ☐  app @factory
+  ✔  app @factory @done (15-11-24 12:00)
 
   ☐ CHECK: Rest as @classmode
     ☐ Flask Classy - https://github.com/apiguy/flask-classy/

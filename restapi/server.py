@@ -9,16 +9,11 @@ We create all the components here!
 from __future__ import division, print_function, absolute_import
 from . import myself, lic, get_logger
 
-from .jsonify import make_json_app
-from confs import config
-# Handle cors...
-from flask_cors import CORS
-# REST
-from flask_restful import Api
-# SQL
-from flask.ext.sqlalchemy import SQLAlchemy
-# Admin interface
-from flask_admin import Admin
+from flask import Flask
+from .jsonify import make_json_error
+from werkzeug.exceptions import default_exceptions
+# # Admin interface
+# from flask_admin import Admin
 
 __author__ = myself
 __copyright__ = myself
@@ -26,36 +21,45 @@ __license__ = lic
 
 logger = get_logger(__name__)
 
+# ####################################
+# # Admininistration
+# admin = Admin(microservice, name='mytest', template_mode='bootstrap3')
+# logger.debug("Flask: creating Admininistration")
+
+
 ####################################
 # Create app - with json responses also in exception
 # (this is where i create the Flask app: called 'microservice')
-microservice = make_json_app(__name__, template_folder=config.BASE_DIR)
-logger.debug("Created application")
-microservice.config.from_object(config)
+def create_app(name=__name__, **kwargs):
+    """ Create the istance for Flask application """
 
-####################################
-# Allow cross-domain requests
-# e.g. for JS and Upload
-CORS(microservice, headers=['Content-Type'])
-logger.debug("Flask: adding CORS")
+    # Flask app instance
+    from confs import config
+    microservice = Flask(name,
+                         template_folder=config.BASE_DIR, **kwargs)
 
-# # WARNING: in case 'cors' write too much, you could fix it like this
-# import logging
-# corslogger = logging.getLogger('.server.cors')
-# corslogger.setLevel(logging.WARNING)
+    microservice.config.from_object(config)
+    logger.debug("Created application")
 
-####################################
-# RESTful stuff activation
-errors = {}  # for defining future custom errors
-rest_api = Api(microservice, catch_all_404s=True, errors=errors)
-logger.debug("Flask: adding REST")
+    # Handling exceptions with json
+    for code in default_exceptions.keys():
+        microservice.error_handler_spec[None][code] = make_json_error
 
-####################################
-# Create database connection object
-db = SQLAlchemy(microservice)
-logger.debug("Flask: adding SQLAlchemy")
+    ##############################
+    # Other components
 
-####################################
-# Admininistration
-admin = Admin(microservice, name='mytest', template_mode='bootstrap3')
-logger.debug("Flask: adding Admininistration")
+    # DB
+    from .models import db
+    db.init_app(microservice)
+    logger.debug("Injected sqlalchemy")
+    # Cors
+    from .cors import cors
+    cors.init_app(microservice)
+    logger.debug("Injected CORS")
+    # Restful plugin
+    from .rest import rest
+    rest.init_app(microservice)
+    logger.debug("Injected rest endpoints")
+
+    # App is ready
+    return microservice

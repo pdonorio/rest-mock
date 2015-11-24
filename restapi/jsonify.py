@@ -15,15 +15,13 @@ from __future__ import division, print_function, absolute_import
 from . import myself, lic, get_logger
 
 import simplejson as json
-from flask import Flask, jsonify, make_response
-from werkzeug.exceptions import default_exceptions
+from flask import jsonify, make_response
 from werkzeug.exceptions import HTTPException
 from . import htmlcodes as hcodes
 
 __author__ = myself
 __copyright__ = myself
 __license__ = lic
-__all__ = ['make_json_app']
 
 logger = get_logger(__name__)
 
@@ -35,21 +33,11 @@ logger = get_logger(__name__)
 # Could this be moved/improved?
 # see http://flask.pocoo.org/snippets/20/
 
-def make_json_app(import_name, **kwargs):
-    """ Creates a JSON-oriented Flask app. """
-    def make_json_error(ex):
-        response = jsonify(message=str(ex))
-        response.status_code = (ex.code if isinstance(ex, HTTPException)
-                                else hcodes.HTTP_DEFAULT_SERVICE_FAIL)
-        return response
-
-    app = Flask(import_name, **kwargs)
-    logger.info("Create Flask app")
-
-    for code in default_exceptions.keys():
-        app.error_handler_spec[None][code] = make_json_error
-
-    return app
+def make_json_error(ex):
+    response = jsonify(message=str(ex))
+    response.status_code = (ex.code if isinstance(ex, HTTPException)
+                            else hcodes.HTTP_DEFAULT_SERVICE_FAIL)
+    return response
 
 
 ##############################

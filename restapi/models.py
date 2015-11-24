@@ -6,7 +6,7 @@
 from __future__ import division, print_function, absolute_import
 from . import myself, lic, get_logger
 
-from server import db
+from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.security import UserMixin, RoleMixin
 
 __author__ = myself
@@ -15,7 +15,13 @@ __license__ = lic
 
 logger = get_logger(__name__)
 
-# Define models
+####################################
+# Create database connection object
+db = SQLAlchemy()
+logger.debug("Flask: creating SQLAlchemy")
+
+####################################
+# Define multi-multi relation
 roles_users = db.Table(
     'roles_users',
     db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
@@ -23,6 +29,8 @@ roles_users = db.Table(
 )
 
 
+####################################
+# Define models
 class Role(db.Model, RoleMixin):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), unique=True)
