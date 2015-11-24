@@ -109,23 +109,25 @@ def create_app(name=__name__, enable_security=True, **kwargs):
     rest.init_app(microservice)
     logger.info("FLASKING! Injected rest endpoints")
 
-    # ##############################
-    # # Flask admin
-    # if enable_security:
-    #     from .admin import admin, UserView, RoleView
-    #     from flask_admin import helpers as admin_helpers
-    #     admin.init_app(microservice)
-    #     admin.add_view(UserView(User, db.session))
-    #     admin.add_view(RoleView(Role, db.session))
+    ##############################
+    # Flask admin
+    if enable_security:
+        from .admin import admin, UserView, RoleView
+        from .models import User, Role
+        from flask_admin import helpers as admin_helpers
 
-    #     # Context processor for merging flask-admin's template context
-    #     # into the flask-security views
-    #     @security.context_processor
-    #     def security_context_processor():
-    #         return dict(admin_base_template=admin.base_template,
-    #                     admin_view=admin.index_view, h=admin_helpers)
+        admin.init_app(microservice)
+        admin.add_view(UserView(User, db.session))
+        admin.add_view(RoleView(Role, db.session))
 
-    #     logger.info("FLASKING! Injected admin endpoints")
+        # Context processor for merging flask-admin's template context
+        # into the flask-security views
+        @security.context_processor
+        def security_context_processor():
+            return dict(admin_base_template=admin.base_template,
+                        admin_view=admin.index_view, h=admin_helpers)
+
+        logger.info("FLASKING! Injected admin endpoints")
 
     ##############################
     # App is ready
