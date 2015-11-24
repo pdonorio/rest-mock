@@ -12,7 +12,6 @@ from . import myself, lic, get_logger
 from flask import Flask
 from .jsonify import make_json_error
 from werkzeug.exceptions import default_exceptions
-from flask.ext.security import Security, SQLAlchemyUserDatastore
 
 __author__ = myself
 __copyright__ = myself
@@ -21,14 +20,12 @@ __license__ = lic
 logger = get_logger(__name__)
 
 
-####################################
-# Create app - with json responses also in exception
-# (this is where i create the Flask app: called 'microservice')
 def create_app(name=__name__, **kwargs):
     """ Create the istance for Flask application """
 
-    ##############################
+    #################################################
     # Flask app instance
+    #################################################
     from confs import config
     microservice = Flask(name,
                          # Quick note:
@@ -48,14 +45,17 @@ def create_app(name=__name__, **kwargs):
     microservice.config.from_object(config)
     logger.info("FLASKING! Created application")
 
-    ##############################
+    #################################################
     # Other components
+    #################################################
 
+    ##############################
     # Cors
     from .cors import cors
     cors.init_app(microservice)
     logger.info("FLASKING! Injected CORS")
 
+    ##############################
     # DB
     from .models import db, User, Role
     db.init_app(microservice)
@@ -71,10 +71,13 @@ def create_app(name=__name__, **kwargs):
             logger.critical("Database connection failure: %s" % str(e))
             exit(1)
 
+    ##############################
     # Flask security
+    from flask.ext.security import Security, SQLAlchemyUserDatastore
     udstore = SQLAlchemyUserDatastore(db, User, Role)
     security = Security(microservice, udstore)
 
+    ##############################
     # Restful plugin
     from .rest import rest
     rest.init_app(microservice)
@@ -82,7 +85,7 @@ def create_app(name=__name__, **kwargs):
     logger.info("FLASKING! Injected security")
 
     ##############################
-    # # Flask admin
+    # Flask admin
 
     # # Define a context processor for merging flask-admin's template context
     # # into the flask-security views

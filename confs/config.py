@@ -44,6 +44,8 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 #################################
 # SECURITY
+ROLE_ADMIN = 'adminer'
+ROLE_USER = 'justauser'
 
 # Bug fixing for csrf problem via CURL/token
 WTF_CSRF_ENABLED = False
