@@ -9,7 +9,7 @@ We create all the components here!
 from __future__ import division, print_function, absolute_import
 from . import myself, lic, get_logger
 
-from flask.ext.security import Security, SQLAlchemyUserDatastore
+from flask.ext.security import SQLAlchemyUserDatastore  # , Security
 from .models import db, User, Role
 from confs import config
 
@@ -22,7 +22,7 @@ logger = get_logger(__name__)
 ####################################
 # Security
 udstore = SQLAlchemyUserDatastore(db, User, Role)
-security = Security(datastore=udstore)
+# security = Security(datastore=udstore)
 
 
 ####################################

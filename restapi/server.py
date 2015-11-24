@@ -83,8 +83,19 @@ def create_app(name=__name__, enable_security=True, **kwargs):
     ##############################
     # Flask security
     if enable_security:
-        from .security import security
-        security.init_app(microservice)
+
+        ############################################
+# Should open an issue on flask-admin!
+# BUG!
+        # from .security import security
+        # security.init_app(microservice)
+# WORKAROUND
+        from .security import udstore
+        from flask.ext.security import Security
+        security = Security(microservice, udstore)
+# WORKAROUND
+        ############################################
+
         logger.info("FLASKING! Injected security")
 
     # Prepare database and tables
