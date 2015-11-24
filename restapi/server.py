@@ -133,6 +133,8 @@ def create_app(name=__name__, security=True, **kwargs):
             return dict(admin_base_template=admin.base_template,
                         admin_view=admin.index_view, h=admin_helpers)
 
+        logger.info("FLASKING! Injected admin endpoints")
+
     ##############################
     # App is ready
     return microservice

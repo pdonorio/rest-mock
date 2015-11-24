@@ -18,8 +18,7 @@ TODO:
  ✔ A good refactor @done (15-11-24 12:28)
  ✔ Add admin and security to current project @done (15-11-24 14:24)
    ✔ optional? @done (15-11-24 15:08)
- ☐ restful intercept abort if not logged?
-   ☐ when solved remove auth tests inside rest.py
+ ✔ restful intercept abort if not logged @done (15-11-24 15:33)
  ☐ print as info request for flask?
    ☐ problem with logging into rest resources
 

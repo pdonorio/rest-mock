@@ -41,7 +41,7 @@ class MyConfigs(object):
         resources = []
 
         for section in sections:
-            logger.critical("Section " + section)
+            logger.warning("READING CONFIGURATION. {Section: " + section + "}")
 
             module = meta.get_module_from_string(
                 __package__ + '.resources.' + section)
