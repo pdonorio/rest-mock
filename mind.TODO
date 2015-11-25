@@ -23,6 +23,7 @@ TODO:
    ✔ bug found! @done (15-11-24 18:23)
    ☐ open issue
  ☐ restful intercept abort if not logged
+ ☐ Security in the docs/README
    ☐ return the right code?
  ☐ print as info request for flask?
    ☐ problem with logging into rest resources

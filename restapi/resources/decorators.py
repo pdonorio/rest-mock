@@ -22,6 +22,7 @@ from __future__ import division, absolute_import
 from .. import myself, lic, get_logger
 
 from flask_restful import marshal
+from .. import htmlcodes as hcodes
 
 __author__ = myself
 __copyright__ = myself
@@ -109,10 +110,11 @@ def apimethod(func):
         # Debug
         class_name = self.__class__.__name__
         method_name = func.__name__.upper()
-# How to LOG with RESTful:
-#   endpoint?
-#   address?
-#   response code?
+
+# // TO FIX:
+#   HOW TO LOG WITH RESTFUL?
+#   endpoint? #   address? #   response code?
+
         logger.info("[Class: %s] %s request" % (class_name, method_name))
         # Call the parse method
         self.apply_parameters()
@@ -122,8 +124,13 @@ def apimethod(func):
             out = func(self, *args, **kwargs)
         except KeyError as e:
             if str(e).strip("'") == "security":
-                return {'message': "FAIL: problems with auth check"}, 404
+                return {'message': "FAIL: problems with auth check"}, \
+                    hcodes.HTTP_BAD_NOTFOUND
             raise e
+
+# // TO FIX:
+# DO NOT INTERCEPT 404 or other status from other plugins (e.g. security)
+
         # Set standards for my response as specified in base.py
         return marshal(out, self.resource_fields)
     return wrapper
