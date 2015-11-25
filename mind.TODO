@@ -22,12 +22,15 @@ TODO:
  ✔ Fix back admin @done (15-11-24 18:30)
    ✔ bug found! @done (15-11-24 18:23)
    ☐ open issue
- ☐ documentation
-   ✔ write base @done (15-11-25 16:32)
-   ☐ doc for security and test
  ☐ restful intercept abort if not logged
- ☐ Security in the docs/README
-   ☐ return the right code?
+ ☐ move login/logout/register bluprint to "api"
+   ☐ also admin to /api/admin?
+   ☐ also in documentation
+ ✔ Security in the docs/README @done (15-11-25 19:18)
+   ✔ return the right code? @done (15-11-25 19:18)
+ ✔ documentation @done (15-11-25 19:18)
+   ✔ write base @done (15-11-25 16:32)
+   ✔ doc for security and test @done (15-11-25 19:03)
  ☐ print as info request for flask?
    ☐ problem with logging into rest resources
 

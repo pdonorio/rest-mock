@@ -4,6 +4,9 @@
 All the API configuration variables are available in a file called
 [`confs/config.py`](https://github.com/pdonorio/rest-mock/blob/master/confs/config.py#L11).
 
+## Command line arguments
+
+The app can be executed launching the `run.py` file found in the root of the project.
 
 ## What you should modify after a fork
 

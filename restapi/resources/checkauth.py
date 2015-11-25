@@ -26,8 +26,7 @@ class CheckLogged(ExtendedApiResource):
     @decorate.apimethod
     @auth_token_required
     def get(self):
-        ret_dict = {"Key1": "Value1", "Key2": "value2"}
-        return ret_dict, 200
+        return "Valid user"
 
 
 class TestAdmin(ExtendedApiResource):
@@ -35,6 +34,6 @@ class TestAdmin(ExtendedApiResource):
 
     @decorate.apimethod
     @auth_token_required
-    @roles_required(config.ROLE_ADMIN)  # , 'another')
+    @roles_required(config.ROLE_ADMIN)
     def get(self):
         return "I am admin!"

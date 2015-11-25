@@ -3,6 +3,7 @@ pages:
 - Introduction: index.md
 - Quick start: quick.md
 - Configuration: conf.md
+- Run the server: run.md
 - Manage APIs: manage.md
 - Security: security.md
 theme: journal

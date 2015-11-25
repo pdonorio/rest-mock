@@ -28,8 +28,7 @@ You may test via command line with **wget** or **curl**.
 curl -v http://localhost:8081/api/foo
 ```
 
-To write a client with python i would suggest using `requests`.
-To write a javascript client take a look at `Angularjs` and `Restangular` lib.
+To write a client with python i would suggest using `requests` library.
+To write a javascript client take a look at `Angularjs` and `Restangular` (install them with `bower`, it's easier).
 
-What about **httpie**?
-
+My favorite API test app is [httpie](http://httpie.org), which is written in python too.

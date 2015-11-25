@@ -13,6 +13,7 @@ This will be **THE base** for any middleware APIs project of mine :)
 * [Introduction](intro.md)
 * [Quick start](quick.md)
 * [Configuration](conf.md)
+* [Run the server](run.md)
 * [Manage APIs](manage.md)
 * [Security](security.md)
 
