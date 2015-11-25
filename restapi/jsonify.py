@@ -11,7 +11,7 @@ Which breaks the clients who expect JSON back even in case of errors.
 source: http://flask.pocoo.org/snippets/83/
 """
 
-from __future__ import division, print_function, absolute_import
+from __future__ import division, absolute_import
 from . import myself, lic, get_logger
 
 import simplejson as json

@@ -6,7 +6,7 @@ Main server factory.
 We create all the components here!
 """
 
-from __future__ import division, print_function, absolute_import
+from __future__ import division, absolute_import
 from . import myself, lic, get_logger
 
 import os
@@ -22,7 +22,7 @@ __license__ = lic
 logger = get_logger(__name__)
 
 
-def create_app(name=__name__, enable_security=True, **kwargs):
+def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
     """ Create the istance for Flask application """
 
     #################################################
@@ -57,11 +57,10 @@ def create_app(name=__name__, enable_security=True, **kwargs):
 
     ##############################
     # Flask configuration from config file
-
+    microservice.config.from_object(config)
+    microservice.config['DEBUG'] = debug
 # // TO FIX:
 # development/production split?
-
-    microservice.config.from_object(config)
     logger.info("FLASKING! Created application")
 
     #################################################
@@ -98,6 +97,14 @@ def create_app(name=__name__, enable_security=True, **kwargs):
 
         logger.info("FLASKING! Injected security")
 
+    ##############################
+    # Restful plugin
+    from .rest import epo, create_endpoints
+    logger.info("FLASKING! Injected rest endpoints")
+    epo = create_endpoints(epo, security, debug)
+    epo.rest_api.init_app(microservice)
+
+    ##############################
     # Prepare database and tables
     with microservice.app_context():
         try:
@@ -110,15 +117,9 @@ def create_app(name=__name__, enable_security=True, **kwargs):
             exit(1)
 
         if enable_security:
-            # Prepare user/roles
             from .security import db_auth
+            # Prepare user/roles
             db_auth()
-
-    ##############################
-    # Restful plugin
-    from .rest import rest
-    rest.init_app(microservice)
-    logger.info("FLASKING! Injected rest endpoints")
 
     ##############################
     # Flask admin

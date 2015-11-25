@@ -18,7 +18,7 @@ I didn't manage to have it play the way docs require, so i tested some slightly
 different solutions.
 """
 
-from __future__ import division, print_function, absolute_import
+from __future__ import division, absolute_import
 from .. import myself, lic, get_logger
 
 from flask_restful import marshal
@@ -46,7 +46,7 @@ def enable_endpoint_identifier(name='myid', idtype='string'):
                 logger.info("[%s] Applying ID to endopoint:%s of type '%s'"
                             % (self.__class__.__name__, name, idtype))
                 self.set_method_id(name, idtype)
-                print("New init", name, idtype)
+                # logger.debug("New init %s %s" % (name, idtype))
                 super(cls, self).__init__()
         return NewClass
     return class_rebuilder

@@ -3,7 +3,7 @@
 
 """ Models for the relational database """
 
-from __future__ import division, print_function, absolute_import
+from __future__ import division, absolute_import
 from . import myself, lic, get_logger
 
 from flask.ext.sqlalchemy import SQLAlchemy

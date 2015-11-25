@@ -6,7 +6,7 @@ Main server factory.
 We create all the components here!
 """
 
-from __future__ import division, print_function, absolute_import
+from __future__ import division, absolute_import
 from . import myself, lic, get_logger
 
 from flask.ext.security import SQLAlchemyUserDatastore  # , Security
@@ -39,8 +39,6 @@ def db_auth():
 
     missing_user = not User.query.first()
     logger.debug("Missing user")
-    for i in User.query:
-        print(i)
     if missing_user:
         from flask_security.utils import encrypt_password
         udstore.create_user(first_name='User', last_name='IAm',
