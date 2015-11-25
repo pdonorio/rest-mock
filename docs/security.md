@@ -5,7 +5,8 @@
 
 I integrated basic **Flask-Security** endpoints inside the REST API code.
 This means that you may use Token based authentication
-with a primary user/pwd/admin_role in sqllite db.
+with triplets (user, pwd, role) saved in sqllite db.
+
 
 ## Documentation to be written!
 

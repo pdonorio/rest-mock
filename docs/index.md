@@ -28,15 +28,19 @@ I think this repo would be usefull to fork if you are planning to write a projec
 * Flask (*obviously*)
 * Jinja2
 * Flask Cors
-* Flask Restful plugin (and evaluating Flask Classy, also)
-
-**stil to be added**
-* Tracestack
+* Flask Restful plugin (even if evaluating *Flask Classy*, also)
 * Flask Security
-    Simple RBAC + OAuth tokens + encryption + user registration
-    + Mail + Login + Principal + Flask Admin interface
-* Flask Cache
+    Simple RBAC + OAuth tokens + encryption +
+    user registration + Login + Principal
+* Flask Admin interface
+
+*Still to be added:*
+
+* Flask-JWT
 * Plumbum
+* Tracestack
+* Mail
+* Flask Cache
 * Flask Uploads
 * Alembic? migrations for SQLalchemy
 

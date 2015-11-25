@@ -3,7 +3,7 @@
 
 ## How to add an endpoint
 
-#### A quick way
+#### The quick way (not recommended)
 
 Edit `restapi/resources/exampleservices.py` and add a rest class:
 
@@ -16,7 +16,7 @@ The base code is found inside the `restapi.resources.base` module. Please check 
 **Test it**: if your class is called `MyClass`, it will be reachable at the address `http://HOST:PORT/api/myclass` address of the running server.
 You can also specify a different address, by overiding the attribute `endpoint` of your class.
 
-#### Cleaner way
+#### The right way
 
 Define a file `confs/endpoints.ini` with the following syntax:
 
