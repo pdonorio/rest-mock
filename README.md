@@ -10,10 +10,11 @@ This will be **THE base** for any middleware APIs project of mine :)
 
 ## Documentation
 
-* [Introduction][intro.md]
-* [Quick start][quick.md]
-* [Security][security.md]
-* [Manage APIs][manage.md]
+* [Introduction](intro.md)
+* [Quick start](quick.md)
+* [Configuration](conf.md)
+* [Manage APIs](manage.md)
+* [Security](security.md)
 
 ---
 
