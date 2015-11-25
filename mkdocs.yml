@@ -1,0 +1,7 @@
+site_name: REST API automatic mock
+pages:
+- Introduction: index.md
+- Quick start: quick.md
+- Security: security.md
+- Manage APIs: manage.md
+theme: journal

@@ -22,6 +22,9 @@ TODO:
  ✔ Fix back admin @done (15-11-24 18:30)
    ✔ bug found! @done (15-11-24 18:23)
    ☐ open issue
+ ☐ documentation
+   ✔ write base @done (15-11-25 16:32)
+   ☐ doc for security and test
  ☐ restful intercept abort if not logged
  ☐ Security in the docs/README
    ☐ return the right code?
