@@ -10,7 +10,7 @@ This will be **THE base** for any middleware APIs project of mine :)
 
 ## Documentation
 
-* [Introduction](intro.md)
+* [Introduction](index.md)
 * [Quick start](quick.md)
 * [Configuration](conf.md)
 * [Run the server](run.md)
