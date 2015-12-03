@@ -6,8 +6,8 @@ rest:
   image: pdonorio/py3api
   hostname: restapi
   # DEBUG
-  #command: sleep infinity
-  command: ./run.py
+  command: sleep infinity
+  #command: ./run.py
 #########################
 # Our services API want to use the HTTP range port: 8081-8089
   ports:
@@ -16,6 +16,14 @@ rest:
   volumes:
     - .:/code:rw
   working_dir: /code
+
+client:
+  image: pdonorio/py3api
+  command: sleep infinity
+  links:
+    - rest:api
+  volumes:
+    - .:/code:rw
 
 # ##############################################
 # # MY RANDOM TESTS
