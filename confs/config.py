@@ -42,7 +42,8 @@ BASE_DIR = re.sub(__package__, '', os.path.abspath(os.path.dirname(__file__)))
 
 #################################
 # SQLALCHEMY
-dbfile = os.path.join(BASE_DIR, SQLLITE_DBFILE)
+BASE_DB_DIR = '/dbs'
+dbfile = os.path.join(BASE_DB_DIR, SQLLITE_DBFILE)
 SECRET_KEY = 'my-super-secret-keyword'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + dbfile
 SQLALCHEMY_TRACK_MODIFICATIONS = False
