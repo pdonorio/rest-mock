@@ -3,6 +3,7 @@
 """ Client for api """
 
 import requests
+import simplejson as json
 
 NODE = 'api'
 PORT = 5000
@@ -11,11 +12,11 @@ PW = 'test'
 
 URL = 'http://%s:%s' % (NODE, PORT)
 LOGIN_URL = URL + '/login'
-HEADERS = {'user-agent': 'my-app/0.0.1'}
+HEADERS = {'content-type': 'application/json'}
+payload = {'email': USER, 'password': PW}
 
-r = requests.post(LOGIN_URL, headers=HEADERS, auth=(USER, PW))
-# payload = {USER: PW}
-# r = requests.post(URL + '/login', params=payload)
+# http://mandarvaze.github.io/2015/01/token-auth-with-flask-security.html
+r = requests.post(LOGIN_URL, data=json.dumps(payload), headers=HEADERS)
 
 ###################
 print(r, r.url)
