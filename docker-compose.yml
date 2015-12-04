@@ -6,8 +6,8 @@ rest:
   image: pdonorio/py3api
   hostname: restapi
   # DEBUG
-  command: sleep infinity
-  #command: ./run.py
+  #command: sleep infinity
+  command: ./run.py
 #########################
 # Our services API want to use the HTTP range port: 8081-8089
   ports:
