@@ -4,38 +4,17 @@ GUIDELINES
 - mock as base service
 - relative imports
 
+   --- ✄ -----------------------
+
 TODO:
- ✔ Flask security @done (15-11-23 15:36)
-   ✔ working snippet @done (15-11-19 10:30)
- ✔ Flask admin users and roles @done (15-11-23 15:36)
-   ✔ working snippet @done (15-11-18 17:47)
- ✔ A mix of the previous two @done (15-11-23 15:36)
-   ✔ working snippet @done (15-11-20 08:55)
-   ✔ use security auth for blocking admin pages @done (15-11-20 10:37)
-   ✔ flask admin for user_role relationship? @done (15-11-20 11:35)
- ✔ basic code cleaning @done (15-11-23 16:24)
- ✔ Rename libs @done (15-11-24 10:50)
- ✔ A good refactor @done (15-11-24 12:28)
- ✔ Add admin and security to current project @done (15-11-24 14:24)
-   ✔ optional? @done (15-11-24 15:08)
- ✔ Fix security code into a separate file @done (15-11-24 17:34)
- ✔ Fix back admin @done (15-11-24 18:30)
-   ✔ bug found! @done (15-11-24 18:23)
-   ☐ open issue @REMEBER
 
- ☐ readthedocs
-
+ ☐ readthedocs?
+ ☐ open issue flask-admin @REMEBER
  ☐ restful intercept abort if not logged
- ☐ move login/logout/register bluprint to "api"
-   ☐ also admin to /api/admin?
-   ☐ also in documentation
- ✔ Security in the docs/README @done (15-11-25 19:18)
-   ✔ return the right code? @done (15-11-25 19:18)
- ✔ documentation @done (15-11-25 19:18)
-   ✔ write base @done (15-11-25 16:32)
-   ✔ doc for security and test @done (15-11-25 19:03)
- ☐ print as info request for flask?
-   ☐ problem with logging into rest resources
+ ☐ log info at each request for restful
+   ☐ problem with logging into rest resources?
+
+   --- ✄ -----------------------
 
  ☐ PyJWT
    ☐ working snippet
@@ -147,3 +126,27 @@ COMPLETED:
   ✔ Decorate all methods in a class with a decorator @cool @done (15-09-26 12:42)
   ✔ changelog? @done (15-09-26 15:45)
     ✘ https://github.com/skywinder/github-changelog-generator @cancelled (15-09-26 15:45)
+ ✔ Flask security @done (15-11-23 15:36)
+   ✔ working snippet @done (15-11-19 10:30)
+ ✔ Flask admin users and roles @done (15-11-23 15:36)
+   ✔ working snippet @done (15-11-18 17:47)
+ ✔ A mix of the previous two @done (15-11-23 15:36)
+   ✔ working snippet @done (15-11-20 08:55)
+   ✔ use security auth for blocking admin pages @done (15-11-20 10:37)
+   ✔ flask admin for user_role relationship? @done (15-11-20 11:35)
+ ✔ basic code cleaning @done (15-11-23 16:24)
+ ✔ Rename libs @done (15-11-24 10:50)
+ ✔ A good refactor @done (15-11-24 12:28)
+ ✔ Add admin and security to current project @done (15-11-24 14:24)
+   ✔ optional? @done (15-11-24 15:08)
+ ✔ Fix security code into a separate file @done (15-11-24 17:34)
+ ✔ Fix back admin @done (15-11-24 18:30)
+   ✔ bug found! @done (15-11-24 18:23)
+ ✔ Security in the docs/README @done (15-11-25 19:18)
+   ✔ return the right code? @done (15-11-25 19:18)
+ ✔ documentation @done (15-11-25 19:18)
+   ✔ write base @done (15-11-25 16:32)
+   ✔ doc for security and test @done (15-11-25 19:03)
+ ✔ move login/logout/register bluprint to "api" @done (15-12-04 08:16)
+   ✔ also admin to /api/manage? @done (15-12-04 08:16)
+   ✔ also in documentation @done (15-12-04 08:20)

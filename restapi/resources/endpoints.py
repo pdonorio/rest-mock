@@ -5,7 +5,7 @@
 
 from .. import get_logger
 from ..meta import Meta
-from . import FIXED_APIURL
+from confs.config import ALL_API_URL
 
 logger = get_logger(__name__)
 
@@ -22,7 +22,7 @@ class Endpoints(object):
     def create_single(self, resource, endpoint, endkey):
         """ Adding a single restpoint from a Resource Class """
 
-        address = FIXED_APIURL + endpoint
+        address = ALL_API_URL + '/' + endpoint
         logger.info("Adding '%s' resource to REST address: *%s*",
                     resource.__name__, address)
         # Normal endpoint, e.g. /api/foo

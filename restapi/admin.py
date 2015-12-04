@@ -24,7 +24,8 @@ logger = get_logger(__name__)
 
 ####################################
 # Admininistration
-admin = Admin(name='Adminer', template_mode='bootstrap3')
+admin = Admin(name='Adminer', url=config.ALL_API_URL+'/manage',
+              template_mode='bootstrap3')
 logger.debug("Flask: creating Admininistration")
 
 

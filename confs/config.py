@@ -58,5 +58,8 @@ SECURITY_TOKEN_MAX_AGE = 3600
 # https://pythonhosted.org/Flask-Security/configuration.html
 SECURITY_PASSWORD_HASH = "pbkdf2_sha512"
 SECURITY_PASSWORD_SALT = "thishastobelongenoughtosayislonglongverylong"
-###################################################
-###################################################
+
+#################################
+# ENDPOINTS
+ALL_API_URL = '/api'
+SECURITY_URL_PREFIX = ALL_API_URL

@@ -17,9 +17,9 @@ To change it modify `docker-compose.py`.
 
 Flask-Security enables the following endpoints automatically:
 
-* `/login` to authenticate a user and request a token
-* `/logout` to release the token
-* `/register` to request a user registration
+* `/api/login` to authenticate a user and request a token
+* `/api/logout` to release the token
+* `/api/register` to request a user registration
 
 This is the logic for a valid Token authentication request:
 ```bash
@@ -47,6 +47,11 @@ http awesome.dev:8081/api/checklogged Authentication-Token:WyIxIiwiOWQyMGRiMjVlY
 
 <small>Note: i use [httpie](http://httpie.org) to test API endpoints.</small>
 
+## Login with Python Requests
+
+To get the token with Python requests:
+[link to be added to script](../flasktests/client.py)
+
 ## Login with Javascript
 
 A snippet to authenticate with Angular to our API:
@@ -66,7 +71,7 @@ privileges. Refer to [configuration](conf.md) if you need to change the default 
 There is an automatic interface created with Flask-Admin.
 Once the server is running in [security mode](run.md#security-mode) you can access
 `/admin` endpoint with a browser (e.g.
-[http://localhost:8081/admin](http://localhost:8081/admin)
+[http://localhost:8081/api/manage](http://localhost:8081/api/manage)
 )
 to administrate users.
 
