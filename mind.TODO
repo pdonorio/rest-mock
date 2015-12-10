@@ -9,8 +9,8 @@ GUIDELINES
 TODO:
 
  ☐ readthedocs?
- ☐ open issue flask-admin @REMEBER
-
+ ☐ open issue flask-admin @REMEMBER
+ ☐ gunicorn
  ☐ restful intercept abort if not logged
  ✔ log info at each request for restful @done (15-12-10 07:46)
 

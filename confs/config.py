@@ -10,7 +10,7 @@ import re
 
 #################################
 # what you could change
-DEBUG = False
+DEBUG = os.environ.get('API_DEBUG', False)
 STACKTRACE = False
 REMOVE_DATA_AT_INIT_TIME = False
 USER = 'user@nomail.org'
