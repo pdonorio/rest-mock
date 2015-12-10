@@ -10,7 +10,7 @@ from __future__ import division, absolute_import
 from . import myself, lic, get_logger
 
 import os
-from flask import Flask, got_request_exception, jsonify
+from flask import Flask, request, got_request_exception, jsonify
 from .jsonify import make_json_error
 from werkzeug.exceptions import default_exceptions
 from .jsonify import log_exception, RESTError
@@ -140,6 +140,16 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
                         admin_view=admin.index_view, h=admin_helpers)
 
         logger.info("FLASKING! Injected admin endpoints")
+
+    ##############################
+    # Logging responses
+    @microservice.after_request
+    def log_response(response):
+        logger.info("{} {} {}\n{}".format(
+                    request.method, request.url, request.data, response))
+        return response
+    # OR
+    # http://www.wiredmonk.me/error-handling-and-logging-in-flask-restful.html
 
     ##############################
     # App is ready
