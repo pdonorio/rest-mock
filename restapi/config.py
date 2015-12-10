@@ -37,16 +37,17 @@ class MyConfigs(object):
         logger.debug("Trying configuration from " + REST_CONFIG)
 
         meta = Meta()
-
         resources = []
 
         for section in sections:
-            logger.warning("READING CONFIGURATION. {Section: " + section + "}")
+
+            logger.info("Configuration read: {Section: " + section + "}")
 
             module = meta.get_module_from_string(
                 __package__ + '.resources.' + section)
             # Skip what you cannot use
             if module is None:
+                logger.warning("Could not find module '%s'..." % section)
                 continue
 
             for classname, endpoint in config[section].items():
