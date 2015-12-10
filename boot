@@ -3,7 +3,7 @@
 main_command="./run.py"
 
 if [ "$APP_MODE" == "debug" ]; then
-    echo "Development"
+    echo "[=== DEBUG MODE ===]"
     sleep infinity
 elif [ "$APP_MODE" == "development" ]; then
     echo "Development"
