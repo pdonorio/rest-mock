@@ -150,6 +150,10 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
         return response
     # OR
     # http://www.wiredmonk.me/error-handling-and-logging-in-flask-restful.html
+    # WRITE TO FILE
+    # file_handler = logging.FileHandler('app.log')
+    # app.logger.addHandler(file_handler)
+    # app.logger.setLevel(logging.INFO)
 
     ##############################
     # App is ready
