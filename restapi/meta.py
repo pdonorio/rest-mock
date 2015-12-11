@@ -4,7 +4,9 @@
 """ Meta thinking: python introspection """
 
 from importlib import import_module
+import pkgutil
 from . import get_logger
+
 logger = get_logger(__name__)
 
 
@@ -14,12 +16,23 @@ class Meta(object):
     """Utilities with meta in mind"""
 
     _latest_list = {}
+    _submodules = []
 
     def get_latest_classes(self):
         return self._latest_list
 
     def set_latest_classes(self, classes):
         self._latest_list = classes
+
+    def get_submodules_from_package(self, package):
+        self._submodules = []
+        for importer, modname, ispkg \
+                in pkgutil.iter_modules(package.__path__):
+            if not ispkg:
+                self._submodules.append(modname)
+                logger.debug("Found %s submodule inside %s" %
+                             (modname, package.__name__))
+        return self._submodules
 
     def get_classes_from_module(self, module):
         """ Find classes inside a python module file """
