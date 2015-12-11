@@ -10,6 +10,10 @@ This will be **THE base** for any middleware APIs project of mine :)
 
 ## Documentation
 
+You can find a compiled version on [readthedocs website](http://rest-mock.readthedocs.org/en/latest/).
+
+Here is the index for viewing internally on GitHub:
+
 * [Introduction](docs/index.md)
 * [Quick start](docs/quick.md)
 * [Configuration](docs/conf.md)

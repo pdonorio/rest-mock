@@ -8,11 +8,11 @@ GUIDELINES
 
 TODO:
 
- ☐ readthedocs?
+ ✔ log info at each request for restful @done (15-12-10 07:46)
+ ✔ readthedocs? @done (15-12-11 10:12)
  ☐ open issue flask-admin @REMEMBER
  ☐ gunicorn
  ☐ restful intercept abort if not logged
- ✔ log info at each request for restful @done (15-12-10 07:46)
 
    --- ✄ -----------------------
 
@@ -22,6 +22,7 @@ TODO:
    https://github.com/graup/flask-restless-security
  ☐ Rest blueprint
  http://flask-restful-cn.readthedocs.org/en/0.3.4/intermediate-usage.html#use-with-blueprints
+ http://www.wiredmonk.me/customizing-flask-restful.html
  ☐ Restful interesting
    ☐ cors decorator
    ☐ crypto
