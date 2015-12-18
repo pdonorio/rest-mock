@@ -42,11 +42,9 @@ BASE_DIR = re.sub(__package__, '', os.path.abspath(os.path.dirname(__file__)))
 #################################
 # SQLALCHEMY
 BASE_DB_DIR = '/dbs'
-SQLLITE_DBFILE = 'latest.db'
+SQLLITE_DBFILE = 'backend.db'
 dbfile = os.path.join(BASE_DB_DIR, SQLLITE_DBFILE)
-# WARNING: this should be equal between Frontend and Backend,
-# if both are using flask and the same db
-SECRET_KEY = 'my-super-secret-keyword'
+SECRET_KEY = 'my-super-secret-keyword_referringtoapiside'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + dbfile
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 

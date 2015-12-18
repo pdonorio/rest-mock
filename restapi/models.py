@@ -68,23 +68,4 @@ class User(db.Model, UserMixin):
     def get_id(self):
         return str(self.id)
 
-
-class Tokenizer(db.Model):
-    """ Save tokens inside db, and pass them along to Angular """
-
-    __tablename__ = "tokens"
-    id = db.Column('token_id', db.Integer, primary_key=True)
-    token = db.Column(db.String(255), unique=True, index=True)
-
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user = db.relationship('User',
-                           backref=db.backref('tokens', lazy='dynamic'))
-
-    def __init__(self, token, user):
-        self.token = token
-        self.user = user
-
-    def __repr__(self):
-        return '<Tok for user%r> %s' % (self.user_id, self.token)
-
 #logger.info("Loaded models")
