@@ -7,7 +7,7 @@
         <br>
         <p><a href="{{ url_for_security('logout') }}">Logout</a></p>
     {% else %}
-        <p>Please <a href="{{ url_for_security('login') }}?next=/admin">login</a> for access.</p>
+        <p>Please <a href="{{ url_for_security('login') }}?next=/api/manage">login</a> for access.</p>
     {% endif %}
 
     <p><a href="/">Return to site</a></p>
