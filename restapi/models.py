@@ -3,22 +3,16 @@
 
 """ Models for the relational database """
 
-from __future__ import division, absolute_import
-from . import myself, lic, get_logger
-
+from datetime import datetime
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.security import UserMixin, RoleMixin
-
-__author__ = myself
-__copyright__ = myself
-__license__ = lic
-
-logger = get_logger(__name__)
+#from . import get_logger
+#logger = get_logger(__name__)
 
 ####################################
 # Create database connection object
 db = SQLAlchemy()
-logger.debug("Flask: creating SQLAlchemy")
+#logger.debug("Flask: creating SQLAlchemy")
 
 ####################################
 # Define multi-multi relation
@@ -47,11 +41,50 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(255), unique=True)
     password = db.Column(db.String(255))
     active = db.Column(db.Boolean())
+    registered_on = db.Column(db.DateTime)
     confirmed_at = db.Column(db.DateTime())
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))
 
+    def __init__(self, **keyargs):
+        self.registered_on = datetime.utcnow()
+        super(User, self).__init__(**keyargs)
+
+    def __repr__(self):
+        return '<User %r>' % (self.email)
+
     def __str__(self):
         return self.email
 
-logger.info("Loaded models")
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return str(self.id)
+
+
+class Tokenizer(db.Model):
+    """ Save tokens inside db, and pass them along to Angular """
+
+    __tablename__ = "tokens"
+    id = db.Column('token_id', db.Integer, primary_key=True)
+    token = db.Column(db.String(255), unique=True, index=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User',
+                           backref=db.backref('tokens', lazy='dynamic'))
+
+    def __init__(self, token, user):
+        self.token = token
+        self.user = user
+
+    def __repr__(self):
+        return '<Tok for user%r> %s' % (self.user_id, self.token)
+
+#logger.info("Loaded models")

@@ -15,6 +15,7 @@ from flask_admin.contrib import sqla
 from flask.ext.security import current_user
 from flask.ext.restful import request, url_for, abort
 from confs import config
+from . import htmlcodes as hcodes
 
 __author__ = myself
 __copyright__ = myself
@@ -47,7 +48,7 @@ class MyModelView(sqla.ModelView):
         """ Override builtin _handle_view to redirect users """
         if not self.is_accessible():
             if current_user.is_authenticated:
-                abort(403)  # permission denied
+                abort(hcodes.HTTP_BAD_FORBIDDEN)  # permission denied
             else:  # login
                 return redirect(url_for('security.login', next=request.url))
 
