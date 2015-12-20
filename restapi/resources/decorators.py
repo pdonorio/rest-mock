@@ -23,6 +23,7 @@ from .. import myself, lic, get_logger
 
 from flask_restful import marshal
 from .. import htmlcodes as hcodes
+from flask.wrappers import Response
 
 __author__ = myself
 __copyright__ = myself
@@ -128,11 +129,12 @@ def apimethod(func):
                     hcodes.HTTP_BAD_NOTFOUND
             raise e
 
-# // TO FIX:
-# DO NOT INTERCEPT 404 or other status from other plugins (e.g. security)
-
+        # DO NOT INTERCEPT 404 or status from other plugins (e.g. security)
+        if isinstance(out, Response):
+            return out
         # Set standards for my response as specified in base.py
         return marshal(out, self.resource_fields)
+
     return wrapper
 
 

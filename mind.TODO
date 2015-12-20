@@ -11,17 +11,18 @@ TODO:
  ✔ log info at each request for restful @done (15-12-10 07:46)
  ✔ readthedocs? @done (15-12-11 10:12)
  ✔ flask admin rest redirect after login is wrong. an option for flask admin? @done (15-12-18 13:38)
- ☐ open issue flask-admin @REMEMBER
-   ☐ ABOUT WHAT??
- ☐ gunicorn...
- ☐ restful intercept abort if not logged
-
-   --- ✄ -----------------------
+ ✔ restful intercept abort if not logged @done (15-12-20 09:04)
 
  ☐ PyJWT
    ☐ working snippet
    ☐ full integrated example
    https://github.com/graup/flask-restless-security
+
+ ☐ open issue flask-admin @REMEMBER
+   ☐ ABOUT WHAT??
+ ☐ gunicorn...
+
+   --- ✄ -----------------------
  ☐ Rest blueprint
  http://flask-restful-cn.readthedocs.org/en/0.3.4/intermediate-usage.html#use-with-blueprints
  http://www.wiredmonk.me/customizing-flask-restful.html
@@ -45,16 +46,6 @@ TODO:
   ☐ Asynchrounous
     ☐ gunicorn
     ☐ twisted https://github.com/cravler/flask-twisted/
-   In need of documentation:
-     ☐ Sphinx... with markdown?
-     http://sphinxcontrib-napoleon.readthedocs.org/en/latest/ Google style
-     https://read-the-docs.readthedocs.org/en/latest/getting_started.html#in-markdown
-     ☐ Alternatives
-     Yaml + markdown
-       http://www.mkdocs.org/
-     Convert markdown to ReST
-       http://pandoc.org/getting-started.html
-       http://www.unexpected-vortices.com/doc-notes/markdown-and-rest-compared.html
   ☐ A valid @PySix [implementation]
     ☐ e.g. jinja2 compat
 
@@ -72,9 +63,6 @@ TO DO:
    ☐ ideas, libs, what i will slowly try to reach
 
 TO FIX:
-  ☐ relative imports
-    https://exploreflask.com/conventions.html#relative-imports
-    ☐ does not work with 'import .something'! Only with 'from .somewhere import something' ...!?
   ☐ add to project some @libraries
     ☐ https://github.com/danrobinson/tracestack
       from tracestack import trace
