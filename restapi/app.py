@@ -6,9 +6,9 @@ Flask app creation
 """
 
 from . import myself, lic, get_logger
-from .server import create_app
-import argparse
 import time
+from .server import create_app
+from confs.config import args
 
 __author__ = myself
 __copyright__ = myself
@@ -16,15 +16,6 @@ __license__ = lic
 
 logger = get_logger(__name__)
 
-#############################
-# Command line arguments
-arg = argparse.ArgumentParser(description='REST API server based on Flask')
-arg.add_argument("--no-security", action="store_false", dest='security',
-                 help='force removal of login authentication on resources')
-arg.add_argument("--debug", action="store_true", dest='debug',
-                 help='enable debugging mode')
-arg.set_defaults(security=True, debug=False)
-args = arg.parse_args()
 if args.debug:
     logger.warning("Enabling DEBUG mode")
     time.sleep(1)

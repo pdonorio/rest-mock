@@ -12,6 +12,8 @@ TODO:
  ✔ readthedocs? @done (15-12-11 10:12)
  ✔ flask admin rest redirect after login is wrong. an option for flask admin? @done (15-12-18 13:38)
  ✔ restful intercept abort if not logged @done (15-12-20 09:04)
+ ☐ double logs?
+   ☐ irods fault... how to list loggers?
 
  ☐ PyJWT
    ☐ working snippet

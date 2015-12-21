@@ -7,15 +7,26 @@ User configuration
 
 import os
 import re
+import argparse
 
 #################################
 # what you could change
-DEBUG = os.environ.get('API_DEBUG', False)
 STACKTRACE = False
 REMOVE_DATA_AT_INIT_TIME = False
 USER = 'user@nomail.org'
 PWD = 'test'
 
+#############################
+# Command line arguments
+arg = argparse.ArgumentParser(description='REST API server based on Flask')
+arg.add_argument("--no-security", action="store_false", dest='security',
+                 help='force removal of login authentication on resources')
+arg.add_argument("--debug", action="store_true", dest='debug',
+                 help='enable debugging mode')
+arg.set_defaults(security=True, debug=False)
+args = arg.parse_args()
+
+DEBUG = os.environ.get('API_DEBUG', args.debug)
 
 ###################################################
 ###################################################
