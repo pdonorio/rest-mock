@@ -45,3 +45,32 @@ def get_logger(name):
     logger = logging.getLogger(name)
     logger.setLevel(LOG_LEVEL)
     return logger
+
+
+# # Does not work very well
+# def silence_loggers(new_level=logging.ERROR):
+#     """ Shut down log from other apps """
+
+#     if '.' not in __package__:
+#         name = __package__
+#     else:
+#         end = __package__.find('.')
+#         name = __package__[:end]
+
+#     from jinja2._compat import iteritems
+#     for key, value in iteritems(logging.Logger.manager.loggerDict):
+#         if isinstance(value, logging.Logger) and \
+#          not key.startswith(name + '.') and \
+#          not key.startswith(name):
+#             print(key, value)
+#             value.setLevel(new_level)
+
+def silence_loggers():
+    root_logger = logging.getLogger()
+    first = True
+    for handler in root_logger.handlers:
+        if first:
+            first = False
+            continue
+        root_logger.removeHandler(handler)
+        #handler.close()
