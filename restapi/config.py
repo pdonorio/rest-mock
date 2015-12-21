@@ -3,9 +3,13 @@
 
 """ Configuration handler """
 
-import configparser
 from . import get_logger, REST_CONFIG
 from .meta import Meta
+try:
+    import configparser
+except:
+    # python2
+    import ConfigParser as configparser
 
 logger = get_logger(__name__)
 
