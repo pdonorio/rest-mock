@@ -11,6 +11,8 @@ except:
     # python2
     import ConfigParser as configparser
 
+from jinja2._compat import iteritems
+
 logger = get_logger(__name__)
 
 
@@ -54,7 +56,7 @@ class MyConfigs(object):
                 logger.warning("Could not find module '%s'..." % section)
                 continue
 
-            for classname, endpoint in config[section].items():
+            for classname, endpoint in iteritems(dict(config.items(section))):
 
                 myclass = meta.get_class_from_string(classname, module)
                 # Again skip
