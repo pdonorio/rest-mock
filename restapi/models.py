@@ -6,13 +6,23 @@
 from datetime import datetime
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.security import UserMixin, RoleMixin
-#from . import get_logger
-#logger = get_logger(__name__)
+
+try:
+    from . import get_logger
+except:
+    try:
+        from config import get_logger
+    except:
+        print("Failed to found a logger")
+        import sys
+        sys.exit(1)
+
+logger = get_logger(__name__)
 
 ####################################
 # Create database connection object
 db = SQLAlchemy()
-#logger.debug("Flask: creating SQLAlchemy")
+logger.debug("Flask: creating SQLAlchemy")
 
 ####################################
 # Define multi-multi relation
@@ -68,4 +78,4 @@ class User(db.Model, UserMixin):
     def get_id(self):
         return str(self.id)
 
-#logger.info("Loaded models")
+logger.info("Loaded models")

@@ -14,10 +14,18 @@ source: http://flask.pocoo.org/snippets/83/
 from __future__ import division, absolute_import
 from . import myself, lic, get_logger
 
-import simplejson as json
 from flask import jsonify, make_response
 from werkzeug.exceptions import HTTPException
 from . import htmlcodes as hcodes
+
+# Look for the best chance for json lib
+try:
+    import simplejson as json
+except:
+    try:
+        import commentjson as json
+    except:
+        import json
 
 __author__ = myself
 __copyright__ = myself
