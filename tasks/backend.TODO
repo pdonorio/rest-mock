@@ -17,6 +17,7 @@ TODO:
 
  ☐ PyJWT
    ☐ working snippet
+   https://github.com/sahat/satellizer/blob/master/examples/server/python/app.py
    ☐ full integrated example
    https://github.com/graup/flask-restless-security
 
