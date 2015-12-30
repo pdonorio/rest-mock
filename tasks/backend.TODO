@@ -25,6 +25,10 @@ TODO:
    ☐ ABOUT WHAT??
  ☐ gunicorn...
 
+ ☐ Python debugger
+http://nbviewer.ipython.org/github/donnemartin/data-science-ipython-notebooks/blob/master/python-data/pdb.ipynb
+
+
    --- ✄ -----------------------
  ☐ Rest blueprint
  http://flask-restful-cn.readthedocs.org/en/0.3.4/intermediate-usage.html#use-with-blueprints
