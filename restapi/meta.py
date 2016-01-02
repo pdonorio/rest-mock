@@ -82,6 +82,6 @@ class Meta(object):
         Very usefull for automatic algorithms.
         """
         methods = dict(your_class.__dict__)
-        for key, value in attributes.iteritems():
+        for key, value in attributes.items():
             methods.update({key: value})
         return type(label, (your_class,), methods)

@@ -56,10 +56,11 @@ class Endpoints(object):
             # print rname, rclass.__dict__
 
             # Add resource from ORM class
+            address = ALL_API_URL + '/' + rname
             self.rest_api.add_resource(
                 rclass,
-                '/' + rname,
-                '/' + rname + '/<string:data_key>')
+                address,
+                address + '/<string:data_key>')
             # Warning: due to restful plugin system,
             # methods get and get(value) require 2 different resources.
             # This is why we provide two times the same resource

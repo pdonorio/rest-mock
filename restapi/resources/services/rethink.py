@@ -15,7 +15,7 @@ from ...marshal import convert_to_marshal
 from ... import htmlcodes as hcodes
 from ... import get_logger
 
-JSONS_PATH = 'jsonmodels'
+JSONS_PATH = 'models'
 JSONS_EXT = 'json'
 
 # Database and tables to use
@@ -142,7 +142,7 @@ mytemplate = {}
 json_autoresources = {}
 
 for fileschema in glob.glob(os.path.join(JSONS_PATH, "*") + "." + JSONS_EXT):
-    logger.info("Found RDB schema", fileschema)
+    logger.info("Found RDB schema '%s'" % fileschema)
     # Build current model resource
     with open(fileschema) as f:
         mytemplate = json.load(f)
