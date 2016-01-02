@@ -102,6 +102,15 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
     from .rest import epo, create_endpoints
     logger.info("FLASKING! Injected rest endpoints")
     epo = create_endpoints(epo, security, debug)
+
+#############################
+# ADD OTHERS?
+#############################
+    # RETHINKDB
+    from .resources.services.rethink import json_autoresources
+    epo.services_startup(json_autoresources)
+
+    # Restful init of the app
     epo.rest_api.init_app(microservice)
 
     ##############################

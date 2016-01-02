@@ -29,7 +29,7 @@ epo = Endpoints(rest)
 logger.debug("Flask: creating REST")
 
 
-def create_endpoints(epo, security=False, debug=False):
+def create_endpoints(custom_epo, security=False, debug=False):
     """ A single method to add all endpoints """
 
     ####################################
@@ -50,18 +50,18 @@ def create_endpoints(epo, security=False, debug=False):
     if len(resources) < 1:
         logger.info("No file configuration found (or no section inside)")
         from .resources import exampleservices as mymodule
-        epo.many_from_module(mymodule)
+        custom_epo.many_from_module(mymodule)
     # Advanced configuration (cleaner): from your module and .ini
     else:
         logger.info("Using resources found in configuration")
 
         for myclass, instance, endpoint, endkey in resources:
             # Load each resource
-            epo.create_single(myclass, endpoint, endkey)
+            custom_epo.create_single(myclass, endpoint, endkey)
 
     ####################################
     if security and debug:
         from .resources import checkauth
-        epo.many_from_module(checkauth)
+        custom_epo.many_from_module(checkauth)
 
-    return epo
+    return custom_epo

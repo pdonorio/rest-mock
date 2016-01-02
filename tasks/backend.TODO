@@ -1,10 +1,14 @@
 
+--- ✄ -----------------------
 GUIDELINES
 - python 3.4
 - mock as base service
 - relative imports
+--- ✄ -----------------------
 
-   --- ✄ -----------------------
+☐ Python debugger
+http://nbviewer.ipython.org/github/donnemartin/data-science-ipython-notebooks/blob/master/python-data/pdb.ipynb
+
 
 TODO:
 
@@ -22,11 +26,8 @@ TODO:
    https://github.com/graup/flask-restless-security
 
  ☐ open issue flask-admin @REMEMBER
-   ☐ ABOUT WHAT??
- ☐ gunicorn...
-
- ☐ Python debugger
-http://nbviewer.ipython.org/github/donnemartin/data-science-ipython-notebooks/blob/master/python-data/pdb.ipynb
+   ☐ server.py:87
+ ☐ gunicorn configuration
 
 
    --- ✄ -----------------------

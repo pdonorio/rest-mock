@@ -43,3 +43,27 @@ class Endpoints(object):
             for resource in resources:
                 endpoint, endkey = resource().get_endpoint()
                 self.create_single(resource, endpoint, endkey)
+
+    def services_startup(self, myresources):
+        """
+        A special case for RethinkDB and other main services?
+
+        This is where you tell the app what to do with requests.
+        Note: For this resources make sure you create the table!
+        """
+        for name, content in myresources.items():
+            (rclass, rname) = content
+            # print rname, rclass.__dict__
+
+            # Add resource from ORM class
+            self.rest_api.add_resource(
+                rclass,
+                '/' + rname,
+                '/' + rname + '/<string:data_key>')
+            # Warning: due to restful plugin system,
+            # methods get and get(value) require 2 different resources.
+            # This is why we provide two times the same resource
+
+            logger.info("Resource '" + rname + "' [" + name + "]: loaded")
+
+#resources_init(jresources.json_autoresources)
