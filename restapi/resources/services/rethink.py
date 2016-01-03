@@ -16,13 +16,12 @@ from ... import htmlcodes as hcodes
 from ... import get_logger
 from .connections import Connection
 
+# Using docker, "**db**"" is my alias of the ReThinkDB container
+RDB_HOST = "rdb"
+RDB_PORT = 28015
 # Models and paths
 JSONS_PATH = 'models'
 JSONS_EXT = 'json'
-# Using docker, "**db**"" is my alias of the ReThinkDB container
-RDB_HOST = "db"
-# Docker forwarding port system var (otherwise use standard rethinkdb port)
-RDB_PORT = os.environ.get('DB_PORT_28015_TCP_PORT') or 28015
 # Database and tables to use
 APP_DB = "webapp"
 DEFAULT_TABLE = "test"
@@ -203,7 +202,7 @@ class RethinkConnection(Connection):
 
 # Need a pool of connections: http://j.mp/1yNP4p0
 def try_to_connect():
-    if "rdb" in g:
+    if g and "rdb" in g:
         return False
     try:
         logger.info("Creating the rdb object")
@@ -218,27 +217,31 @@ def try_to_connect():
 
 ##########################################
 # Read model template
-mytemplate = {}
-json_autoresources = {}
+def create_rdbjson_resources():
+    mytemplate = {}
+    json_autoresources = {}
 
-for fileschema in glob.glob(os.path.join(JSONS_PATH, "*") + "." + JSONS_EXT):
-    logger.info("Found RDB schema '%s'" % fileschema)
-    # Build current model resource
-    with open(fileschema) as f:
-        mytemplate = json.load(f)
-    reference_schema = convert_to_marshal(mytemplate)
+    lookfor = os.path.join(JSONS_PATH, "*") + "." + JSONS_EXT
+    for fileschema in glob.glob(lookfor):
+        logger.info("Found RDB schema '%s'" % fileschema)
+        # Build current model resource
+        with open(fileschema) as f:
+            mytemplate = json.load(f)
+        reference_schema = convert_to_marshal(mytemplate)
 
-    # Name for the class. Remove path and extension (json)
-    label = os.path.splitext(os.path.basename(fileschema))[0].lower()
-    # Dynamic attributes
-    new_attributes = {
-        "schema": reference_schema,
-        "template": mytemplate,
-        "table": label,
-    }
-    # Generating the new class
-    from ...meta import Meta
-    newclass = Meta.metaclassing(RethinkResource, label, new_attributes)
-    # Using the same structure i previously used in resources:
-    # resources[name] = (new_class, data_model.table)
-    json_autoresources[label] = (newclass, label)
+        # Name for the class. Remove path and extension (json)
+        label = os.path.splitext(os.path.basename(fileschema))[0].lower()
+        # Dynamic attributes
+        new_attributes = {
+            "schema": reference_schema,
+            "template": mytemplate,
+            "table": label,
+        }
+        # Generating the new class
+        from ...meta import Meta
+        newclass = Meta.metaclassing(RethinkResource, label, new_attributes)
+        # Using the same structure i previously used in resources:
+        # resources[name] = (new_class, data_model.table)
+        json_autoresources[label] = (newclass, label)
+
+    return json_autoresources

@@ -21,6 +21,15 @@ __license__ = lic
 
 logger = get_logger(__name__)
 
+# RETHINKDB
+RDB_AVAILABLE = True
+if not os.environ['RDB_NAME']:
+    RDB_AVAILABLE = False
+else:
+    logger.info("Found RethinkDB container")
+    from .resources.services.rethink import try_to_connect
+    try_to_connect()
+
 
 def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
     """ Create the istance for Flask application """
@@ -108,8 +117,9 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
 # ###ADD OTHERS?
 
     # RETHINKDB
-    from .resources.services.rethink import json_autoresources
-    epo.services_startup(json_autoresources)
+    if RDB_AVAILABLE:
+        from .resources.services.rethink import create_rdbjson_resources
+        epo.services_startup(create_rdbjson_resources())
 
 #############################
 #############################
@@ -157,17 +167,16 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
     ##############################
     # RETHINKDB
 # // TO FIX, not for every endpoint
-    # What to do BEFORE handling a request?
-    @microservice.before_request
-    def before_request():
-        logger.debug("Hello request RDB")
-        # === Connection ===
-        # The RethinkDB server doesn’t use a thread-per-connnection approach,
-        # so opening connections per request will not slow down your database.
-# Database should be already connected in "before_first_request"
-# But the post method fails to find the object!
-        from .resources.services.rethink import try_to_connect
-        try_to_connect()
+    if RDB_AVAILABLE:
+        @microservice.before_request
+        def before_request():
+            logger.debug("Hello request RDB")
+# === Connection ===
+# The RethinkDB server doesn’t use a thread-per-connnection approach,
+# so opening connections per request will not slow down your database.
+    # Database should be already connected in "before_first_request"
+    # But the post method fails to find the object!
+            try_to_connect()
 
     ##############################
     # Logging responses
