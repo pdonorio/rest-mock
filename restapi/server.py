@@ -104,11 +104,15 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
     epo = create_endpoints(epo, security, debug)
 
 #############################
-# ADD OTHERS?
 #############################
+# ###ADD OTHERS?
+
     # RETHINKDB
     from .resources.services.rethink import json_autoresources
     epo.services_startup(json_autoresources)
+
+#############################
+#############################
 
     # Restful init of the app
     epo.rest_api.init_app(microservice)
@@ -149,6 +153,21 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
                         admin_view=admin.index_view, h=admin_helpers)
 
         logger.info("FLASKING! Injected admin endpoints")
+
+    ##############################
+    # RETHINKDB
+# // TO FIX, not for every endpoint
+    # What to do BEFORE handling a request?
+    @microservice.before_request
+    def before_request():
+        logger.debug("Hello request RDB")
+        # === Connection ===
+        # The RethinkDB server doesn’t use a thread-per-connnection approach,
+        # so opening connections per request will not slow down your database.
+# Database should be already connected in "before_first_request"
+# But the post method fails to find the object!
+        from .resources.services.rethink import try_to_connect
+        try_to_connect()
 
     ##############################
     # Logging responses

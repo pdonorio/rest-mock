@@ -7,17 +7,22 @@ import time
 import glob
 import json
 # This Rethinkdb reference is already connected at app init
-from rethinkdb import r
+from rethinkdb import r, RqlDriverError
+from flask import redirect, g
 from flask.ext.restful import fields, Resource, marshal, request
 from flask.ext.restful import url_for
-from flask import redirect
 from ...marshal import convert_to_marshal
 from ... import htmlcodes as hcodes
 from ... import get_logger
+from .connections import Connection
 
+# Models and paths
 JSONS_PATH = 'models'
 JSONS_EXT = 'json'
-
+# Using docker, "**db**"" is my alias of the ReThinkDB container
+RDB_HOST = "db"
+# Docker forwarding port system var (otherwise use standard rethinkdb port)
+RDB_PORT = os.environ.get('DB_PORT_28015_TCP_PORT') or 28015
 # Database and tables to use
 APP_DB = "webapp"
 DEFAULT_TABLE = "test"
@@ -134,6 +139,81 @@ class RethinkResource(Resource, RDBquery):
         # redirect to GET method of this same endpoint, with the id found
         address = url_for(self.table, data_key=myid)
         return redirect(address)
+
+
+class RethinkConnection(Connection):
+    """ Connection for ReThinkDB """
+
+    def __init__(self, load_setup=False):
+        """ My abstract method already connect by default """
+        super(RethinkConnection, self).__init__(load_setup)
+
+    # === Connect ===
+    def make_connection(self, use_database):
+        """
+        This method implements the abstract interface
+        of the Connection class which makes use of a **Singleton Borg**
+        design pattern.
+        See it yourself at: [[connections.py]]
+        You will connect only once, using the same object.
+
+        Note: authentication is provided with admin commands to server,
+        after starting it up, using ssh from app container.
+        Expecting the environment variable to contain a key.
+        """
+        params = {"host": RDB_HOST, "port": RDB_PORT}
+        key = os.environ.get('KEYDBPASS') or None
+        if key is not None:
+            params["auth_key"] = key
+            logger.info("Connection is pw protected")
+        else:
+            logger.warning("Using no authentication")
+
+        # Rethinkdb database connection
+        try:
+            # IMPORTANT! The chosen ORM library does not work if missing repl()
+            # at connection time
+            self._connection = r.connect(**params).repl()
+        except RqlDriverError as e:
+            logger.critical("Failed to connect RDB", e)
+            return False
+
+        try:
+            logger.info("Using database " + APP_DB)
+            self._connection.use(APP_DB)
+        except RqlDriverError as e:
+            logger.critical("Database " + APP_DB + "doesn't exist", e)
+
+        logger.debug("Created Connection")
+        return self._connection
+
+    def create_table(self, table=None, remove_existing=False):
+        """ Creating a table if not exists,
+        taking for Granted the DB already exists """
+
+        if table in r.table_list().run():
+            logger.debug("Table '" + table + "' already exists.")
+            if remove_existing:
+                r.table_drop(table).run()
+                logger.info("Removed")
+        else:
+            r.table_create(table).run()
+            logger.info("Table '" + table + "' created")
+
+
+# Need a pool of connections: http://j.mp/1yNP4p0
+def try_to_connect():
+    if "rdb" in g:
+        return False
+    try:
+        logger.info("Creating the rdb object")
+        g.rdb = RethinkConnection()
+    except Exception:
+        logger.error("Cannot connect")
+        return None
+        # abort(hcodes.HTTP_INTERNAL_TIMEOUT,
+        #     "Problem: no database connection could be established.")
+    return True
 
 
 ##########################################
