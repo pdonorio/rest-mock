@@ -173,17 +173,14 @@ class RethinkConnection(Connection):
             # IMPORTANT! The chosen ORM library does not work if missing repl()
             # at connection time
             self._connection = r.connect(**params).repl()
+            logger.debug("Created Connection")
         except RqlDriverError as e:
             logger.critical("Failed to connect RDB", e)
             return False
 
-        try:
-            logger.info("Using database " + APP_DB)
-            self._connection.use(APP_DB)
-        except RqlDriverError as e:
-            logger.critical("Database " + APP_DB + "doesn't exist", e)
-
-        logger.debug("Created Connection")
+        logger.info("Switching to database " + APP_DB)
+        # Note: RDB db selection does not give error if the db does not exist
+        self._connection.use(APP_DB)
         return self._connection
 
     def create_table(self, table=None, remove_existing=False):
@@ -205,10 +202,12 @@ def try_to_connect():
     if g and "rdb" in g:
         return False
     try:
-        logger.info("Creating the rdb object")
-        g.rdb = RethinkConnection()
-    except Exception:
-        logger.error("Cannot connect")
+        logger.debug("Creating the rdb object")
+        rdb = RethinkConnection()
+        if g:
+            g.rdb = rdb
+    except Exception as e:
+        logger.error("Cannot connect:\n'%s'" % e)
         return None
         # abort(hcodes.HTTP_INTERNAL_TIMEOUT,
         #     "Problem: no database connection could be established.")

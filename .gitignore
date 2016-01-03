@@ -1,5 +1,7 @@
 # sqllite dbs
 *.db
+backups/
+models/*json
 
 # Configurations
 confs/endpoints.ini

@@ -91,7 +91,7 @@ class Connection(Borg):
                 logger.debug("Already connected")
                 return self._connection
 
-        logger.info("Making connection")
+        logger.debug("Trying connection")
         self._connection = self.make_connection(use_database)
         return self._connection
 
