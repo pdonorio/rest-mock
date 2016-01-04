@@ -64,8 +64,8 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Bug fixing for csrf problem via CURL/token
 WTF_CSRF_ENABLED = False
-# Force token to last not more than one hour
-SECURITY_TOKEN_MAX_AGE = 3600
+# Force token to last not more than one day
+SECURITY_TOKEN_MAX_AGE = 3600 * 24
 # Add security to password
 # https://pythonhosted.org/Flask-Security/configuration.html
 SECURITY_PASSWORD_HASH = "pbkdf2_sha512"
