@@ -30,4 +30,6 @@ def convert_to_marshal(data):
     for key, obj in data.items():
         mymarshal[key] = marshal_type(obj)
     # Case of lists?
+
+    print("MARSHAL!", mymarshal)
     return mymarshal

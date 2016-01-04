@@ -78,7 +78,7 @@ class RDBquery(RDBdefaults):
         # Use the table
         return base.table(table)
 
-    def get_content(self, myid=None):
+    def get_content(self, myid=None, limit=10):
 
         data = {}
         query = self.get_table_query()
@@ -88,6 +88,8 @@ class RDBquery(RDBdefaults):
         count = 0
         if not query.is_empty().run():
             count = query.count().run()
+            if limit > 0:
+                query = query.limit(limit)
             data = query.run()
 
         # # Recover only one document

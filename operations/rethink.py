@@ -52,6 +52,7 @@ def convert_search():
                     lambda x: x['fields']['original_hash'].contains(myhash)
                     ).run()
                 fields = []
+#if not query.is_empty().run():
                 try:
                     fields = cursor.next()['fields']
                 except DefaultCursorEmpty:
@@ -78,6 +79,7 @@ def convert_search():
                 'step': row['step'],
                 # Extra info
                 'latest_db_info': {
+# WHAT ABOUT TIMESTAMP CONVERSION ALSO?
                     'timestamp': row['latest_timestamp'],
                     'ip': row['latest_ipaddress'],
                     'user_id': row['user'],

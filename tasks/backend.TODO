@@ -17,6 +17,8 @@ TODO:
    https://github.com/graup/flask-restless-security
 
  ☐ RethinkDB 
+   ✔ limit @done (16-01-04 01:38)
+   ☐ recursive marshal
    ☐ indexes
    ☐ feed change
 
