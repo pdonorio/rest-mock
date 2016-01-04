@@ -21,18 +21,22 @@ __license__ = lic
 
 logger = get_logger(__name__)
 
+###############################
 # RETHINKDB
-RDB_AVAILABLE = True
-if not os.environ['RDB_NAME']:
-    RDB_AVAILABLE = False
-else:
-    logger.info("Found RethinkDB container")
-    from .resources.services.rethink import try_to_connect
-    try_to_connect()
+RDB_AVAILABLE = False
+MODELS = []
+if os.environ['RDB_NAME']:
+    from .resources.services.rethink import load_models, try_to_connect
+    # Look for models
+    MODELS = load_models()
+    if len(MODELS) > 0 and try_to_connect() is not None:
+        RDB_AVAILABLE = True
+        logger.info("Found RethinkDB container")
 
 
+###############################
 def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
-    """ Create the istance for Flask application """
+    """ Create the server istance for Flask application """
 
     #################################################
     # Flask app instance
@@ -119,7 +123,7 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
     #############################
     # RETHINKDB
     if RDB_AVAILABLE:
-        epo.services_startup(secured=True)
+        epo.services_startup(MODELS, secured=True)
 
 #############################
 #############################

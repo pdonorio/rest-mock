@@ -247,12 +247,16 @@ class RethinkSecuredResource(RethinkResource):
 
 ##########################################
 # Read model template
-def create_rdbjson_resources(secured=False):
+def load_models(extension=JSONS_EXT):
+    """ How to look for json models for services API """
+    return glob.glob(os.path.join(JSONS_PATH, "*") + "." + extension)
+
+
+def create_rdbjson_resources(models, secured=False):
     mytemplate = {}
     json_autoresources = {}
 
-    lookfor = os.path.join(JSONS_PATH, "*") + "." + JSONS_EXT
-    for fileschema in glob.glob(lookfor):
+    for fileschema in models:
         logger.info("Found RDB schema '%s'" % fileschema)
         # Build current model resource
         with open(fileschema) as f:

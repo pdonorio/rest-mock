@@ -44,7 +44,7 @@ class Endpoints(object):
                 endpoint, endkey = resource().get_endpoint()
                 self.create_single(resource, endpoint, endkey)
 
-    def services_startup(self, secured=False):
+    def services_startup(self, models, secured=False):
         """
         A special case for RethinkDB and other main services?
 
@@ -53,7 +53,7 @@ class Endpoints(object):
         """
         from .services.rethink import create_rdbjson_resources
 
-        for name, content in create_rdbjson_resources(secured).items():
+        for name, content in create_rdbjson_resources(models, secured).items():
             (rclass, rname) = content
             # print rname, rclass.__dict__
 

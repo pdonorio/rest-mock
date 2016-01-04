@@ -19,6 +19,7 @@ TODO:
  ☐ RethinkDB 
    ✔ limit @done (16-01-04 01:38)
    ✔ secure rdb services? @done (16-01-04 12:10)
+   ✔ moving load models outside, as a better check @done (16-01-04 15:55)
    ☐ recursive marshal
    ☐ indexes
    ☐ feed change
