@@ -140,5 +140,5 @@ def convert_submission():
 
 def convert_schema():
     """ Do all ops """
-    #convert_submission()
+    convert_submission()
     convert_search()

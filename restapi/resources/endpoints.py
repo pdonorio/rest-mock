@@ -44,14 +44,16 @@ class Endpoints(object):
                 endpoint, endkey = resource().get_endpoint()
                 self.create_single(resource, endpoint, endkey)
 
-    def services_startup(self, myresources):
+    def services_startup(self, secured=False):
         """
         A special case for RethinkDB and other main services?
 
         This is where you tell the app what to do with requests.
         Note: For this resources make sure you create the table!
         """
-        for name, content in myresources.items():
+        from .services.rethink import create_rdbjson_resources
+
+        for name, content in create_rdbjson_resources(secured).items():
             (rclass, rname) = content
             # print rname, rclass.__dict__
 
@@ -66,5 +68,3 @@ class Endpoints(object):
             # This is why we provide two times the same resource
 
             logger.info("Resource '" + rname + "' [" + name + "]: loaded")
-
-#resources_init(jresources.json_autoresources)

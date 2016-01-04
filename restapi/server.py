@@ -113,13 +113,13 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
     epo = create_endpoints(epo, security, debug)
 
 #############################
-#############################
 # ###ADD OTHERS?
+#############################
 
+    #############################
     # RETHINKDB
     if RDB_AVAILABLE:
-        from .resources.services.rethink import create_rdbjson_resources
-        epo.services_startup(create_rdbjson_resources())
+        epo.services_startup(secured=True)
 
 #############################
 #############################

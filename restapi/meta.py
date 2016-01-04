@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-""" Meta thinking: python introspection """
+"""
+Meta thinking: python objects & introspection
+
+usefull documentation:
+http://python-3-patterns-idioms-test.readthedocs.org/en/latest/Metaprogramming.html
+"""
 
 from importlib import import_module
 import pkgutil

@@ -6,15 +6,19 @@ import os
 import time
 import glob
 import json
+
 # This Rethinkdb reference is already connected at app init
 from rethinkdb import r, RqlDriverError
+
 from flask import redirect, g
 from flask.ext.restful import fields, Resource, marshal, request
 from flask.ext.restful import url_for
+from flask.ext.security import roles_required, auth_token_required
+from confs import config
+from .connections import Connection
 from ...marshal import convert_to_marshal
 from ... import htmlcodes as hcodes
 from ... import get_logger
-from .connections import Connection
 
 # Using docker, "**db**"" is my alias of the ReThinkDB container
 RDB_HOST = "rdb"
@@ -33,13 +37,13 @@ logger = get_logger(__name__)
 
 
 ###############################
+def get_ip(ip=None):
+    """ A quick (and dirty function) to get the IP from request """
 # TO FIX
 #   make one function/class from what you find in app.py
 #   limit_remote_addr
 #   Please fix me here:
 # http://esd.io/blog/flask-apps-heroku-real-ip-spoofing.html
-def get_ip():
-    ip = None
     if not request.headers.getlist("X-Forwarded-For"):
         ip = request.remote_addr
     else:
@@ -47,7 +51,90 @@ def get_ip():
     return ip
 
 
+##########################################
+# RethinkBD connection object
+class RethinkConnection(Connection):
+    """
+    Connection for ReThinkDB.
+    Based on the Borg design pattern, to optimize resources on
+    opening connections for each request processed by Flask
+    """
+
+    def __init__(self, load_setup=False):
+        """ My abstract method already connect by default """
+        super(RethinkConnection, self).__init__(load_setup)
+
+    # === Connect ===
+    def make_connection(self, use_database):
+        """
+        This method implements the abstract interface
+        of the Connection class which makes use of a **Singleton Borg**
+        design pattern.
+        See it yourself at: [[connections.py]]
+        You will connect only once, using the same object.
+
+        Note: authentication is provided with admin commands to server,
+        after starting it up, using ssh from app container.
+        Expecting the environment variable to contain a key.
+        """
+        params = {"host": RDB_HOST, "port": RDB_PORT}
+        key = os.environ.get('KEYDBPASS') or None
+        if key is not None:
+            params["auth_key"] = key
+            logger.info("Connection is pw protected")
+        else:
+            logger.warning("Using no authentication")
+
+        # Rethinkdb database connection
+        try:
+            # IMPORTANT! The chosen ORM library does not work if missing repl()
+            # at connection time
+            self._connection = r.connect(**params).repl()
+            logger.debug("Created Connection")
+        except RqlDriverError as e:
+            logger.critical("Failed to connect RDB", e)
+            return False
+
+        logger.info("Switching to database " + APP_DB)
+        # Note: RDB db selection does not give error if the db does not exist
+        self._connection.use(APP_DB)
+        return self._connection
+
+    def create_table(self, table=None, remove_existing=False):
+        """ Creating a table if not exists,
+        taking for Granted the DB already exists """
+
+        if table in r.table_list().run():
+            logger.debug("Table '" + table + "' already exists.")
+            if remove_existing:
+                r.table_drop(table).run()
+                logger.info("Removed")
+        else:
+            r.table_create(table).run()
+            logger.info("Table '" + table + "' created")
+
+
+# Need a pool of connections: http://j.mp/1yNP4p0
+def try_to_connect():
+    if g and "rdb" in g:
+        return False
+    try:
+        logger.debug("Creating the rdb object")
+        rdb = RethinkConnection()
+        if g:
+            g.rdb = rdb
+    except Exception as e:
+        logger.error("Cannot connect:\n'%s'" % e)
+        return None
+        # abort(hcodes.HTTP_INTERNAL_TIMEOUT,
+        #     "Problem: no database connection could be established.")
+    return True
+
+
+##########################################
+# RethinkBD quick classes
 class RDBdefaults(object):
+    """ A class to apply defaults for rethinkdb operations """
     table = DEFAULT_TABLE
     db = APP_DB
     order = TIME_COLUMN
@@ -62,8 +149,6 @@ class RDBdefaults(object):
         }
 
 
-##########################################
-# ## RethinkBD quick class
 class RDBquery(RDBdefaults):
     """ An object to query Rethinkdb """
 
@@ -142,83 +227,27 @@ class RethinkResource(Resource, RDBquery):
         return redirect(address)
 
 
-class RethinkConnection(Connection):
-    """ Connection for ReThinkDB """
+##########################################
+# Security option
+class RethinkSecuredResource(RethinkResource):
+    """
+    A skeleton for applying secure decorators to Rethink resources
+    """
 
-    def __init__(self, load_setup=False):
-        """ My abstract method already connect by default """
-        super(RethinkConnection, self).__init__(load_setup)
+    @auth_token_required
+    #@roles_required(config.ROLE_ADMIN)
+    def get(self, data_key=None):
+        return super().get(data_key)
 
-    # === Connect ===
-    def make_connection(self, use_database):
-        """
-        This method implements the abstract interface
-        of the Connection class which makes use of a **Singleton Borg**
-        design pattern.
-        See it yourself at: [[connections.py]]
-        You will connect only once, using the same object.
-
-        Note: authentication is provided with admin commands to server,
-        after starting it up, using ssh from app container.
-        Expecting the environment variable to contain a key.
-        """
-        params = {"host": RDB_HOST, "port": RDB_PORT}
-        key = os.environ.get('KEYDBPASS') or None
-        if key is not None:
-            params["auth_key"] = key
-            logger.info("Connection is pw protected")
-        else:
-            logger.warning("Using no authentication")
-
-        # Rethinkdb database connection
-        try:
-            # IMPORTANT! The chosen ORM library does not work if missing repl()
-            # at connection time
-            self._connection = r.connect(**params).repl()
-            logger.debug("Created Connection")
-        except RqlDriverError as e:
-            logger.critical("Failed to connect RDB", e)
-            return False
-
-        logger.info("Switching to database " + APP_DB)
-        # Note: RDB db selection does not give error if the db does not exist
-        self._connection.use(APP_DB)
-        return self._connection
-
-    def create_table(self, table=None, remove_existing=False):
-        """ Creating a table if not exists,
-        taking for Granted the DB already exists """
-
-        if table in r.table_list().run():
-            logger.debug("Table '" + table + "' already exists.")
-            if remove_existing:
-                r.table_drop(table).run()
-                logger.info("Removed")
-        else:
-            r.table_create(table).run()
-            logger.info("Table '" + table + "' created")
-
-
-# Need a pool of connections: http://j.mp/1yNP4p0
-def try_to_connect():
-    if g and "rdb" in g:
-        return False
-    try:
-        logger.debug("Creating the rdb object")
-        rdb = RethinkConnection()
-        if g:
-            g.rdb = rdb
-    except Exception as e:
-        logger.error("Cannot connect:\n'%s'" % e)
-        return None
-        # abort(hcodes.HTTP_INTERNAL_TIMEOUT,
-        #     "Problem: no database connection could be established.")
-    return True
+    @auth_token_required
+    @roles_required(config.ROLE_ADMIN)
+    def post(self):
+        return super().post()
 
 
 ##########################################
 # Read model template
-def create_rdbjson_resources():
+def create_rdbjson_resources(secured=False):
     mytemplate = {}
     json_autoresources = {}
 
@@ -240,7 +269,10 @@ def create_rdbjson_resources():
         }
         # Generating the new class
         from ...meta import Meta
-        newclass = Meta.metaclassing(RethinkResource, label, new_attributes)
+        resource_class = RethinkResource
+        if secured:
+            resource_class = RethinkSecuredResource
+        newclass = Meta.metaclassing(resource_class, label, new_attributes)
         # Using the same structure i previously used in resources:
         # resources[name] = (new_class, data_model.table)
         json_autoresources[label] = (newclass, label)
