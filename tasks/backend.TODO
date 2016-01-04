@@ -4,20 +4,11 @@ GUIDELINES
 - python 3.4
 - mock as base service
 - relative imports
+  ### PYTHON DEBUGGER
+http://nbviewer.ipython.org/github/donnemartin/data-science-ipython-notebooks/blob/master/python-data/pdb.ipynb
 --- ✄ -----------------------
 
-☐ Python debugger
-http://nbviewer.ipython.org/github/donnemartin/data-science-ipython-notebooks/blob/master/python-data/pdb.ipynb
-
-
 TODO:
-
- ✔ log info at each request for restful @done (15-12-10 07:46)
- ✔ readthedocs? @done (15-12-11 10:12)
- ✔ flask admin rest redirect after login is wrong. an option for flask admin? @done (15-12-18 13:38)
- ✔ restful intercept abort if not logged @done (15-12-20 09:04)
- ✔ double logs? @done (15-12-21 19:27)
-   ✔ irods fault... how to list loggers? @done (15-12-21 19:27)
 
  ☐ PyJWT
    ☐ working snippet
@@ -25,10 +16,13 @@ TODO:
    ☐ full integrated example
    https://github.com/graup/flask-restless-security
 
+ ☐ RethinkDB 
+   ☐ indexes
+   ☐ feed change
+
  ☐ open issue flask-admin @REMEMBER
    ☐ server.py:87
  ☐ gunicorn configuration
-
 
    --- ✄ -----------------------
  ☐ Rest blueprint
@@ -149,3 +143,9 @@ COMPLETED:
  ✔ move login/logout/register bluprint to "api" @done (15-12-04 08:16)
    ✔ also admin to /api/manage? @done (15-12-04 08:16)
    ✔ also in documentation @done (15-12-04 08:20)
+ ✔ log info at each request for restful @done (15-12-10 07:46)
+ ✔ readthedocs? @done (15-12-11 10:12)
+ ✔ flask admin rest redirect after login is wrong. an option for flask admin? @done (15-12-18 13:38)
+ ✔ restful intercept abort if not logged @done (15-12-20 09:04)
+ ✔ double logs? @done (15-12-21 19:27)
+   ✔ irods fault... how to list loggers? @done (15-12-21 19:27)
