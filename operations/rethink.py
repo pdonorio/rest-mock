@@ -33,8 +33,14 @@ def convert_search():
     qt1 = query.get_table_query(t3)
     qt2 = query.get_table_query(tin)
     qtin = query.get_table_query(t2in)
-    qtin.delete().run()
-    logger.info("Clear table '%s'" % t2in)
+
+    pkey = 'record'
+    q = query.get_query()
+
+    if t2in in list(q.table_list().run()):
+        q.table_drop(t2in).run()
+    q.table_create(t2in, primary_key=pkey).run()
+    logger.info("Startup table '%s'" % t2in)
 
     # Query
     res = qt1.group('recordid').order_by('step').run()
@@ -91,6 +97,22 @@ def convert_search():
         qtin.insert({'record': record, 'steps': steps}).run()
         logger.info("Worked off document '%s'" % record)
 
+    # # Create indexes
+    # indexes = ['record']
+    # existing_indexes = list(qtin.index_list().run())
+    # for index in indexes:
+    #     if index not in existing_indexes:
+    #         qtin.index_create(index).run()
+    #         logger.info("Added index '%s'" % index)
+
+
+def check_indexes(table):
+
+    q = query.get_table_query(table)
+    existing_indexes = list(q.index_list().run())
+    for index in existing_indexes:
+        print(list(q.index_status(index).run()))
+
 
 def convert_submission():
     """ Convert schema for Steps Submission """
@@ -140,5 +162,6 @@ def convert_submission():
 
 def convert_schema():
     """ Do all ops """
-    convert_submission()
+    # convert_submission()
+    # check_indexes(t2in)
     convert_search()

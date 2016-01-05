@@ -82,8 +82,8 @@ class RethinkConnection(Connection):
         if key is not None:
             params["auth_key"] = key
             logger.info("Connection is pw protected")
-        else:
-            logger.warning("Using no authentication")
+        # else:
+        #     logger.warning("Using no authentication")
 
         # Rethinkdb database connection
         try:
@@ -152,6 +152,9 @@ class RDBdefaults(object):
 class RDBquery(RDBdefaults):
     """ An object to query Rethinkdb """
 
+    def get_query(self):
+        return r.db(self.db)
+
     def get_table_query(self, table=None):
         if table is None:
             table = self.table
@@ -165,10 +168,12 @@ class RDBquery(RDBdefaults):
 
     def get_content(self, myid=None, limit=10):
 
+        print("\n\n\nMYID\n\n\n", myid)
+
         data = {}
         query = self.get_table_query()
         if myid is not None:
-            query = query.get_all(myid, index='id')
+            query = query.get_all(myid, index='record')
 
         count = 0
         if not query.is_empty().run():
@@ -204,14 +209,18 @@ class RethinkResource(Resource, RDBquery):
     template = None
 
     def get(self, data_key=None):
+
         (count, data) = self.get_content(data_key)
         # return marshal(data, self.schema, envelope='data')
         return marshal(
             {'data': data, 'count': count},
             {'data': fields.Nested(self.schema), 'count': fields.Integer})
 
-    def post(self):
+    def post(self, data_key=None):
+
+        print("\n\n\nNOT YET USING DATA KEY\n\n\n", data_key)
         json_data = request.get_json(force=True)
+
         valid = False
         for key, obj in json_data.items():
             if key in self.schema:
