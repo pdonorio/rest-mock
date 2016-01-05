@@ -17,12 +17,20 @@ TODO:
    https://github.com/graup/flask-restless-security
 
  ☐ RethinkDB 
+ !WOW!
+1) Pass or receive JSON objects to API in flask
+2) They will be stored as it is on RethinkDB
+3) You can filter/transform/query nested JSON data, also with Lambda function
+4) Validate input/output JSON with marshal schema/model
    ✔ limit @done (16-01-04 01:38)
    ✔ secure rdb services? @done (16-01-04 12:10)
    ✔ moving load models outside, as a better check @done (16-01-04 15:55)
    ☐ recursive marshal
    ☐ indexes
    ☐ feed change
+   ☐ images?
+     https://www.rethinkdb.com/api/python/binary/
+     https://www.rethinkdb.com/docs/storing-binary/python/
 
  ☐ open issue flask-admin @REMEMBER
    ☐ server.py:87
