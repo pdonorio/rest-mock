@@ -19,13 +19,40 @@ logger.setLevel(logging.DEBUG)
 t1 = "stepstemplate"
 t2 = "steps"
 t3 = "stepscontent"
+t4 = "docs"
 tin = "datakeys"
 t2in = "datavalues"
+t3in = "datadocs"
 
 # Connection
 RethinkConnection()
 # Query main object
 query = RDBquery()
+
+
+def convert_docs():
+    """ Convert Data needed for search """
+    qt1 = query.get_table_query(t4)
+    qtin = query.get_table_query(t3in)
+
+    pkey = 'record'
+    q = query.get_query()
+
+    if t3in in list(q.table_list().run()):
+        q.table_drop(t3in).run()
+    q.table_create(t3in, primary_key=pkey).run()
+    logger.info("Startup table '%s'" % t3in)
+
+    # Query
+    res = qt1.group('recordid').order_by('code').run()
+    for record, rows in res.items():
+        images = []
+        for row in rows:
+            images.append(row)
+
+        # Insert
+        qtin.insert({pkey: record, 'images': images}).run()
+        logger.info("Insert of record '%s'" % record)
 
 
 def convert_search():
@@ -163,5 +190,6 @@ def convert_submission():
 def convert_schema():
     """ Do all ops """
     # convert_submission()
-    # check_indexes(t2in)
-    convert_search()
+    # # check_indexes(t2in)
+    # convert_search()
+    convert_docs()

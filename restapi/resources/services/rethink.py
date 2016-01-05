@@ -178,7 +178,9 @@ class RDBquery(RDBdefaults):
             count = query.count().run()
             if limit > 0:
                 query = query.limit(limit)
-            data = query.run()
+            # Note: fix time as i has to be converted if available
+            # in original rethinkdb format
+            data = query.run(time_format='raw')
 
         # # Recover only one document
         # document = query.get(myid).run()

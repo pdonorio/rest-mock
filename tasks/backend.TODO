@@ -31,6 +31,20 @@ TODO:
    ☐ recursive marshal
    ☐ indexes
    ☐ feed change
+   ☐ nested update embed document
+   https://www.rethinkdb.com/api/python/update/
+
+r.table("test")
+ .filter(r.row.hasFields({"stock": {"abc": true}}))
+ .update({"stock": {"abc": r.row("stock")("abc").append({"state": 42})}})
+
+r.table('whateves').get('blah').update(function(row) {
+  return {schedules: {amy: row('schedules')('amy').append('new_value')}};
+});
+
+r.db('test').table('taskQueue').get("eb533cd0-fef1-48bf-9fb8-b66261c9171b").update({
+    errors: r.row('errors').append('appended error')
+})
 
  ☐ rename endpoints (newsteps): tables in convert script and jsons files
  ☐ uploads

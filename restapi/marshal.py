@@ -16,7 +16,10 @@ from flask.ext.restful import fields
 def marshal_type(obj):
     mytype = fields.Raw
     if isinstance(obj, str):  # or isinstance(obj, unicode):
-        mytype = fields.String
+        if obj == 'NativeTime':
+            mytype = fields.DateTime(dt_format='rfc822')
+        else:
+            mytype = fields.String
     elif isinstance(obj, int):
         mytype = fields.Integer
     return mytype
