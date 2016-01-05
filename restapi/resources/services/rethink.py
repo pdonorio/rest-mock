@@ -168,8 +168,6 @@ class RDBquery(RDBdefaults):
 
     def get_content(self, myid=None, limit=10):
 
-        print("\n\n\nMYID\n\n\n", myid)
-
         data = {}
         query = self.get_table_query()
         if myid is not None:
