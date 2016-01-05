@@ -19,8 +19,8 @@ logger.setLevel(logging.DEBUG)
 t1 = "stepstemplate"
 t2 = "steps"
 t3 = "stepscontent"
-tin = "newsteps"
-t2in = "newstepscontent"
+tin = "datakeys"
+t2in = "datavalues"
 
 # Connection
 RethinkConnection()

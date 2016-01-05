@@ -25,12 +25,16 @@ TODO:
    ✔ limit @done (16-01-04 01:38)
    ✔ secure rdb services? @done (16-01-04 12:10)
    ✔ moving load models outside, as a better check @done (16-01-04 15:55)
-   ☐ recursive marshal
-   ☐ indexes
-   ☐ feed change
    ☐ images?
      https://www.rethinkdb.com/api/python/binary/
      https://www.rethinkdb.com/docs/storing-binary/python/
+   ☐ recursive marshal
+   ☐ indexes
+   ☐ feed change
+
+ ☐ rename endpoints (newsteps): tables in convert script and jsons files
+ ☐ uploads
+   ☐ backup
 
  ☐ open issue flask-admin @REMEMBER
    ☐ server.py:87
