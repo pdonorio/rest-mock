@@ -167,17 +167,10 @@ class RDBquery(RDBdefaults):
         # Use the table
         return base.table(table)
 
-    def build_query(self, jdata, limit=10):
-        return {'Hello': 'World'}, 1
-
-    def get_content(self, myid=None, limit=10):
-
-        data = {}
-        query = self.get_table_query()
-        if myid is not None:
-            query = query.get_all(myid, index='record')
-
+    def execute_query(self, query, limit):
         count = 0
+        data = {}
+
         if not query.is_empty().run():
             count = query.count().run()
             if limit > 0:
@@ -186,12 +179,24 @@ class RDBquery(RDBdefaults):
             # in original rethinkdb format
             data = query.run(time_format='raw')
 
-        # # Recover only one document
-        # document = query.get(myid).run()
-        # if document is not None:
-        #     document.pop('id')
+        return count, list(data)
 
-        return (count, list(data))
+    def build_query(self, jdata, limit=10):
+        # Get RDB handle for this resource table
+        query = self.get_table_query()
+        # Build query
+
+        # Execute query
+        return self.execute_query(query, limit)
+
+    def get_content(self, myid=None, limit=10):
+        """ For GET method, very simple """
+
+        query = self.get_table_query()
+        if myid is not None:
+            query = query.get_all(myid, index='record')
+
+        return self.execute_query(query, limit)
 
     def insert(self, data, user=None):
         # Prepare the query
@@ -249,11 +254,11 @@ class RethinkResource(Resource, RDBquery):
         # Making queries
         if 'query' in json_data and len(json_data) == 1:
             logger.debug("Build a query from JSON", json_data)
-            data, count = self.build_query(json_data)
+            count, data = self.build_query(json_data)
             return self.nomarshal(data, count)
 
         ###############################
-        # Insert element
+        # Otherwise INSERT ELEMENT
         else:
             valid = False
             for key, obj in json_data.items():
