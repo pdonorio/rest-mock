@@ -15,6 +15,7 @@ from flask.ext.restful import fields, Resource, marshal, request
 from flask.ext.restful import url_for
 from flask.ext.security import roles_required, auth_token_required
 from confs import config
+from collections import OrderedDict
 from .connections import Connection
 from ...marshal import convert_to_marshal
 from ... import htmlcodes as hcodes
@@ -95,7 +96,7 @@ class RethinkConnection(Connection):
             logger.critical("Failed to connect RDB", e)
             return False
 
-        logger.info("Switching to database " + APP_DB)
+        logger.debug("Switching to database " + APP_DB)
         # Note: RDB db selection does not give error if the db does not exist
         self._connection.use(APP_DB)
         return self._connection
@@ -166,6 +167,9 @@ class RDBquery(RDBdefaults):
         # Use the table
         return base.table(table)
 
+    def build_query(self, jdata, limit=10):
+        return {'Hello': 'World'}, 1
+
     def get_content(self, myid=None, limit=10):
 
         data = {}
@@ -199,6 +203,14 @@ class RDBquery(RDBdefaults):
         # Get the id
         return rdb_out['generated_keys'].pop()
 
+    def marshal(self, data, count=0):
+        return marshal(
+            {'data': data, 'count': count},
+            {'data': fields.Nested(self.schema), 'count': fields.Integer})
+
+    def nomarshal(self, data, count=0):
+        return OrderedDict({'data': data, 'count': count})
+
 
 ##########################################
 # The generic resource
@@ -214,14 +226,12 @@ class RethinkResource(Resource, RDBquery):
         I should use url parameters for filtering, but it's very limiting.
         I'll give POST a try.
         """
-
+        # Get content from db
         (count, data) = self.get_content(data_key)
-        # return marshal(data, self.schema, envelope='data')
-        return marshal(
-            {'data': data, 'count': count},
-            {'data': fields.Nested(self.schema), 'count': fields.Integer})
+        # Return wrapped data
+        return self.marshal(data, count)
 
-    def post(self, data_key=None):
+    def post(self):
         """
         I am going to use the post Method for rethink queries.
         This is because the POST method allows from RESTful resource
@@ -235,19 +245,29 @@ class RethinkResource(Resource, RDBquery):
         # Get JSON. The power of having a real object in our hand.
         json_data = request.get_json(force=True)
 
-        valid = False
-        for key, obj in json_data.items():
-            if key in self.schema:
-                valid = True
-        if not valid:
-            return self.template, hcodes.HTTP_BAD_REQUEST
+        ###############################
+        # Making queries
+        if 'query' in json_data and len(json_data) == 1:
+            logger.debug("Build a query from JSON", json_data)
+            data, count = self.build_query(json_data)
+            return self.nomarshal(data, count)
 
-        # marshal_data = marshal(json_data, self.schema, envelope='data')
-        myid = self.insert(json_data)
+        ###############################
+        # Insert element
+        else:
+            valid = False
+            for key, obj in json_data.items():
+                if key in self.schema:
+                    valid = True
+            if not valid:
+                return self.template, hcodes.HTTP_BAD_REQUEST
 
-        # redirect to GET method of this same endpoint, with the id found
-        address = url_for(self.table, data_key=myid)
-        return redirect(address)
+            # marshal_data = marshal(json_data, self.schema, envelope='data')
+            myid = self.insert(json_data)
+
+            # redirect to GET method of this same endpoint, with the id found
+            address = url_for(self.table, data_key=myid)
+            return redirect(address)
 
 
 ##########################################
