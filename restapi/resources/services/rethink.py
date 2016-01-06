@@ -209,6 +209,11 @@ class RethinkResource(Resource, RDBquery):
     template = None
 
     def get(self, data_key=None):
+        """
+        Normal request.
+        I should use url parameters for filtering, but it's very limiting.
+        I'll give POST a try.
+        """
 
         (count, data) = self.get_content(data_key)
         # return marshal(data, self.schema, envelope='data')
@@ -217,8 +222,17 @@ class RethinkResource(Resource, RDBquery):
             {'data': fields.Nested(self.schema), 'count': fields.Integer})
 
     def post(self, data_key=None):
+        """
+        I am going to use the post Method for rethink queries.
+        This is because the POST method allows from RESTful resource
+        to have via HTTP some JSON data inside the request.
+        JSON is very flexible and can be nested. Great!
 
-        print("\n\n\nNOT YET USING DATA KEY\n\n\n", data_key)
+        To distinguish between queries and the normal POST submission,
+        i will use the id/data_key 'query'.
+        """
+
+        # Get JSON. The power of having a real object in our hand.
         json_data = request.get_json(force=True)
 
         valid = False
