@@ -224,7 +224,7 @@ def test_query():
 #WORKING FOR RECOVERING DATA
     cursor = q \
         .concat_map(r.row['steps']) \
-        .filter( 
+        .filter(
             lambda row: row['step'] == 3
             ) \
         .concat_map(r.row['data']) \

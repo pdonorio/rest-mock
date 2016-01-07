@@ -181,14 +181,32 @@ class RDBquery(RDBdefaults):
 
         return count, list(data)
 
+    def get_autocomplete_data(self, q, step_number=1, field_number=1):
+
+        return q \
+            .concat_map(r.row['steps']) \
+            .filter(
+                lambda row: row['step'] == step_number
+            ).concat_map(r.row['data']) \
+            .filter(
+                lambda row: row['position'] == field_number
+            ).pluck('value').distinct()['value']
+
     def build_query(self, jdata, limit=10):
         # Get RDB handle for this resource table
         query = self.get_table_query()
 
+##########################################
 #TODO
-        # Build query
-        for key, value in jdata.items():
-            print(key, value)
+        action, data = jdata.pop()
+        print("\n\n\n", data, "\n\n\n")
+        if action == 'autocomplete':
+            query = self.get_autocomplete_data(query)
+
+        # # Build query ?
+        # for key, value in jdata.items():
+        #     print(key, value)
+##########################################
 
         # Execute query
         return self.execute_query(query, limit)
