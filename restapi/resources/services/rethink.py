@@ -192,21 +192,36 @@ class RDBquery(RDBdefaults):
                 lambda row: row['position'] == field_number
             ).pluck('value').distinct()['value']
 
+    def filter_nested_field(self, q, field_name, filter_value):
+        """
+        Filter a value nested by checking the field name also
+        """
+
+        return q \
+            .concat_map(
+                lambda doc: doc['steps']
+                .concat_map(lambda step: step['data']
+                            .concat_map(lambda data:
+                            [{'record': doc['record'], 'step': data}]))) \
+            .filter(lambda doc:
+                    doc['step']['value'].match(field_name).
+                    and_(doc['step']['name'].match(filter_value)))
+
     def build_query(self, jdata, limit=10):
         # Get RDB handle for this resource table
         query = self.get_table_query()
 
-##########################################
-#TODO
         action, data = jdata.pop()
         print("\n\n\n", data, "\n\n\n")
         if action == 'autocomplete':
             query = self.get_autocomplete_data(query)
+        elif action == 'nested_filter':
+            query = self.filter_nested_field(query, 'a', 'b')
 
+        ## OR
         # # Build query ?
         # for key, value in jdata.items():
         #     print(key, value)
-##########################################
 
         # Execute query
         return self.execute_query(query, limit)
