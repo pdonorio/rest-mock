@@ -182,6 +182,7 @@ class RDBquery(RDBdefaults):
         return count, list(data)
 
     def get_autocomplete_data(self, q, step_number=1, field_number=1):
+        """ Data for autocompletion in js """
 
         return q \
             .concat_map(r.row['steps']) \
@@ -196,7 +197,6 @@ class RDBquery(RDBdefaults):
         """
         Filter a value nested by checking the field name also
         """
-
         return q \
             .concat_map(
                 lambda doc: doc['steps']
@@ -207,15 +207,21 @@ class RDBquery(RDBdefaults):
                     doc['step']['value'].match(field_name).
                     and_(doc['step']['name'].match(filter_value)))
 
-    def build_query(self, jdata, limit=10):
+    def build_query(self, jdata):
         # Get RDB handle for this resource table
         query = self.get_table_query()
 
-        action, data = jdata.pop()
-        print("\n\n\n", data, "\n\n\n")
-        if action == 'autocomplete':
-            query = self.get_autocomplete_data(query)
-        elif action == 'nested_filter':
+        # Limit
+        limit = 10
+        key = 'limit'
+        if key in jdata:
+            limit = jdata[key]
+
+        key = 'autocomplete'
+        if key in jdata:
+            query = self.get_autocomplete_data(
+                query, jdata[key]['step'], jdata[key]['position'])
+        elif 'nested_filter' in jdata:
             query = self.filter_nested_field(query, 'a', 'b')
 
         ## OR
@@ -291,7 +297,7 @@ class RethinkResource(Resource, RDBquery):
         # Making queries
         if 'query' in json_data and len(json_data) == 1:
             logger.debug("Build a query from JSON", json_data)
-            count, data = self.build_query(json_data)
+            count, data = self.build_query(json_data['query'])
             return self.nomarshal(data, count)
 
         ###############################

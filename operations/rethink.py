@@ -192,21 +192,39 @@ def test_query():
     """ test queries on rdb """
     q = query.get_table_query(t2in)
 
-    # http://stackoverflow.com/a/34647904/2114395
-    cursor = q \
-        .concat_map(
-            lambda doc: doc['steps']
-            .concat_map(lambda step: step['data']
-                        .concat_map(lambda data:
-                        [{'record': doc['record'], 'step': data}]))) \
-        .filter(lambda doc:
-                doc['step']['value'].match('mog').
-                and_(doc['step']['name'].match('Numero de page'))) \
+    cursor = q.concat_map(
+            lambda doc: doc['steps'].concat_map(
+                lambda step: step['data'].concat_map(
+                    lambda data: [{
+                        'record': doc['record'],
+                        'step': step['step'],
+                        'data': data}]))) \
+        .filter(lambda mapped: mapped['step'] == 3) \
+        .filter(lambda mapped: mapped['data']['position'] == 1)['data'] \
+        .pluck('value')['value'].distinct() \
         .run()
 
     for obj in cursor:
         print("TEST", obj)
         exit(1)
+
+    exit(1)
+
+    # # http://stackoverflow.com/a/34647904/2114395
+    # cursor = q \
+    #     .concat_map(
+    #         lambda doc: doc['steps']
+    #         .concat_map(lambda step: step['data']
+    #                     .concat_map(lambda data:
+    #                     [{'record': doc['record'], 'step': data}]))) \
+    #     .filter(lambda doc:
+    #             doc['step']['value'].match('mog').
+    #             and_(doc['step']['name'].match('Numero de page'))) \
+    #     .run()
+
+    # for obj in cursor:
+    #     print("TEST", obj)
+    #     exit(1)
 
 # #TEST1
 #     cursor = q \
