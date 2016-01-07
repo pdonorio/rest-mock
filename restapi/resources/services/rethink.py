@@ -184,7 +184,11 @@ class RDBquery(RDBdefaults):
     def build_query(self, jdata, limit=10):
         # Get RDB handle for this resource table
         query = self.get_table_query()
+
+#TODO
         # Build query
+        for key, value in jdata.items():
+            print(key, value)
 
         # Execute query
         return self.execute_query(query, limit)

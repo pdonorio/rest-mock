@@ -10,6 +10,7 @@ from __future__ import absolute_import
 import logging
 from restapi.resources.services.rethink import RethinkConnection, RDBquery
 from restapi import get_logger
+from rethinkdb import r
 from rethinkdb.net import DefaultCursorEmpty
 
 logger = get_logger(__name__)
@@ -187,9 +188,51 @@ def convert_submission():
         logger.info("Added row")
 
 
+def test_query():
+    """ test queries on rdb """
+    q = query.get_table_query(t2in)
+
+#     cursor = q \
+#         .concat_map(r.row['steps']) \
+#         .concat_map(r.row['data']) \
+#         .filter(
+#             lambda row: row['value'].match('mog')
+#         ).run()
+
+#     print(list(cursor))
+#     exit(1)
+
+# #TEST1
+#     cursor = q \
+#         .concat_map(
+#             lambda x: x['steps']['data'].map(
+#                 lambda item: item['value'])
+#         ) \
+#         .run()
+#     for obj in cursor:
+#         print("TEST", obj)
+#         exit(1)
+#     print(list(cursor))
+#     exit(1)
+
+#WORKING FOR RECOVERING DATA
+    cursor = q \
+        .concat_map(r.row['steps']) \
+        .filter( 
+            lambda row: row['step'] == 3
+            ) \
+        .concat_map(r.row['data']) \
+        .filter(
+            lambda row: row['position'] == 1
+        ).pluck('value').distinct()['value'].run()
+    print(list(cursor))
+
+
 def convert_schema():
     """ Do all ops """
-    # convert_submission()
-    # # check_indexes(t2in)
-    # convert_search()
+    test_query()
+    print("DEBUG"); exit(1);
+    convert_submission()
+    # check_indexes(t2in)
+    convert_search()
     convert_docs()
