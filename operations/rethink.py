@@ -192,15 +192,21 @@ def test_query():
     """ test queries on rdb """
     q = query.get_table_query(t2in)
 
-#     cursor = q \
-#         .concat_map(r.row['steps']) \
-#         .concat_map(r.row['data']) \
-#         .filter(
-#             lambda row: row['value'].match('mog')
-#         ).run()
+    # http://stackoverflow.com/a/34647904/2114395
+    cursor = q \
+        .concat_map(
+            lambda doc: doc['steps']
+            .concat_map(lambda step: step['data']
+                        .concat_map(lambda data:
+                        [{'record': doc['record'], 'step': data}]))) \
+        .filter(lambda doc:
+                doc['step']['value'].match('mog').
+                and_(doc['step']['name'].match('Numero de page'))) \
+        .run()
 
-#     print(list(cursor))
-#     exit(1)
+    for obj in cursor:
+        print("TEST", obj)
+        exit(1)
 
 # #TEST1
 #     cursor = q \
