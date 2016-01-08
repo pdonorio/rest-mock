@@ -193,19 +193,30 @@ class RDBquery(RDBdefaults):
                 lambda row: row['position'] == field_number
             ).pluck('value').distinct()['value']
 
-    def filter_nested_field(self, q, field_name, filter_value):
+    def filter_nested_field(self, q, filter_value,
+                            filter_position=None, field_name=None):
         """
         Filter a value nested by checking the field name also
         """
-        return q \
+        mapped = q \
             .concat_map(
-                lambda doc: doc['steps']
-                .concat_map(lambda step: step['data']
-                            .concat_map(lambda data:
-                            [{'record': doc['record'], 'step': data}]))) \
-            .filter(lambda doc:
-                    doc['step']['value'].match(field_name).
-                    and_(doc['step']['name'].match(filter_value)))
+                lambda doc: doc['steps'].concat_map(
+                    lambda step: step['data'].concat_map(
+                        lambda data:
+                            [{'record': doc['record'], 'step': data}])))
+
+        logger.debug("Searching '%s' on pos '%s' or name '%s'" %
+                     (filter_value, filter_position, field_name))
+        if filter_position is not None:
+            return mapped.filter(
+                lambda doc: doc['step']['position'].eq(filter_position).
+                and_(doc['step']['value'].eq(filter_value)))
+        elif field_name is not None:
+            return mapped.filter(
+                lambda doc: doc['step']['name'].match(field_name).
+                and_(doc['step']['value'].match(filter_value)))
+        else:
+            return q
 
     def build_query(self, jdata):
         # Get RDB handle for this resource table
@@ -221,8 +232,10 @@ class RDBquery(RDBdefaults):
         if key in jdata:
             query = self.get_autocomplete_data(
                 query, jdata[key]['step'], jdata[key]['position'])
-        elif 'nested_filter' in jdata:
-            query = self.filter_nested_field(query, 'a', 'b')
+        key = 'nested_filter'
+        if key in jdata:
+            query = self.filter_nested_field(
+                query, jdata[key]['filter'], jdata[key]['position'])
 
         ## OR
         # # Build query ?
