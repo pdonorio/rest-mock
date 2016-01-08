@@ -254,8 +254,8 @@ def test_query():
 
 def convert_schema():
     """ Do all ops """
-    test_query()
-    print("DEBUG"); exit(1);
+    # test_query()
+    # print("DEBUG"); exit(1);
     convert_submission()
     # check_indexes(t2in)
     convert_search()
