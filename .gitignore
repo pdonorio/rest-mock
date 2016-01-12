@@ -1,6 +1,6 @@
 # sqllite dbs
 *.db
-backups/
+backup*
 models/*json
 
 # Configurations
