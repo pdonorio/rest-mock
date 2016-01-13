@@ -33,16 +33,20 @@ class Endpoints(object):
         # Create restful resource with it
         self.rest_api.add_resource(resource, *urls)
 
+    def create_many(self, resources):
+        """ Automatic creation from an array of resources """
+        # For each RESTful resource i receive
+        for resource in resources:
+            endpoint, endkey = resource().get_endpoint()
+            self.create_single(resource, endpoint, endkey)
+
     def many_from_module(self, module):
         """ Automatic creation of endpoint from specified resources """
 
         resources = Meta().get_new_classes_from_module(module)
         # Init restful plugin
         if len(resources) > 0:
-            # For each RESTful resource i receive
-            for resource in resources:
-                endpoint, endkey = resource().get_endpoint()
-                self.create_single(resource, endpoint, endkey)
+            self.create_many(resources)
 
     def services_startup(self, models, secured=False):
         """

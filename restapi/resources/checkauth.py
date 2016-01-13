@@ -20,7 +20,14 @@ __license__ = lic
 logger = get_logger(__name__)
 
 
-class CheckLogged(ExtendedApiResource):
+class Verify(ExtendedApiResource):
+    """ API online test """
+
+    def get(self):
+        return "Hello World!"
+
+
+class VerifyLogged(ExtendedApiResource):
     """ Token authentication test """
 
     @decorate.apimethod
@@ -29,7 +36,7 @@ class CheckLogged(ExtendedApiResource):
         return "Valid user"
 
 
-class TestAdmin(ExtendedApiResource):
+class VerifyAdmin(ExtendedApiResource):
     """ Token and Role authentication test """
 
     @decorate.apimethod

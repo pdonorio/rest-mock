@@ -60,8 +60,11 @@ def create_endpoints(custom_epo, security=False, debug=False):
             custom_epo.create_single(myclass, endpoint, endkey)
 
     ####################################
-    if security and debug:
+    if security:
         from .resources import checkauth
         custom_epo.many_from_module(checkauth)
+    else:
+        from .resources.checkauth import Verify
+        custom_epo.create_many([Verify])
 
     return custom_epo
