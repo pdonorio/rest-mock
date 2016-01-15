@@ -193,6 +193,26 @@ class RDBquery(RDBdefaults):
                 lambda row: row['position'] == field_number
             ).pluck('value').distinct()['value']
 
+    def get_all_notes(self, q):
+        """ Data for autocompletion in js """
+
+        return q \
+            .concat_map(lambda doc:
+                doc['images'].has_fields({'transcriptions': True}) \
+                    .concat_map(lambda image:
+                        image['transcriptions_split'])) \
+            .distinct()
+
+        # return q \
+        #     .concat_map(
+        #         lambda doc: doc['images'].concat_map(
+        #             lambda image: [{
+        #                 'record': doc['record'],
+        #                 'image': image['filename'],
+        #                 'trans': doc['images']['transcriptions']
+        #                 }]
+        #             ))
+
     def filter_nested_field(self, q, filter_value,
                             filter_position=None, field_name=None):
         """
@@ -236,6 +256,9 @@ class RDBquery(RDBdefaults):
         if key in jdata:
             query = self.filter_nested_field(
                 query, jdata[key]['filter'], jdata[key]['position'])
+        key = 'notes'
+        if key in jdata:
+            query = self.get_all_notes(query)
 
         ## OR
         # # Build query ?

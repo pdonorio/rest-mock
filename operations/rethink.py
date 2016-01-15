@@ -16,6 +16,32 @@ from rethinkdb.net import DefaultCursorEmpty
 logger = get_logger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
+def split_and_html_strip(string):
+    """ Compute words from transcriptions """
+    words = []
+    START = '<'
+    END = '>'
+    skip = False
+    word = ""
+    for char in string:
+        if char == START:
+            skip = True
+            continue
+        elif char == END:
+            skip = False
+            continue
+        if skip:
+            continue
+        if char.isalpha():
+            word += char
+        elif word != "" and len(word) > 3:
+            words.append(word.lower())
+            word = ""
+
+    return set(words)
+
+
 # Tables
 t1 = "stepstemplate"
 t2 = "steps"
@@ -46,9 +72,17 @@ def convert_docs():
 
     # Query
     res = qt1.group('recordid').order_by('code').run()
+    key = 'transcriptions'
     for record, rows in res.items():
         images = []
+    # Check images
         for row in rows:
+            if key in row:
+    # Fix transcriptions
+                words = set()
+                for trans in row[key]:
+                    words = words | split_and_html_strip(trans)
+                row[key+'_split'] = list(words)
             images.append(row)
 
         # Insert
@@ -190,23 +224,22 @@ def convert_submission():
 
 def test_query():
     """ test queries on rdb """
-    q = query.get_table_query(t2in)
+    # q = query.get_table_query(t2in)
+    q = query.get_table_query(t3in)
 
-    cursor = q.concat_map(
-            lambda doc: doc['steps'].concat_map(
-                lambda step: step['data'].concat_map(
-                    lambda data: [{
-                        'record': doc['record'],
-                        'step': step['step'],
-                        'data': data}]))) \
-        .filter(lambda mapped: mapped['step'] == 3) \
-        .filter(lambda mapped: mapped['data']['position'] == 1)['data'] \
-        .pluck('value')['value'].distinct() \
+    cursor = q \
+        .concat_map(
+            lambda doc:
+                doc['images'].has_fields({'transcriptions': True}).concat_map(
+                    lambda image: image['transcriptions_split'])) \
+        .distinct() \
         .run()
+
+    print(len(list(cursor)))
+    exit(1)
 
     for obj in cursor:
         print("TEST", obj)
-        exit(1)
 
     exit(1)
 
@@ -254,6 +287,7 @@ def test_query():
 
 def convert_schema():
     """ Do all ops """
+
     # test_query()
     # print("DEBUG"); exit(1);
     convert_submission()
