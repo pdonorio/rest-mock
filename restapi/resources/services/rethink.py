@@ -196,22 +196,29 @@ class RDBquery(RDBdefaults):
     def get_all_notes(self, q):
         """ Data for autocompletion in js """
 
-        return q \
-            .concat_map(lambda doc:
-                doc['images'].has_fields({'transcriptions': True}) \
-                    .concat_map(lambda image:
-                        image['transcriptions_split'])) \
+        return q.concat_map(
+            lambda doc: doc['images'].
+            has_fields({'transcriptions': True}).concat_map(
+                lambda image: image['transcriptions_split'])) \
             .distinct()
 
-        # return q \
-        #     .concat_map(
-        #         lambda doc: doc['images'].concat_map(
-        #             lambda image: [{
-        #                 'record': doc['record'],
-        #                 'image': image['filename'],
-        #                 'trans': doc['images']['transcriptions']
-        #                 }]
-        #             ))
+    def get_filtered_notes(self, q, filter_value=None):
+        """ Data for autocompletion in js """
+
+        mapped = q.concat_map(
+                lambda doc: doc['images'].has_fields(
+                    {'transcriptions': True}).map(
+                        lambda image: {
+                            'word': image['transcriptions_split'],
+                            'record': doc['record'],
+                        }
+                    )).distinct()
+
+        if filter_value is not None:
+            return mapped.filter(
+                lambda mapped: mapped['word'].contains(filter_value))
+
+        return mapped
 
     def filter_nested_field(self, q, filter_value,
                             filter_position=None, field_name=None):
@@ -248,17 +255,24 @@ class RDBquery(RDBdefaults):
         if key in jdata:
             limit = jdata[key]
 
+        ######################
         key = 'autocomplete'
         if key in jdata:
             query = self.get_autocomplete_data(
                 query, jdata[key]['step'], jdata[key]['position'])
+        ######################
         key = 'nested_filter'
         if key in jdata:
             query = self.filter_nested_field(
                 query, jdata[key]['filter'], jdata[key]['position'])
+        ######################
         key = 'notes'
         if key in jdata:
-            query = self.get_all_notes(query)
+            if 'filter' in jdata[key]:
+                query = self.get_filtered_notes(
+                    query, jdata[key]['filter'])
+            else:
+                query = self.get_all_notes(query)
 
         ## OR
         # # Build query ?

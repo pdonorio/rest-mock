@@ -36,7 +36,7 @@ def split_and_html_strip(string):
         if char.isalpha():
             word += char
         elif word != "" and len(word) > 3:
-            words.append(word.lower())
+            words.append(word)  # word.lower())
             word = ""
 
     return set(words)
@@ -227,20 +227,31 @@ def test_query():
     # q = query.get_table_query(t2in)
     q = query.get_table_query(t3in)
 
+    # cursor = q \
+    #     .concat_map(
+    #         lambda doc:
+    #             doc['images'].has_fields({'transcriptions': True}).concat_map(
+    #                 lambda image: image['transcriptions_split'])) \
+    #     .distinct() \
+    #     .run()
+
     cursor = q \
         .concat_map(
-            lambda doc:
-                doc['images'].has_fields({'transcriptions': True}).concat_map(
-                    lambda image: image['transcriptions_split'])) \
-        .distinct() \
+            lambda doc: doc['images'].has_fields(
+                {'transcriptions': True}).map(
+                    lambda image: {
+                        'word': image['transcriptions_split'],
+                        'record': doc['record'],
+                    }
+                )).distinct() \
+        .filter(lambda mapped: mapped['word'].contains('grati')) \
         .run()
 
-    print(len(list(cursor)))
-    exit(1)
-
+    # print(len(list(cursor)))
+    # exit(1)
     for obj in cursor:
         print("TEST", obj)
-
+        exit(1)
     exit(1)
 
     # # http://stackoverflow.com/a/34647904/2114395
@@ -288,8 +299,7 @@ def test_query():
 def convert_schema():
     """ Do all ops """
 
-    # test_query()
-    # print("DEBUG"); exit(1);
+    test_query()
     convert_submission()
     # check_indexes(t2in)
     convert_search()
