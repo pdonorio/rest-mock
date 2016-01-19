@@ -286,10 +286,33 @@ class RDBquery(RDBdefaults):
         """ For GET method, very simple """
 
         query = self.get_table_query()
+
+        # If need all data
         if myid is not None:
             query = query.get_all(myid, index='record')
 
-        return self.execute_query(query, limit)
+        # Process single data
+        count, data = self.execute_query(query, limit)
+
+        if myid is not None:
+# DO MORE PROCESSING?
+            single = []
+            print("\n\n\n")
+            for steps in data.pop()['steps']:
+                element = "";
+                #element = {}
+                for row in steps['data']:
+                    if row['position'] != 1:
+                        continue
+                    #element[row['name']] = row['value']
+                    element = row['value'];
+                single.insert(steps['step'], element)
+                print(steps)
+            print("\n\n\n", single)
+            return count, single
+# NOTE TO MY SELF: I REQUEST HERE ONE SINGLE DOCUMENT
+
+        return count, data
 
     def insert(self, data, user=None):
         # Prepare the query
@@ -327,7 +350,8 @@ class RethinkResource(Resource, RDBquery):
         # Get content from db
         (count, data) = self.get_content(data_key)
         # Return wrapped data
-        return self.marshal(data, count)
+#        return self.marshal(data, count)
+        return self.nomarshal(data, count)
 
     def post(self):
         """
@@ -393,6 +417,9 @@ def load_models(extension=JSONS_EXT):
     return glob.glob(os.path.join(JSONS_PATH, "*") + "." + extension)
 
 
+# REWRITE ME:
+## LOAD FROM ANOTHER MODULE/DIR/FILE?
+
 def create_rdbjson_resources(models, secured=False):
     mytemplate = {}
     json_autoresources = {}
@@ -405,7 +432,8 @@ def create_rdbjson_resources(models, secured=False):
         reference_schema = convert_to_marshal(mytemplate)
 
         # Name for the class. Remove path and extension (json)
-        label = os.path.splitext(os.path.basename(fileschema))[0].lower()
+        label = os.path.splitext(
+            os.path.basename(fileschema))[0].lower()
         # Dynamic attributes
         new_attributes = {
             "schema": reference_schema,
@@ -416,7 +444,9 @@ def create_rdbjson_resources(models, secured=False):
         from ...meta import Meta
         resource_class = RethinkResource
         if secured:
-            resource_class = RethinkSecuredResource
+# DISABLING AUTH FOR DEBUG
+#            resource_class = RethinkSecuredResource
+            resource_class = RethinkResource
         newclass = Meta.metaclassing(resource_class, label, new_attributes)
         # Using the same structure i previously used in resources:
         # resources[name] = (new_class, data_model.table)
