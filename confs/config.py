@@ -37,7 +37,8 @@ SERVER_PORT = int(os.environ.get('PORT', 5000))
 LOGGING_CONFIG_FILE = 'logging_config.ini'
 
 # Use this to specifiy endpoints based on your resources module
-REST_CONFIG_FILE = 'endpoints.ini'
+#REST_CONFIG_FILE = 'endpoints.ini'
+REST_CONFIG_DIR = 'endpoints'
 
 TRAP_BAD_REQUEST_ERRORS = True
 PROPAGATE_EXCEPTIONS = False

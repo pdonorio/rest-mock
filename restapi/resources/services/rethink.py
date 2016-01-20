@@ -153,6 +153,9 @@ class RDBdefaults(object):
 class RDBquery(RDBdefaults):
     """ An object to query Rethinkdb """
 
+    schema = None
+    template = None
+
     def get_query(self):
         return r.db(self.db)
 
@@ -338,9 +341,6 @@ class RDBquery(RDBdefaults):
 class RethinkResource(Resource, RDBquery):
     """ The json endpoint to rethinkdb class """
 
-    schema = None
-    template = None
-
     def get(self, data_key=None):
         """
         Normal request.
@@ -444,9 +444,7 @@ def create_rdbjson_resources(models, secured=False):
         from ...meta import Meta
         resource_class = RethinkResource
         if secured:
-# DISABLING AUTH FOR DEBUG
-#            resource_class = RethinkSecuredResource
-            resource_class = RethinkResource
+            resource_class = RethinkSecuredResource
         newclass = Meta.metaclassing(resource_class, label, new_attributes)
         # Using the same structure i previously used in resources:
         # resources[name] = (new_class, data_model.table)

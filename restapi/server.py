@@ -117,7 +117,7 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
     epo = create_endpoints(epo, security, debug)
 
 #############################
-# ###ADD OTHERS?
+# ### ADD OTHERS KIND OF RESOURCES AND SERVICES?
 #############################
 
     #############################
@@ -178,8 +178,9 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
 # === Connection ===
 # The RethinkDB server doesn’t use a thread-per-connnection approach,
 # so opening connections per request will not slow down your database.
-    # Database should be already connected in "before_first_request"
-    # But the post method fails to find the object!
+
+# Database should be already connected in "before_first_request"
+# But the post method fails to find the object!
             try_to_connect()
 
     ##############################

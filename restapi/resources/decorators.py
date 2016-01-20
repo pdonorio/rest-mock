@@ -66,7 +66,10 @@ def enable_endpoint_identifier(name='myid', idtype='string'):
 # http://scottlobdell.me/2015/04/decorators-arguments-python/
 
 class add_endpoint_parameter(object):
-    """ A class as DECORATOR seems to fit the most strange situations """
+    """
+    A class as DECORATOR seems to fit
+    even the most strange situations
+    """
 
     def __init__(self, name, ptype=str):
         self.name = name

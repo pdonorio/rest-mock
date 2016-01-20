@@ -3,6 +3,10 @@
 
 """ Configuration handler """
 
+from __future__ import absolute_import
+import glob
+import os
+from jinja2._compat import iteritems
 from . import get_logger, REST_CONFIG
 from .meta import Meta
 try:
@@ -10,8 +14,6 @@ try:
 except:
     # python2
     import ConfigParser as configparser
-
-from jinja2._compat import iteritems
 
 logger = get_logger(__name__)
 
@@ -36,16 +38,13 @@ class MyConfigs(object):
         self._latest_config = config
         return config
 
-    def rest(self):
-
-        config = self.read_config(REST_CONFIG)
-        sections = config.sections()
-        logger.debug("Trying configuration from " + REST_CONFIG)
+    def single_rest(self, ini_file):
 
         meta = Meta()
         resources = []
+        config = self.read_config(ini_file)
 
-        for section in sections:
+        for section in config.sections():
 
             logger.info("Configuration read: {Section: " + section + "}")
 
@@ -73,5 +72,21 @@ class MyConfigs(object):
                     endpoint = oldendpoint
 
                 resources.append((myclass, instance, endpoint, endkey))
+
+        return resources
+
+    def rest(self):
+        """ REST endpoints from '.ini' files """
+
+        resources = []
+        logger.debug("Trying configurations from '%s' dir" % REST_CONFIG)
+
+# TO CHANGE:
+# READ ONLY INI FILE FROM THE JSON CONFIG
+
+        for ini_file in glob.glob(os.path.join(REST_CONFIG, "*") + ".ini"):
+            logger.info("REST configuration file '%s'" % ini_file)
+            # Add all resources from this single ini file
+            resources.extend(self.single_rest(ini_file))
 
         return resources

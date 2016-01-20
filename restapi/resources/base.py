@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """ Basic Resource """
@@ -57,7 +56,8 @@ class ExtendedApiResource(Resource):
 
     def set_endpoint(self):
         if self.endpoint is None:
-            self.endpoint = type(self).__name__.lower().replace("resource", "")
+            self.endpoint = \
+                type(self).__name__.lower().replace("resource", "")
 
     def get_endpoint(self):
         return (self.endpoint, self.endtype)
@@ -93,9 +93,12 @@ class ExtendedApiResource(Resource):
             if param_type == 'makearray':
                 param_type = basevalue
                 act = 'append'
-            self._parser.add_argument(param, type=param_type, default=default,
-                                      required=required, trim=trim,
-                                      action=act, location=loc)
+
+            # Really add the parameter
+            self._parser.add_argument(
+                param,
+                type=param_type, default=default, required=required,
+                trim=trim, action=act, location=loc)
             logger.debug("Accept param '%s', type %s" % (param, param_type))
 
     def set_method_id(self, name='myid', idtype='string'):
