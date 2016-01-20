@@ -10,15 +10,10 @@ import json
 # This Rethinkdb reference is already connected at app init
 from rethinkdb import r, RqlDriverError
 
-from flask import redirect, g
-from flask.ext.restful import fields, Resource, marshal, request
-from flask.ext.restful import url_for
-from flask.ext.security import roles_required, auth_token_required
-from confs import config
+from flask import g
+from flask.ext.restful import fields, marshal, request
 from collections import OrderedDict
 from .connections import Connection
-from ...marshal import convert_to_marshal
-from ... import htmlcodes as hcodes
 from ... import get_logger
 
 # Using docker, "**db**"" is my alias of the ReThinkDB container
@@ -115,6 +110,7 @@ class RethinkConnection(Connection):
             logger.info("Table '" + table + "' created")
 
 
+##########################################
 # Need a pool of connections: http://j.mp/1yNP4p0
 def try_to_connect():
     if g and "rdb" in g:
@@ -133,7 +129,7 @@ def try_to_connect():
 
 
 ##########################################
-# RethinkBD quick classes
+# RethinkBD base
 class RDBdefaults(object):
     """ A class to apply defaults for rethinkdb operations """
     table = DEFAULT_TABLE
@@ -150,6 +146,8 @@ class RDBdefaults(object):
         }
 
 
+##########################################
+# RethinkBD class that can do queries
 class RDBquery(RDBdefaults):
     """ An object to query Rethinkdb """
 
@@ -184,6 +182,8 @@ class RDBquery(RDBdefaults):
 
         return count, list(data)
 
+##################
+##################
     def get_autocomplete_data(self, q, step_number=1, field_number=1):
         """ Data for autocompletion in js """
 
@@ -247,6 +247,8 @@ class RDBquery(RDBdefaults):
                 and_(doc['step']['value'].match(filter_value)))
         else:
             return q
+##################
+##################
 
     def build_query(self, jdata):
         # Get RDB handle for this resource table
@@ -334,120 +336,3 @@ class RDBquery(RDBdefaults):
 
     def nomarshal(self, data, count=0):
         return OrderedDict({'data': data, 'count': count})
-
-
-##########################################
-# The generic resource
-class RethinkResource(Resource, RDBquery):
-    """ The json endpoint to rethinkdb class """
-
-    def get(self, data_key=None):
-        """
-        Normal request.
-        I should use url parameters for filtering, but it's very limiting.
-        I'll give POST a try.
-        """
-        # Get content from db
-        (count, data) = self.get_content(data_key)
-        # Return wrapped data
-#        return self.marshal(data, count)
-        return self.nomarshal(data, count)
-
-    def post(self):
-        """
-        I am going to use the post Method for rethink queries.
-        This is because the POST method allows from RESTful resource
-        to have via HTTP some JSON data inside the request.
-        JSON is very flexible and can be nested. Great!
-
-        To distinguish between queries and the normal POST submission,
-        i will use the id/data_key 'query'.
-        """
-
-        # Get JSON. The power of having a real object in our hand.
-        json_data = request.get_json(force=True)
-
-        ###############################
-        # Making queries
-        if 'query' in json_data and len(json_data) == 1:
-            logger.debug("Build a query from JSON", json_data)
-            count, data = self.build_query(json_data['query'])
-            return self.nomarshal(data, count)
-
-        ###############################
-        # Otherwise INSERT ELEMENT
-        else:
-            valid = False
-            for key, obj in json_data.items():
-                if key in self.schema:
-                    valid = True
-            if not valid:
-                return self.template, hcodes.HTTP_BAD_REQUEST
-
-            # marshal_data = marshal(json_data, self.schema, envelope='data')
-            myid = self.insert(json_data)
-
-            # redirect to GET method of this same endpoint, with the id found
-            address = url_for(self.table, data_key=myid)
-            return redirect(address)
-
-
-##########################################
-# Security option
-class RethinkSecuredResource(RethinkResource):
-    """
-    A skeleton for applying secure decorators to Rethink resources
-    """
-
-    @auth_token_required
-    #@roles_required(config.ROLE_ADMIN)
-    def get(self, data_key=None):
-        return super().get(data_key)
-
-    @auth_token_required
-    @roles_required(config.ROLE_ADMIN)
-    def post(self):
-        return super().post()
-
-
-##########################################
-# Read model template
-def load_models(extension=JSONS_EXT):
-    """ How to look for json models for services API """
-    return glob.glob(os.path.join(JSONS_PATH, "*") + "." + extension)
-
-
-# REWRITE ME:
-## LOAD FROM ANOTHER MODULE/DIR/FILE?
-
-def create_rdbjson_resources(models, secured=False):
-    mytemplate = {}
-    json_autoresources = {}
-
-    for fileschema in models:
-        logger.info("Found RDB schema '%s'" % fileschema)
-        # Build current model resource
-        with open(fileschema) as f:
-            mytemplate = json.load(f)
-        reference_schema = convert_to_marshal(mytemplate)
-
-        # Name for the class. Remove path and extension (json)
-        label = os.path.splitext(
-            os.path.basename(fileschema))[0].lower()
-        # Dynamic attributes
-        new_attributes = {
-            "schema": reference_schema,
-            "template": mytemplate,
-            "table": label,
-        }
-        # Generating the new class
-        from ...meta import Meta
-        resource_class = RethinkResource
-        if secured:
-            resource_class = RethinkSecuredResource
-        newclass = Meta.metaclassing(resource_class, label, new_attributes)
-        # Using the same structure i previously used in resources:
-        # resources[name] = (new_class, data_model.table)
-        json_autoresources[label] = (newclass, label)
-
-    return json_autoresources

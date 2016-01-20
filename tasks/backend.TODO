@@ -10,13 +10,17 @@ http://nbviewer.ipython.org/github/donnemartin/data-science-ipython-notebooks/bl
 
 TODO:
 
+ ✔ Single services startup @done (16-01-20 22:06)
+   ☐ Rethinkdb or other db connection before request...?
+   ☐ Limit a before request to a certain endpoint, not to all??
+
  ☐ PyJWT
    ☐ working snippet
    https://github.com/sahat/satellizer/blob/master/examples/server/python/app.py
    ☐ full integrated example
    https://github.com/graup/flask-restless-security
 
- ☐ RethinkDB 
+ ☐ RethinkDB
  !WOW!
 1) Pass or receive JSON objects to API in flask
 2) They will be stored as it is on RethinkDB

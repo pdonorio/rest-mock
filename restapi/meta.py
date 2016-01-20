@@ -90,3 +90,32 @@ class Meta(object):
         for key, value in attributes.items():
             methods.update({key: value})
         return type(label, (your_class,), methods)
+
+
+######################################################
+# ## INTERESTING EXAMPLE OF CREATING META CLASSES ## #
+
+# with open(fileschema) as f:
+#     mytemplate = json.load(f)
+# reference_schema = convert_to_marshal(mytemplate)
+
+# # Name for the class. Remove path and extension (json)
+# label = os.path.splitext(
+#     os.path.basename(fileschema))[0].lower()
+# # Dynamic attributes
+# new_attributes = {
+#     "schema": reference_schema,
+#     "template": mytemplate,
+#     "table": label,
+# }
+# # Generating the new class
+# from ...meta import Meta
+# resource_class = RethinkResource
+# if secured:
+#     resource_class = RethinkSecuredResource
+# newclass = Meta.metaclassing(resource_class, label, new_attributes)
+# # Using the same structure i previously used in resources:
+# # resources[name] = (new_class, data_model.table)
+# json_autoresources[label] = (newclass, label)
+
+######################################################
