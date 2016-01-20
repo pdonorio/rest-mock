@@ -4,10 +4,9 @@
 """ Configuration handler """
 
 from __future__ import absolute_import
-import glob
 import os
 from jinja2._compat import iteritems
-from . import get_logger, REST_CONFIG
+from . import get_logger, REST_CONFIG, REST_INIT
 from .meta import Meta
 try:
     import configparser
@@ -78,13 +77,23 @@ class MyConfigs(object):
     def rest(self):
         """ REST endpoints from '.ini' files """
 
-        resources = []
         logger.debug("Trying configurations from '%s' dir" % REST_CONFIG)
 
-# TO CHANGE:
-# READ ONLY INI FILE FROM THE JSON CONFIG
+        if os.path.exists(REST_INIT):
+            import commentjson as json
+            files = []
+            with open(REST_INIT) as f:
+                mydict = json.load(f)
+                for name, jfile in iteritems(mydict):
+                    files.append(os.path.join(REST_CONFIG, jfile))
+        else:
+            logger.debug("Reading all resources config files")
+            import glob
+            files = glob.glob(os.path.join(REST_CONFIG, "*") + ".ini")
+        logger.debug("Resources files: '%s'" % files)
 
-        for ini_file in glob.glob(os.path.join(REST_CONFIG, "*") + ".ini"):
+        resources = []
+        for ini_file in files:
             logger.info("REST configuration file '%s'" % ini_file)
             # Add all resources from this single ini file
             resources.extend(self.single_rest(ini_file))

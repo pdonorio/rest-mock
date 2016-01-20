@@ -9,7 +9,8 @@ try:
 except:
     __version__ = 'unknown'
 from logging.config import fileConfig
-from confs.config import LOGGING_CONFIG_FILE, REST_CONFIG_DIR, DEBUG
+from confs.config import DEBUG, \
+    LOGGING_CONFIG_FILE, REST_CONFIG_DIR, REST_CONFIG_INIT
 
 myself = "Paolo D'Onorio De Meo <p.donoriodemeo@gmail.com>"
 lic = "MIT"
@@ -20,6 +21,7 @@ PROJECT_DIR = '.'
 CONFIG_DIR = 'confs'
 LOG_CONFIG = os.path.join(PROJECT_DIR, CONFIG_DIR, LOGGING_CONFIG_FILE)
 REST_CONFIG = os.path.join(PROJECT_DIR, CONFIG_DIR, REST_CONFIG_DIR)
+REST_INIT = os.path.join(REST_CONFIG, REST_CONFIG_INIT)
 
 ################
 # LOGGING
