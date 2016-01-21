@@ -50,6 +50,10 @@ class Endpoints(object):
 
     def services_startup(self, models, secured=False):
         """
+        DEPRECATED
+
+        BUT MAY STILL BE USEFULL
+
         A special case for RethinkDB and other main services?
 
         This is where you tell the app what to do with requests.

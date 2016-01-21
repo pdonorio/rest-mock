@@ -81,13 +81,13 @@ class ExtendedApiResource(Resource):
         # self.parser.add_argument("myid", type=basevalue)
 
         for param, param_type in self._params.items():
+            default = None
             # Decide what is left for this parameter
             if param_type is None:
                 param_type = basevalue
 # // TO FIX:
 # let the user specify if it's required
             required = False
-            default = None
 
             # I am creating an option to handle arrays:
             if param_type == 'makearray':

@@ -115,9 +115,9 @@ def apimethod(func):
         class_name = self.__class__.__name__
         method_name = func.__name__.upper()
 
-# // TO FIX:
-#   HOW TO LOG WITH RESTFUL?
-#   endpoint? #   address? #   response code?
+        # // TO DO
+        #   HOW TO LOG WITH RESTFUL?
+        #   endpoint? #   address? #   response code?
 
         logger.info("[Class: %s] %s request" % (class_name, method_name))
         # Call the parse method

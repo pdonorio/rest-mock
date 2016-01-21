@@ -5,7 +5,6 @@
 import os
 import time
 import glob
-import json
 
 # This Rethinkdb reference is already connected at app init
 from rethinkdb import r, RqlDriverError
@@ -21,7 +20,7 @@ RDB_HOST = "rdb"
 RDB_PORT = 28015
 # Models and paths
 JSONS_PATH = 'models'
-JSONS_EXT = 'json'
+JSONS_EXT = '.json'
 # Database and tables to use
 APP_DB = "webapp"
 DEFAULT_TABLE = "test"
@@ -336,3 +335,10 @@ class RDBquery(RDBdefaults):
 
     def nomarshal(self, data, count=0):
         return OrderedDict({'data': data, 'count': count})
+
+
+##########################################
+# Read model template
+def load_models(extension=JSONS_EXT):
+    """ How to look for json models for services API """
+    return glob.glob(os.path.join(JSONS_PATH, "*") + extension)
