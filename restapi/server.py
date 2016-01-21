@@ -25,7 +25,7 @@ logger = get_logger(__name__)
 # RETHINKDB
 RDB_AVAILABLE = False
 MODELS = []
-if os.environ['RDB_NAME']:
+if 'RDB_NAME' in os.environ:
     from .resources.services.rethink import load_models, try_to_connect
     # Look for models
     MODELS = load_models()
