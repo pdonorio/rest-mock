@@ -71,15 +71,22 @@ class add_endpoint_parameter(object):
     even the most strange situations
     """
 
-    def __init__(self, name, ptype=str):
+    def __init__(self, name, ptype=str, default=None, required=False):
         self.name = name
         self.ptype = ptype
+        self.default = default
+        self.required = required
+        if required and default is not None:
+            logger.warning("Warning, using default a required parameter")
 
     def __call__(self, fn, *args, **kwargs):
 
+#def add_parameter(self, name, mytype=str, default=None, required=False):
         params = {
             'name': self.name,
             'mytype': self.ptype,
+            'default': self.default,
+            'required': self.required,
         }
 
         def new_func(self, *args, **kwargs):
@@ -152,6 +159,8 @@ def apimethod(func):
 def all_rest_methods(decorator):
     """ Decorate all the api methods inside one class """
 
+# // TO FIX
+# ADD OTHER METHODS IF THERE WILL BE OTHERS
     api_methods = ['get', 'post', 'put', 'delete']
 
     def decorate(cls):

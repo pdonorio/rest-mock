@@ -62,9 +62,9 @@ class ExtendedApiResource(Resource):
     def get_endpoint(self):
         return (self.endpoint, self.endtype)
 
-    def add_parameter(self, name, mytype):
+    def add_parameter(self, name, mytype=str, default=None, required=False):
         """ Save a parameter inside the class """
-        self._params[name] = mytype
+        self._params[name] = [mytype, default, required]
 
     def apply_parameters(self):
         """ Use parameters received via decoration """
@@ -77,17 +77,12 @@ class ExtendedApiResource(Resource):
         loc = ['headers', 'values']  # multiple locations
         trim = True
 
-        # # Extra parameter id for POST updates or key forcing
-        # self.parser.add_argument("myid", type=basevalue)
+        for param, (param_type, param_default, param_required) \
+          in self._params.items():
 
-        for param, param_type in self._params.items():
-            default = None
             # Decide what is left for this parameter
             if param_type is None:
                 param_type = basevalue
-# // TO FIX:
-# let the user specify if it's required
-            required = False
 
             # I am creating an option to handle arrays:
             if param_type == 'makearray':
@@ -96,8 +91,8 @@ class ExtendedApiResource(Resource):
 
             # Really add the parameter
             self._parser.add_argument(
-                param,
-                type=param_type, default=default, required=required,
+                param, type=param_type,
+                default=param_default, required=param_required,
                 trim=trim, action=act, location=loc)
             logger.debug("Accept param '%s', type %s" % (param, param_type))
 
