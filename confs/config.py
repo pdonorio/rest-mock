@@ -38,8 +38,7 @@ LOGGING_CONFIG_FILE = 'logging_config.ini'
 
 # Use this to specifiy endpoints based on your resources module
 REST_CONFIG_DIR = 'endpoints'
-#REST_CONFIG_FILE = 'endpoints.ini'
-REST_CONFIG_INIT = 'init.json'
+REST_CONFIG_INIT = 'api_init.json'
 
 TRAP_BAD_REQUEST_ERRORS = True
 PROPAGATE_EXCEPTIONS = False
