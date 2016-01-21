@@ -6,7 +6,7 @@
 from __future__ import absolute_import
 import os
 from jinja2._compat import iteritems
-from . import get_logger, REST_CONFIG, REST_INIT
+from . import get_logger, REST_CONFIG, REST_INIT, DEFAULT_REST_CONFIG
 from .meta import Meta
 try:
     import configparser
@@ -41,6 +41,12 @@ class MyConfigs(object):
 
         meta = Meta()
         resources = []
+
+        if not os.path.exists(ini_file):
+            logger.warning("File '%s' does not exist! Skipping." % ini_file)
+            return resources
+
+        # Read the configuration inside this init file
         config = self.read_config(ini_file)
 
         for section in config.sections():
@@ -79,17 +85,22 @@ class MyConfigs(object):
 
         logger.debug("Trying configurations from '%s' dir" % REST_CONFIG)
 
+        files = []
         if os.path.exists(REST_INIT):
             import commentjson as json
-            files = []
             with open(REST_INIT) as f:
                 mydict = json.load(f)
                 for name, jfile in iteritems(mydict):
                     files.append(os.path.join(REST_CONFIG, jfile))
+        # What if the user does not specify anything?
         else:
-            logger.debug("Reading all resources config files")
-            import glob
-            files = glob.glob(os.path.join(REST_CONFIG, "*") + ".ini")
+            # # ALL ?
+            # logger.debug("Reading all resources config files")
+            # import glob
+            # files = glob.glob(os.path.join(REST_CONFIG, "*") + ".ini")
+
+            # # ONLY THE EXAMPLE
+            files.append(os.path.join(REST_CONFIG, DEFAULT_REST_CONFIG))
         logger.debug("Resources files: '%s'" % files)
 
         resources = []
