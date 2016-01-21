@@ -183,17 +183,6 @@ class RDBquery(RDBdefaults):
 
 ##################
 ##################
-    def get_autocomplete_data(self, q, step_number=1, field_number=1):
-        """ Data for autocompletion in js """
-
-        return q \
-            .concat_map(r.row['steps']) \
-            .filter(
-                lambda row: row['step'] == step_number
-            ).concat_map(r.row['data']) \
-            .filter(
-                lambda row: row['position'] == field_number
-            ).pluck('value').distinct()['value']
 
     def get_all_notes(self, q):
         """ Data for autocompletion in js """
@@ -250,20 +239,7 @@ class RDBquery(RDBdefaults):
 ##################
 
     def build_query(self, jdata):
-        # Get RDB handle for this resource table
-        query = self.get_table_query()
 
-        # Limit
-        limit = 10
-        key = 'limit'
-        if key in jdata:
-            limit = jdata[key]
-
-        ######################
-        key = 'autocomplete'
-        if key in jdata:
-            query = self.get_autocomplete_data(
-                query, jdata[key]['step'], jdata[key]['position'])
         ######################
         key = 'nested_filter'
         if key in jdata:
@@ -278,13 +254,7 @@ class RDBquery(RDBdefaults):
             else:
                 query = self.get_all_notes(query)
 
-        ## OR
-        # # Build query ?
-        # for key, value in jdata.items():
-        #     print(key, value)
-
-        # Execute query
-        return self.execute_query(query, limit)
+        return False
 
     def get_content(self, myid=None, limit=10):
         """ For GET method, very simple """
