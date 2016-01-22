@@ -42,6 +42,8 @@ def enable_endpoint_identifier(name='myid', idtype='string'):
     Enable identifier and let you choose name and type.
     """
     def class_rebuilder(cls):   # decorator
+# // TO FIX
+# This class has to change name everytime :/
         class NewClass(cls):    # decorated
             # Rewrite init
             def __init__(self):

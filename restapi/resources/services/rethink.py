@@ -152,6 +152,7 @@ class RDBquery(RDBdefaults):
 
     schema = None
     template = None
+    table_index = 'id'
 
     def get_query(self):
         return r.db(self.db)
@@ -256,37 +257,19 @@ class RDBquery(RDBdefaults):
 
         return False
 
-    def get_content(self, myid=None, limit=10):
+    def get_content(self, myid=None, limit=10, index='id'):
         """ For GET method, very simple """
 
         query = self.get_table_query()
+        if self.table_index is not None:
+            index = self.table_index
 
-        # If need all data
+        # If need one element
         if myid is not None:
-            query = query.get_all(myid, index='record')
+            query = query.get_all(myid, index=index)
 
-        # Process single data
-        count, data = self.execute_query(query, limit)
-
-        if myid is not None:
-# DO MORE PROCESSING?
-            single = []
-            print("\n\n\n")
-            for steps in data.pop()['steps']:
-                element = "";
-                #element = {}
-                for row in steps['data']:
-                    if row['position'] != 1:
-                        continue
-                    #element[row['name']] = row['value']
-                    element = row['value'];
-                single.insert(steps['step'], element)
-                print(steps)
-            print("\n\n\n", single)
-            return count, single
-# NOTE TO MY SELF: I REQUEST HERE ONE SINGLE DOCUMENT
-
-        return count, data
+        # Process
+        return self.execute_query(query, limit)
 
     def insert(self, data, user=None):
         # Prepare the query
