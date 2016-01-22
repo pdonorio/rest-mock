@@ -11,7 +11,7 @@ http://nbviewer.ipython.org/github/donnemartin/data-science-ipython-notebooks/bl
 TODO:
 
  ✔ Single services startup @done (16-01-20 22:06)
-   ☐ implement queries
+   ✔ implement queries @done (16-01-21 15:29)
    ☐ current page / per page
    ☐ Rethinkdb or other db connection before request...?
    ☐ Limit a before request to a certain endpoint, not to all??
