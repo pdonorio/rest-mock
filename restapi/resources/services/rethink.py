@@ -182,54 +182,6 @@ class RDBquery(RDBdefaults):
 
         return count, list(data)
 
-##################
-##################
-
-    def filter_nested_field(self, q, filter_value,
-                            filter_position=None, field_name=None):
-        """
-        Filter a value nested by checking the field name also
-        """
-        mapped = q \
-            .concat_map(
-                lambda doc: doc['steps'].concat_map(
-                    lambda step: step['data'].concat_map(
-                        lambda data:
-                            [{'record': doc['record'], 'step': data}])))
-
-        logger.debug("Searching '%s' on pos '%s' or name '%s'" %
-                     (filter_value, filter_position, field_name))
-        if filter_position is not None:
-            return mapped.filter(
-                lambda doc: doc['step']['position'].eq(filter_position).
-                and_(doc['step']['value'].eq(filter_value)))
-        elif field_name is not None:
-            return mapped.filter(
-                lambda doc: doc['step']['name'].match(field_name).
-                and_(doc['step']['value'].match(filter_value)))
-        else:
-            return q
-##################
-##################
-
-    def build_query(self, jdata):
-
-        ######################
-        key = 'nested_filter'
-        if key in jdata:
-            query = self.filter_nested_field(
-                query, jdata[key]['filter'], jdata[key]['position'])
-        ######################
-        key = 'notes'
-        if key in jdata:
-            if 'filter' in jdata[key]:
-                query = self.get_filtered_notes(
-                    query, jdata[key]['filter'])
-            else:
-                query = self.get_all_notes(query)
-
-        return False
-
     def get_content(self, myid=None, limit=10, index='id'):
         """ For GET method, very simple """
 
