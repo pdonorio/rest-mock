@@ -185,15 +185,6 @@ class RDBquery(RDBdefaults):
 ##################
 ##################
 
-    def get_all_notes(self, q):
-        """ Data for autocompletion in js """
-
-        return q.concat_map(
-            lambda doc: doc['images'].
-            has_fields({'transcriptions': True}).concat_map(
-                lambda image: image['transcriptions_split'])) \
-            .distinct()
-
     def get_filtered_notes(self, q, filter_value=None):
         """ Data for autocompletion in js """
 
