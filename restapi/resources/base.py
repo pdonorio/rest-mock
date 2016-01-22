@@ -103,16 +103,21 @@ class ExtendedApiResource(Resource):
         """ How to have api/method/:id route possible"""
         self.endtype = idtype + ':' + name
 
-    def response(self, obj=None, fail=False, code=hcodes.HTTP_OK_BASIC):
+    def response(self, obj=None,
+        fail=False, elements=0, data_type='dict',
+        code=hcodes.HTTP_OK_BASIC):
         """ Handle a standard response following some criteria """
 
+        if elements < 1:
+            elements = len(obj)
 # // TO FIX:
 # Automatic?
         response = {
-                'data_type': 'dict',
-                'elements': 1,
+                'data_type': data_type,
+                'elements': elements,
                 'data': obj,
             }
+
 # // TO FIX:
 # Specify status?
 # Can i recover it inside the decorator code???

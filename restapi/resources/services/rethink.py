@@ -185,24 +185,6 @@ class RDBquery(RDBdefaults):
 ##################
 ##################
 
-    def get_filtered_notes(self, q, filter_value=None):
-        """ Data for autocompletion in js """
-
-        mapped = q.concat_map(
-                lambda doc: doc['images'].has_fields(
-                    {'transcriptions': True}).map(
-                        lambda image: {
-                            'word': image['transcriptions_split'],
-                            'record': doc['record'],
-                        }
-                    )).distinct()
-
-        if filter_value is not None:
-            return mapped.filter(
-                lambda mapped: mapped['word'].contains(filter_value))
-
-        return mapped
-
     def filter_nested_field(self, q, filter_value,
                             filter_position=None, field_name=None):
         """
@@ -272,13 +254,15 @@ class RDBquery(RDBdefaults):
         # Get the id
         return rdb_out['generated_keys'].pop()
 
-    def marshal(self, data, count=0):
-        return marshal(
-            {'data': data, 'count': count},
-            {'data': fields.Nested(self.schema), 'count': fields.Integer})
+# # USELESS FOR REST MOCK API
+#     def marshal(self, data, count=0):
+#         return marshal(
+#             {'data': data, 'count': count},
+#             {'data': fields.Nested(self.schema), 'count': fields.Integer})
 
-    def nomarshal(self, data, count=0):
-        return OrderedDict({'data': data, 'count': count})
+#     def nomarshal(self, data, count=0):
+#         return OrderedDict({'data': data, 'count': count})
+# # USELESS FOR REST MOCK API
 
 
 ##########################################
