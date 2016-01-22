@@ -77,6 +77,9 @@ class ExtendedApiResource(Resource):
         loc = ['headers', 'values']  # multiple locations
         trim = True
 
+        self._params['perpage'] = (int, 10, False)
+        self._params['currentpage'] = (int, 1, False)
+
         for param, (param_type, param_default, param_required) \
           in self._params.items():
 
