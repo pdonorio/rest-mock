@@ -299,8 +299,13 @@ def test_query():
 def convert_schema():
     """ Do all ops """
 
-    test_query()
+    ######################
+    # Make rethinkdb query tests
+    #test_query()
+
+    ######################
+    # Conversion from old structure to the new one
     convert_submission()
-    # check_indexes(t2in)
+    #check_indexes(t2in)
     convert_search()
     convert_docs()
