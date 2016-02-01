@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -22,8 +21,9 @@ from __future__ import division, absolute_import
 from .. import myself, lic, get_logger
 
 from flask_restful import marshal
-from .. import htmlcodes as hcodes
 from flask.wrappers import Response
+from .. import htmlcodes as hcodes
+from ..meta import Meta
 
 __author__ = myself
 __copyright__ = myself
@@ -42,16 +42,27 @@ def enable_endpoint_identifier(name='myid', idtype='string'):
     Enable identifier and let you choose name and type.
     """
     def class_rebuilder(cls):   # decorator
-# // TO FIX
-# This class has to change name everytime :/
-        class NewClass(cls):    # decorated
-            # Rewrite init
-            def __init__(self):
-                logger.info("[%s] Applying ID to endopoint:%s of type '%s'"
-                            % (self.__class__.__name__, name, idtype))
-                self.set_method_id(name, idtype)
-                # logger.debug("New init %s %s" % (name, idtype))
-                super(cls, self).__init__()
+
+# # // TO FIX
+# # This class has to change name everytime :/
+#         class NewClass(cls):    # decorated
+#             # Rewrite init
+#             def __init__(self):
+#                 logger.info("[%s] Applying ID to endopoint:%s of type '%s'"
+#                             % (self.__class__.__name__, name, idtype))
+#                 self.set_method_id(name, idtype)
+#                 # logger.debug("New init %s %s" % (name, idtype))
+#                 super(cls, self).__init__()
+
+        def init(self):
+            logger.info("[%s] Applying ID to endopoint:%s of type '%s'"
+                        % (self.__class__.__name__, name, idtype))
+            self.set_method_id(name, idtype)
+            # logger.debug("New init %s %s" % (name, idtype))
+            super(cls, self).__init__()
+
+        NewClass = Meta.metaclassing(
+            cls, cls.__name__ + '_withid', {'__init__': init})
         return NewClass
     return class_rebuilder
 
@@ -136,9 +147,16 @@ def apimethod(func):
         try:
             out = func(self, *args, **kwargs)
         except KeyError as e:
-            if str(e).strip("'") == "security":
+            error = str(e).strip("'")
+            if error == "security":
                 return {'message': "FAIL: problems with auth check"}, \
                     hcodes.HTTP_BAD_NOTFOUND
+            raise e
+        except TypeError as e:
+            error = str(e).strip("'")
+            if "required positional argument" in error:
+                return {'message': "FAIL: missing argument"}, \
+                    hcodes.HTTP_BAD_REQUEST
             raise e
 
         # DO NOT INTERCEPT 404 or status from other plugins (e.g. security)

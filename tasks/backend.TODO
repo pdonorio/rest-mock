@@ -14,6 +14,7 @@ TODO:
    ✔ implement queries @done (16-01-21 15:29)
    ✔ current page / per page @done (16-01-22 14:47)
      ✔ default parameters @done (16-01-22 14:47)
+✔ adding id argument in more than one rest class  @done (16-02-01 15:00)
  ☐ Rethinkdb or other db connection before request...?
    ☐ Limit a before request to a certain endpoint, not to all??
    ☐ take off 'server.py'
