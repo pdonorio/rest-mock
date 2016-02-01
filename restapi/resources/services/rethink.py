@@ -197,6 +197,8 @@ class RDBquery(RDBdefaults):
         return self.execute_query(query, limit)
 
     def insert(self, data, user=None):
+#TOFIX:
+# Find the user?
         # Prepare the query
         query = self.get_table_query()
         # Add extra info: (ip, timestamp, user)
@@ -204,7 +206,19 @@ class RDBquery(RDBdefaults):
         # Execute the insert
         rdb_out = query.insert(data).run()
         # Get the id
+#first_error?
         return rdb_out['generated_keys'].pop()
+
+    def update(self, key, data, user=None):
+        # Prepare the query
+        query = self.get_table_query()
+        # Add extra info: (ip, timestamp, user)
+        data['infos'] = self.save_action_info(user)
+        # Execute the insert
+        rdb_out = query.update(key, data).run()
+        print("\n\n\n", rdb_out, "\n\n\n")
+        # Get the id
+        return True
 
 # # USELESS FOR REST MOCK API
 #     def marshal(self, data, count=0):

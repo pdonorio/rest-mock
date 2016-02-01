@@ -7,14 +7,16 @@ GUIDELINES
   ### PYTHON DEBUGGER
 http://nbviewer.ipython.org/github/donnemartin/data-science-ipython-notebooks/blob/master/python-data/pdb.ipynb
 --- ✄ -----------------------
+BUGS:
+✔ adding id argument in more than one rest class  @done (16-02-01 15:00)
+☐ returning template not working
+  ☐ that's because i use f****ing marshals
 
 TODO:
-
  ✔ Single services startup @done (16-01-20 22:06)
    ✔ implement queries @done (16-01-21 15:29)
    ✔ current page / per page @done (16-01-22 14:47)
      ✔ default parameters @done (16-01-22 14:47)
-✔ adding id argument in more than one rest class  @done (16-02-01 15:00)
  ☐ Rethinkdb or other db connection before request...?
    ☐ Limit a before request to a certain endpoint, not to all??
    ☐ take off 'server.py'
