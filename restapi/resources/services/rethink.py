@@ -5,14 +5,17 @@
 import os
 import time
 import glob
+import commentjson as json
 
 # This Rethinkdb reference is already connected at app init
 from rethinkdb import r, RqlDriverError
 
-from flask import g
-from flask.ext.restful import fields, marshal, request
-from collections import OrderedDict
+from flask import g  # , url_for, redirect
+from flask.ext.restful import request  # , fields, marshal
 from .connections import Connection
+from ..base import ExtendedApiResource
+from ... import htmlcodes as hcodes
+from ...marshal import convert_to_marshal
 from ... import get_logger
 
 # Using docker, "**db**"" is my alias of the ReThinkDB container
@@ -236,3 +239,87 @@ class RDBquery(RDBdefaults):
 def load_models(extension=JSONS_EXT):
     """ How to look for json models for services API """
     return glob.glob(os.path.join(JSONS_PATH, "*") + extension)
+
+
+##########################################
+def schema_and_tables(fileschema):
+    """
+    This function can recover basic data for my JSON resources
+    """
+    template = None
+    with open(os.path.join(JSONS_PATH, fileschema + JSONS_EXT)) as f:
+        template = json.load(f)
+    reference_schema = convert_to_marshal(template)
+    label = os.path.splitext(
+        os.path.basename(fileschema))[0].lower()
+
+    return label, template, reference_schema
+
+
+#####################################
+# Base implementation for methods?
+class BaseRethinkResource(ExtendedApiResource, RDBquery):
+    """ The json endpoint in a rethinkdb base class """
+
+    def get(self, data_key=None):
+        """
+        Obtain main data.
+        Obtain single objects.
+        Filter with predefined queries.
+        """
+
+        # Check arguments
+        limit = self._args['perpage']
+# // TO FIX: use it!
+        current_page = self._args['currentpage']
+
+        return self.get_content(data_key, limit)
+
+    def get_input(self):
+        """ Get JSON. The power of having a real object in our hand. """
+        return request.get_json(force=True)
+
+    def check_valid(self, json_data):
+        """ Verify if the json data follows the schema """
+        # Check if dictionary and not empty
+        if not isinstance(json_data, dict) or len(json_data) < 1:
+            return False
+        # Check template
+        for key, obj in json_data.items():
+            if key not in self.schema:
+                return False
+        # All fine here
+        return True
+
+    def post(self):
+
+        json_data = self.get_input()
+        if not self.check_valid(json_data):
+            logger.warning("Not a valid template")
+            return self.template, hcodes.HTTP_BAD_REQUEST
+
+        # marshal_data = marshal(json_data, self.schema, envelope='data')
+        myid = self.insert(json_data)
+
+        #####################
+        # redirect to GET method of this same endpoint, with the id found
+        #address = url_for(self.table, data_key=myid)
+        #return redirect(address)
+        # or return the key
+        return myid
+        #####################
+
+    def put(self, id):
+
+        json_data = self.get_input()
+        if 'id' in json_data:
+            json_data.pop('id')
+
+        if not self.check_valid(json_data):
+            logger.warning("Not a valid template")
+            return self.template, hcodes.HTTP_BAD_REQUEST
+
+        changes = self.get_table_query() \
+            .get(id).update(json_data, return_changes=True).run()
+        # Contains all changes applied
+        return changes
