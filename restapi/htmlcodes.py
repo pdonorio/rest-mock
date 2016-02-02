@@ -1,9 +1,11 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
 ### HTTP status codes ===
 http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+
+Should take a look here also:
+http://racksburg.com/choosing-an-http-status-code/
 """
 
 HTTP_OK_BASIC = 200
