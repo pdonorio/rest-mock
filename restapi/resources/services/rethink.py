@@ -309,7 +309,7 @@ class BaseRethinkResource(ExtendedApiResource, RDBquery):
         return myid
         #####################
 
-    def put(self, id):
+    def put(self, id, index='id'):
 
         json_data = self.get_input()
         if 'id' in json_data:
@@ -319,7 +319,18 @@ class BaseRethinkResource(ExtendedApiResource, RDBquery):
             logger.warning("Not a valid template")
             return self.template, hcodes.HTTP_BAD_REQUEST
 
-        changes = self.get_table_query() \
-            .get(id).update(json_data, return_changes=True).run()
+        changes = self.get_table_query().get_all(id, index=index) \
+            .update(json_data, return_changes=True).run()
         # Contains all changes applied
         return changes
+
+    def delete(self, id, index='id'):
+        """ Remove an element from database (based on primary key) """
+
+        out = self.get_table_query().get_all(id, index=index) \
+            .delete().run()
+        if out['deleted']:
+            logger.debug("Removed record '%s'" % id)
+        else:
+            return id, hcodes.HTTP_SERVICE_UNAVAILABLE
+        return True

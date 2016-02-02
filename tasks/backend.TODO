@@ -11,6 +11,7 @@ BUGS:
 ✔ adding id argument in more than one rest class  @done (16-02-01 15:00)
 ☐ returning template not working
   ☐ that's because i use f****ing marshals
+  ☐ change the decorator to avoid marshal if htmlcode is higher than 250?
 
 TODO:
  ✔ Single services startup @done (16-01-20 22:06)
@@ -18,6 +19,7 @@ TODO:
    ✔ current page / per page @done (16-01-22 14:47)
      ✔ default parameters @done (16-01-22 14:47)
  ✔ PUT method / update @done (16-02-01 18:38)
+ ✔ DELETE method @done (16-02-02 07:58)
  ☐ Rethinkdb or other db connection before request...?
    ☐ Limit a before request to a certain endpoint, not to all??
    ☐ take off 'server.py'
