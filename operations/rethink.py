@@ -12,6 +12,11 @@ from restapi.resources.services.rethink import RethinkConnection, RDBquery
 from restapi import get_logger
 from rethinkdb import r
 from rethinkdb.net import DefaultCursorEmpty
+from datetime import datetime
+from elasticsearch import Elasticsearch
+
+ES_HOST = {"host": "el", "port": 9200}
+EL_INDEX = "autocomplete"
 
 logger = get_logger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -107,8 +112,15 @@ def convert_search():
     # Query
     res = qt1.group('recordid').order_by('step').run()
 
+    # Elasticsearch magic
+    es = Elasticsearch(hosts=[ES_HOST])
+    es.indices.delete(index=EL_INDEX, ignore=[400, 404])
+    es.indices.create(index=EL_INDEX, ignore=400)
+    #es.indices.refresh(index=EL_INDEX)
+
     for record, rows in res.items():
         steps = []
+
         for row in rows:
 
             # Compose back the elements...
@@ -120,7 +132,7 @@ def convert_search():
                     lambda x: x['fields']['original_hash'].contains(myhash)
                     ).run()
                 fields = []
-#if not query.is_empty().run():
+
                 try:
                     fields = cursor.next()['fields']
                 except DefaultCursorEmpty:
@@ -154,6 +166,17 @@ def convert_search():
                 },
                 'data': elements,
             })
+
+# PLUG ELASTICSEARCH SOMEWHERE IN HERE
+        doc = {
+            'category': 'STEPNAME??',
+            'text': 'WORD / NAME',
+            'timestamp': datetime.now(),
+        }
+        es.index(index=EL_INDEX, doc_type='normal', body=doc)
+        print("DEBUG EXIT")
+        exit(1)
+
 
         # Save the record
         qtin.insert({'record': record, 'steps': steps}).run()
@@ -298,9 +321,6 @@ def test_query():
 
 def test_el():
     print("TEST")
-    from elasticsearch import Elasticsearch
-    from datetime import datetime
-    ES_HOST = {"host": "el", "port": 9200}
     es = Elasticsearch(hosts=[ES_HOST])
     print(es)
 
@@ -328,9 +348,9 @@ def convert_schema():
     """ Do all ops """
 
     ######################
-    # Make rethinkdb query tests
+    # Make tests
     #test_query()
-    test_el()
+    #test_el()
 
     ######################
     # Conversion from old structure to the new one
