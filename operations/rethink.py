@@ -296,12 +296,41 @@ def test_query():
     print(list(cursor))
 
 
+def test_el():
+    print("TEST")
+    from elasticsearch import Elasticsearch
+    from datetime import datetime
+    ES_HOST = {"host": "el", "port": 9200}
+    es = Elasticsearch(hosts=[ES_HOST])
+    print(es)
+
+    # doc = {
+    #     'author': 'kimchy',
+    #     'text': 'Elasticsearch: cool. bonsai cool.',
+    #     'timestamp': datetime.now(),
+    # }
+    # res = es.index(index="test-index", doc_type='tweet', id=1, body=doc)
+    # print(res['created'])
+
+    # Note:
+    # Refresh indices at login startup!!!
+    es.indices.refresh(index="test-index")
+
+    res = es.get(index="test-index", doc_type='tweet', id=1)
+    print(res['_source'])
+
+    #es.search(index='posts', q='author:"Benjamin Pollack"')
+
+    exit(1)
+
+
 def convert_schema():
     """ Do all ops """
 
     ######################
     # Make rethinkdb query tests
     #test_query()
+    test_el()
 
     ######################
     # Conversion from old structure to the new one
