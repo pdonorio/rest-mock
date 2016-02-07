@@ -17,6 +17,7 @@ from elasticsearch import Elasticsearch
 
 ES_HOST = {"host": "el", "port": 9200}
 EL_INDEX = "autocomplete"
+STEPS = {}
 
 logger = get_logger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -113,6 +114,7 @@ def convert_search():
     res = qt1.group('recordid').order_by('step').run()
 
     # Elasticsearch magic
+    print("Elasticsearch and indexes")
     es = Elasticsearch(hosts=[ES_HOST])
     es.indices.delete(index=EL_INDEX, ignore=[400, 404])
     es.indices.create(index=EL_INDEX, ignore=400)
@@ -120,6 +122,7 @@ def convert_search():
 
     for record, rows in res.items():
         steps = []
+        title = None
 
         for row in rows:
 
@@ -151,7 +154,11 @@ def convert_search():
                             'hash': field['original_hash'],
                             'value': value,
                         })
+                        if field['position'] == 1:
+                            title = value
                         break
+
+
                 index += 1
 
             # Create a sane JSON to contain all the data for one step
@@ -169,10 +176,11 @@ def convert_search():
 
 # PLUG ELASTICSEARCH SOMEWHERE IN HERE
         doc = {
-            'category': 'STEPNAME??',
-            'text': 'WORD / NAME',
+            'category': STEPS[row['step']],
+            'text': title,
             'timestamp': datetime.now(),
         }
+        print(doc)
         es.index(index=EL_INDEX, doc_type='normal', body=doc)
         print("DEBUG EXIT")
         exit(1)
@@ -243,6 +251,9 @@ def convert_submission():
         logger.debug("To insert!\n%s" % new)
         qtin.insert(new).run()
         logger.info("Added row")
+        tmp = new['step']
+        STEPS[tmp['num']] = tmp['name']
+    print(STEPS)
 
 
 def test_query():
