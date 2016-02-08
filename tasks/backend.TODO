@@ -6,23 +6,21 @@ GUIDELINES
 - relative imports
   ### PYTHON DEBUGGER
 http://nbviewer.ipython.org/github/donnemartin/data-science-ipython-notebooks/blob/master/python-data/pdb.ipynb
+
 --- ✄ -----------------------
 BUGS:
 ✔ adding id argument in more than one rest class  @done (16-02-01 15:00)
 ☐ returning template not working
   ☐ that's because i use f****ing marshals
   ☐ change the decorator to avoid marshal if htmlcode is higher than 250?
+☐ Rethinkdb or other db connection before request...?
+  ☐ Limit a before request to a certain endpoint, not to all??
+  ☐ take off 'server.py'
 
-TODO:
- ✔ Single services startup @done (16-01-20 22:06)
-   ✔ implement queries @done (16-01-21 15:29)
-   ✔ current page / per page @done (16-01-22 14:47)
-     ✔ default parameters @done (16-01-22 14:47)
- ✔ PUT method / update @done (16-02-01 18:38)
- ✔ DELETE method @done (16-02-02 07:58)
- ☐ Rethinkdb or other db connection before request...?
-   ☐ Limit a before request to a certain endpoint, not to all??
-   ☐ take off 'server.py'
+UPLOAD:
+  http --form POST 192.168.64.7:8081/api/upload file@~
+  ✔ copy skeleton @done (16-02-08 16:02)
+  ☐ make it restful
 
  ☐ PyJWT
    ☐ working snippet
@@ -193,3 +191,9 @@ COMPLETED:
  ✔ restful intercept abort if not logged @done (15-12-20 09:04)
  ✔ double logs? @done (15-12-21 19:27)
    ✔ irods fault... how to list loggers? @done (15-12-21 19:27)
+ ✔ Single services startup @done (16-01-20 22:06)
+   ✔ implement queries @done (16-01-21 15:29)
+   ✔ current page / per page @done (16-01-22 14:47)
+     ✔ default parameters @done (16-01-22 14:47)
+ ✔ PUT method / update @done (16-02-01 18:38)
+ ✔ DELETE method @done (16-02-02 07:58)

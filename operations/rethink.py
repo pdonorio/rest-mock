@@ -180,10 +180,10 @@ def convert_search():
             'text': title,
             'timestamp': datetime.now(),
         }
-        print(doc)
+# TO FIX?
+        #print(doc)
         es.index(index=EL_INDEX, doc_type='normal', body=doc)
-        print("DEBUG EXIT")
-        exit(1)
+        #print("DEBUG EXIT"); exit(1)
 
 
         # Save the record
