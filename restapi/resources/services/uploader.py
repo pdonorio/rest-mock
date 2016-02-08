@@ -5,7 +5,7 @@
 import os
 import shutil
 import subprocess as shell
-from flask import request, redirect, url_for, abort, send_from_directory
+from flask import request, send_from_directory
 from werkzeug import secure_filename
 from ... import htmlcodes as hcodes
 from ..base import ExtendedApiResource
@@ -35,30 +35,26 @@ class Uploader(ExtendedApiResource):
             return "No files specified"
 
         myfile = request.files['file']
-        logger.info("Received file request for '%s'" % myfile)
 
-        if myfile and self.allowed_file(myfile.filename):
-            filename = secure_filename(myfile.filename)
+        if not self.allowed_file(myfile.filename):
+            return "File extension not allowed", hcodes.HTTP_BAD_REQUEST
 
-            print("FILE IS ", filename)
+        # Check file name
+        filename = secure_filename(myfile.filename)
+        abs_file = os.path.join(UPLOAD_FOLDER, filename)
+        logger.info("File request for [%s](%s)" % (myfile, abs_file))
 
-#             # Check file name
-#             abs_file = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-#             app.logger.info("A file allowed: "+ filename + ". Path: " +abs_file)
+        if os.path.exists(abs_file):
+            # os.remove(abs_file) # ??
+            logger.warn("Already exists")
+            return "File '" + filename + "' already exists. Please " + \
+                "change its name and retry.", hcodes.HTTP_BAD_REQUEST
 
-#             if os.path.exists(abs_file):
-
-# # #####################
-# # # DEBUG
-# #                 os.remove(abs_file)
-# # #####################
-
-#                 app.logger.warn("Already existing file: "+ abs_file)
-#                 abort(hcodes.HTTP_BAD_REQUEST, "File '"+ filename +"' already exists. " + \
-#                     "Please change your file name and retry.")
-
-#             # Save the file
-#             myfile.save(abs_file)
+        # Save the file
+        try:
+            myfile.save(abs_file)
+        except Exception:
+            return "Failed to save file", hcodes.HTTP_DEFAULT_SERVICE_FAIL
 
 #             # Make zoomify object and thumbnail
 #             app.logger.info("Elaborate image")
@@ -75,34 +71,22 @@ class Uploader(ExtendedApiResource):
 #                     ". Error: " + err)
 #                 abort(hcodes.HTTP_BAD_REQUEST, "Could not process file")
 
-#             # Default redirect is to 302 state, which makes client
-#             # think that response was unauthorized....
-#             # see http://dotnet.dzone.com/articles/getting-know-cross-origin
-#             return redirect(url_for('uploaded_file', filename='/' + filename),
-#                 hcodes.HTTP_OK_BASIC)
+        # Default redirect is to 302 state, which makes client
+        # think that response was unauthorized....
+        # see http://dotnet.dzone.com/articles/getting-know-cross-origin
+        return "Uploaded", hcodes.HTTP_OK_BASIC
 
-#     return '''
-#     <!doctype html>
-#     <title>Uploader</title> <h2>Uploader</h2> Empty. Just for receiving!<br>
-#     '''
+    def delete(self, filename):
+        """ Remove the file if requested """
+
+        abs_file = os.path.join(UPLOAD_FOLDER, filename)
+
+        # Check file existence
+        if not os.path.exists(abs_file):
+            logger.critical("File '%s' not found" % abs_file)
+            return "File not found", hcodes.HTTP_BAD_NOTFOUND
+
         return True
-
-# ###########################################
-# # http://API/uploader/filename
-# @app.route(UPLOAD_RESOURCE + '/<filename>', methods=['GET', 'DELETE'])
-# def uploaded_file(filename):
-
-#     app.logger.info("Specific request: " + request.method + ", " + filename)
-
-#     abs_file = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
-#     if request.method == 'DELETE':
-
-#         # Check file existence
-#         if not os.path.exists(abs_file):
-#             app.logger.critical("Not existing: "+ abs_file)
-#             abort(hcodes.HTTP_BAD_NOTFOUND, "File '"+ filename +"' not found. " + \
-#                 "Please change your file name and retry.")
 
 #         # Remove zoomified directory
 #         filebase, fileext = os.path.splitext(abs_file)
