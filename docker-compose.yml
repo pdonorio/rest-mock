@@ -15,6 +15,7 @@ rest:
 #########################
   volumes:
     - .:/code:rw
+    - apiuploads:/uploads
   working_dir: /code
 
 # ##############################################

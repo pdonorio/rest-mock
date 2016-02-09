@@ -21,7 +21,7 @@ UPLOAD:
   http --form POST 192.168.64.7:8081/api/upload file@~
   ✔ copy skeleton @done (16-02-08 16:02)
   ✔ make it restful @done (16-02-08 16:29)
-  ☐ delete method
+  ✔ delete method @done (16-02-09 08:17)
   ☐ test with js
 
  ☐ PyJWT

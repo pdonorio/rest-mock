@@ -9,6 +9,7 @@ from flask import request, send_from_directory
 from werkzeug import secure_filename
 from ... import htmlcodes as hcodes
 from ..base import ExtendedApiResource
+from .. import decorators as deck
 from ... import get_logger
 
 UPLOAD_FOLDER = '/uploads'
@@ -19,13 +20,24 @@ logger = get_logger(__name__)
 
 
 # Save files http://API/upload
+@deck.enable_endpoint_identifier('filename')
 class Uploader(ExtendedApiResource):
 
     allowed_exts = ['png', 'jpg', 'jpeg', 'tiff']
 
+    @staticmethod
+    def absolute_upload_file(filename):
+        return os.path.join(UPLOAD_FOLDER, filename)
+
     def allowed_file(self, filename):
         return '.' in filename \
             and filename.rsplit('.', 1)[1].lower() in self.allowed_exts
+
+    def get(self, filename):
+        abs_file = self.absolute_upload_file(filename)
+        logger.info("Provide '%s' " % abs_file)
+        #return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+        return "Not implemented yet", hcodes.HTTP_OK_NORESPONSE
 
     def post(self):
 
@@ -39,7 +51,7 @@ class Uploader(ExtendedApiResource):
 
         # Check file name
         filename = secure_filename(myfile.filename)
-        abs_file = os.path.join(UPLOAD_FOLDER, filename)
+        abs_file = self.absolute_upload_file(filename)
         logger.info("File request for [%s](%s)" % (myfile, abs_file))
 
         if os.path.exists(abs_file):
@@ -80,30 +92,25 @@ class Uploader(ExtendedApiResource):
     def delete(self, filename):
         """ Remove the file if requested """
 
-        abs_file = os.path.join(UPLOAD_FOLDER, filename)
+        abs_file = self.absolute_upload_file(filename)
 
         # Check file existence
         if not os.path.exists(abs_file):
             logger.critical("File '%s' not found" % abs_file)
-            return "File not found", hcodes.HTTP_BAD_NOTFOUND
-
-        return True
+            return "File requested does not exists", hcodes.HTTP_BAD_NOTFOUND
 
 #         # Remove zoomified directory
 #         filebase, fileext = os.path.splitext(abs_file)
 #         if os.path.exists(filebase):
 #             shutil.rmtree(filebase)
-#             app.logger.warn("Removed: "+ filebase +" [extension '"+fileext+"']")
+#             logger.warn("Removed dir '%s' " % \
+#    filebase +" [extension '"+fileext+"']")
 
-#         # Remove the real file
-#         os.remove(abs_file)
-#         app.logger.warn("Removed: "+ abs_file)
+        # Remove the real file
+        try:
+            os.remove(abs_file)
+        except Exception:
+            return "Failed to save file", hcodes.HTTP_DEFAULT_SERVICE_FAIL
+        logger.warn("Removed '%s' " % abs_file)
 
-#         return "Deleted", hcodes.HTTP_OK_NORESPONSE
-
-#     # To get?
-#     elif request.method == 'GET':
-#         app.logger.info("Should provide: "+ abs_file)
-#         return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-#     return ''' <!doctype html> <title>Uploader</title> Empty<br> '''
+        return "Deleted", hcodes.HTTP_OK_NORESPONSE
