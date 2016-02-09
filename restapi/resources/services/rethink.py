@@ -112,14 +112,39 @@ class RethinkConnection(Connection):
             logger.info("Table '" + table + "' created")
 
 
+def wait_for_connection():
+    """ Wait for rethinkdb connection at startup? """
+
+    counter = 0
+    sleep_time = 1
+    testdb = True
+
+    while testdb:
+        try:
+            rdb = r.connect(host=RDB_HOST, port=RDB_PORT)
+            logger.info("Rethinkdb: available")
+            testdb = False
+            # Need a pool of connections: http://j.mp/1yNP4p0
+            if g and "rdb" not in g:
+                g.rdb = rdb
+        except RqlDriverError:
+            logger.warning("Rethinkdb: Not reachable yet")
+        counter += 1
+        if counter % 10 == 0:
+            sleep_time += sleep_time
+        time.sleep(sleep_time)
+
+    return True
+
+
 ##########################################
-# Need a pool of connections: http://j.mp/1yNP4p0
 def try_to_connect():
     if g and "rdb" in g:
         return False
     try:
         logger.debug("Creating the rdb object")
         rdb = RethinkConnection()
+        # Need a pool of connections: http://j.mp/1yNP4p0
         if g:
             g.rdb = rdb
     except Exception as e:

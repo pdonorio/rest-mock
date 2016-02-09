@@ -10,6 +10,7 @@ http://nbviewer.ipython.org/github/donnemartin/data-science-ipython-notebooks/bl
 --- ✄ -----------------------
 BUGS:
 ✔ adding id argument in more than one rest class  @done (16-02-01 15:00)
+✔ wait for rethinkdb connection at startup if container link exists @done (16-02-09 11:08)
 ☐ returning template not working
   ☐ that's because i use f****ing marshals
   ☐ change the decorator to avoid marshal if htmlcode is higher than 250?

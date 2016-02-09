@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -26,11 +25,12 @@ logger = get_logger(__name__)
 RDB_AVAILABLE = False
 MODELS = []
 if 'RDB_NAME' in os.environ:
-    from .resources.services.rethink import load_models, try_to_connect
+    from .resources.services.rethink import load_models, wait_for_connection
     # Look for models
     MODELS = load_models()
-    if len(MODELS) > 0 and try_to_connect() is not None:
+    if len(MODELS) > 0:
         RDB_AVAILABLE = True
+        wait_for_connection()
         logger.info("Found RethinkDB container")
 
 
