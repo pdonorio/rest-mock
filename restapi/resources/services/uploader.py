@@ -3,8 +3,8 @@
 """ Upload data to APIs """
 
 import os
-import shutil
-import subprocess as shell
+# import shutil
+# import subprocess as shell
 from flask import request, send_from_directory
 from werkzeug import secure_filename
 from ... import htmlcodes as hcodes
