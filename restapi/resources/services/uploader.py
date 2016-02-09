@@ -14,8 +14,6 @@ from ... import get_logger
 UPLOAD_FOLDER = '/uploads'
 INTERPRETER = 'python'
 ZBIN = '/zoomify/processor/ZoomifyFileProcessor.py'
-# app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
-# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 logger = get_logger(__name__)
 
@@ -55,6 +53,9 @@ class Uploader(ExtendedApiResource):
             myfile.save(abs_file)
         except Exception:
             return "Failed to save file", hcodes.HTTP_DEFAULT_SERVICE_FAIL
+
+# TO FIX:
+# Let the user decide about zoomify inside the JSON configuration
 
 #             # Make zoomify object and thumbnail
 #             app.logger.info("Elaborate image")
