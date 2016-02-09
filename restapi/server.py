@@ -169,6 +169,7 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
 
 # Database should be already connected in "before_first_request"
 # But the post method fails to find the object!
+            from .resources.services.rethink import try_to_connect
             try_to_connect()
 
     ##############################
