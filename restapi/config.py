@@ -40,10 +40,10 @@ class MyConfigs(object):
         config.read(configfile)
         for section in config.sections():
             print(section)
-            elements = []
+            elements = {}
             for classname, endpoint in iteritems(dict(config.items(section))):
                 print(classname, endpoint)
-                elements.append({classname: [endpoint]})
+                elements[classname] = [endpoint]
             sections[str(section)] = elements
 
         return sections
@@ -96,8 +96,7 @@ class MyConfigs(object):
                 logger.warning("Could not find module '%s'..." % section)
                 continue
 
-            for item in items:
-                classname, endpoints = item.popitem()
+            for classname, endpoints in iteritems(items):
                 myclass = meta.get_class_from_string(classname, module)
                 # Again skip
                 if myclass is None:
