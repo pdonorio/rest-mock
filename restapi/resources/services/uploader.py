@@ -9,7 +9,6 @@ from flask import request, send_from_directory
 from werkzeug import secure_filename
 from ... import htmlcodes as hcodes
 from ..base import ExtendedApiResource
-from .. import decorators as deck
 from ... import get_logger
 
 UPLOAD_FOLDER = '/uploads'
@@ -20,7 +19,6 @@ logger = get_logger(__name__)
 
 
 # Save files http://API/upload
-@deck.enable_endpoint_identifier('filename')
 class Uploader(ExtendedApiResource):
 
     allowed_exts = ['png', 'jpg', 'jpeg', 'tiff']
