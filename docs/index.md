@@ -26,7 +26,7 @@ I think this repo would be usefull to fork if you are planning to write a projec
 ### What it will be based on
 
 * Flask (*obviously*)
-* Jinja2
+* Jinja2 templating
 * Flask Cors
 * Flask Restful plugin (even if evaluating *Flask Classy*, also)
 * Flask Security
@@ -36,13 +36,23 @@ I think this repo would be usefull to fork if you are planning to write a projec
 
 *Still to be added:*
 
-* Flask-JWT
 * Plumbum
+* Flask-JWT
 * Tracestack
 * Mail
 * Flask Cache
 * Flask Uploads
+* OAuth2?
 * Alembic? migrations for SQLalchemy
+
+### Help needed
+
+The project was created during spare time and since i needed to go directly to the main part i wrote no tests, and i regret it.
+
+I am no expert with unittest or nose, help would be much appreciated.
+Also JWT and OAuth2 are two security aspects i think that should be covered, but again i have almost zero experience on both.
+
+If you like this project considering writing functionality with Pull Requests. Thank you.
 
 ---
 
