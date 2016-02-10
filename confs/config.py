@@ -45,6 +45,7 @@ PROPAGATE_EXCEPTIONS = False
 # Roles
 ROLE_ADMIN = 'adminer'
 ROLE_USER = 'justauser'
+##OTHER ROLES?
 
 # I am inside the conf dir.
 # The base dir is one level up from here

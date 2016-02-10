@@ -30,7 +30,7 @@ class Endpoints(object):
         # Special endpoint, e.g. /api/foo/:endkey
         if endkey is not None:
             urls.append(address + '/<' + endkey + '>')
-        # Create restful resource with it
+        # Create the restful resource with it
         self.rest_api.add_resource(resource, *urls)
 
     def create_many(self, resources):

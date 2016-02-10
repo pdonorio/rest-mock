@@ -13,6 +13,10 @@ try:
 except:
     # python2
     import ConfigParser as configparser
+try:
+    import commentjson as json
+except:
+    import json
 
 logger = get_logger(__name__)
 
@@ -23,7 +27,7 @@ class MyConfigs(object):
     _latest_config = None
 
     def read_config(self, configfile, case_sensitive=True):
-        """ A generic reader via standard library """
+        """ A generic reader for 'ini' files via standard library """
 
         if case_sensitive:
             # Make sure configuration is case sensitive
@@ -37,18 +41,40 @@ class MyConfigs(object):
         self._latest_config = config
         return config
 
+    def read_complex_config(self, configfile):
+        """ A more complex configuration is available in JSON format """
+        content = None
+        with open(configfile) as fp:
+            content = json.load(fp)
+        print(configfile, content)
+        exit(1)
+
     def single_rest(self, ini_file):
 
         meta = Meta()
         resources = []
+        config = None
 
         if not os.path.exists(ini_file):
             logger.warning("File '%s' does not exist! Skipping." % ini_file)
             return resources
 
+        #########################
         # Read the configuration inside this init file
-        config = self.read_config(ini_file)
+        # INI CASE
+        try:
+            config = self.read_config(ini_file)
+        except configparser.MissingSectionHeaderError:
+            logger.warning("'%s' file is not in base format" % ini_file)
+            # JSON CASE
+            try:
+                config = self.read_complex_config(ini_file)
+            except Exception as e:
+                logger.critical("Failed complex format too.")
+                exit(1)
 
+        #########################
+        # Use sections found
         for section in config.sections():
 
             logger.info("Configuration read: {Section: " + section + "}")

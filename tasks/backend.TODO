@@ -18,6 +18,12 @@ BUGS:
   ☐ Limit a before request to a certain endpoint, not to all??
   ☐ take off 'server.py'
 
+Routing:
+  ☐ Add complex routing to ini file
+    ✔ except normal read, go to another function @done (16-02-10 14:49)
+    ✔ json reading @done (16-02-10 14:49)
+    ☐ convert ini sections into a dictionary like json load
+
 UPLOAD:
   http --form POST 192.168.64.7:8081/api/upload file@~
   ✔ copy skeleton @done (16-02-08 16:02)
@@ -25,6 +31,7 @@ UPLOAD:
   ✔ delete method @done (16-02-09 08:17)
   ☐ test with js
 
+Token:
  ☐ PyJWT
    ☐ working snippet
    https://github.com/sahat/satellizer/blob/master/examples/server/python/app.py
