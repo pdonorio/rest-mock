@@ -24,10 +24,10 @@ logger = get_logger(__name__)
 class MyConfigs(object):
     """ A class to read all of my configurations """
 
-    _latest_config = None
-
     def read_config(self, configfile, case_sensitive=True):
         """ A generic reader for 'ini' files via standard library """
+
+        sections = {}
 
         if case_sensitive:
             # Make sure configuration is case sensitive
@@ -38,22 +38,28 @@ class MyConfigs(object):
 
         # Read
         config.read(configfile)
-        self._latest_config = config
-        return config
+        for section in config.sections():
+            print(section)
+            elements = []
+            for classname, endpoint in iteritems(dict(config.items(section))):
+                print(classname, endpoint)
+                elements.append({classname: [endpoint]})
+            sections[str(section)] = elements
+
+        return sections
 
     def read_complex_config(self, configfile):
         """ A more complex configuration is available in JSON format """
-        content = None
+        content = {}
         with open(configfile) as fp:
             content = json.load(fp)
-        print(configfile, content)
-        exit(1)
+        return content
 
     def single_rest(self, ini_file):
 
         meta = Meta()
         resources = []
-        config = None
+        sections = {}
 
         if not os.path.exists(ini_file):
             logger.warning("File '%s' does not exist! Skipping." % ini_file)
@@ -63,19 +69,19 @@ class MyConfigs(object):
         # Read the configuration inside this init file
         # INI CASE
         try:
-            config = self.read_config(ini_file)
+            sections = self.read_config(ini_file)
         except configparser.MissingSectionHeaderError:
             logger.warning("'%s' file is not in base format" % ini_file)
             # JSON CASE
             try:
-                config = self.read_complex_config(ini_file)
+                sections = self.read_complex_config(ini_file)
             except Exception as e:
                 logger.critical("Failed complex format too.")
                 exit(1)
 
         #########################
         # Use sections found
-        for section in config.sections():
+        for section, items in iteritems(sections):
 
             logger.info("Configuration read: {Section: " + section + "}")
 
@@ -86,8 +92,8 @@ class MyConfigs(object):
                 logger.warning("Could not find module '%s'..." % section)
                 continue
 
-            for classname, endpoint in iteritems(dict(config.items(section))):
-
+            for item in items:
+                classname, endpoints = item.popitem()
                 myclass = meta.get_class_from_string(classname, module)
                 # Again skip
                 if myclass is None:
@@ -98,11 +104,11 @@ class MyConfigs(object):
 
                 # Get the best endpoint comparing inside against configuration
                 instance = myclass()
-                oldendpoint, endkey = instance.get_endpoint()
-                if endpoint.strip() == '':
-                    endpoint = oldendpoint
 
-                resources.append((myclass, instance, endpoint, endkey))
+                oldendpoint, endkey = instance.get_endpoint()
+                if len(endpoints) < 1:
+                    endpoints = [oldendpoint]
+                resources.append((myclass, instance, endpoints, endkey))
 
         return resources
 

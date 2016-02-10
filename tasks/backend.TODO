@@ -19,10 +19,10 @@ BUGS:
   ☐ take off 'server.py'
 
 Routing:
-  ☐ Add complex routing to ini file
+  ✔ Add complex routing to ini file @done (16-02-10 15:16)
     ✔ except normal read, go to another function @done (16-02-10 14:49)
     ✔ json reading @done (16-02-10 14:49)
-    ☐ convert ini sections into a dictionary like json load
+    ✔ convert ini sections into a dictionary like json load @done (16-02-10 15:16)
 
 UPLOAD:
   http --form POST 192.168.64.7:8081/api/upload file@~

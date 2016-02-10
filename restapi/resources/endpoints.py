@@ -19,17 +19,21 @@ class Endpoints(object):
         super(Endpoints, self).__init__()
         self.rest_api = api
 
-    def create_single(self, resource, endpoint, endkey):
+    def create_single(self, resource, endpoints, endkey):
         """ Adding a single restpoint from a Resource Class """
 
-        address = ALL_API_URL + '/' + endpoint
-        logger.info("Adding '%s' resource to REST address: *%s*",
-                    resource.__name__, address)
-        # Normal endpoint, e.g. /api/foo
-        urls = [address]
-        # Special endpoint, e.g. /api/foo/:endkey
-        if endkey is not None:
-            urls.append(address + '/<' + endkey + '>')
+        urls = []
+
+        for endpoint in endpoints:
+            address = ALL_API_URL + '/' + endpoint
+            logger.info("Adding '%s' resource to REST address: *%s*",
+                        resource.__name__, address)
+            # Normal endpoint, e.g. /api/foo
+            urls.append(address)
+            # Special endpoint, e.g. /api/foo/:endkey
+            if endkey is not None:
+                urls.append(address + '/<' + endkey + '>')
+
         # Create the restful resource with it
         self.rest_api.add_resource(resource, *urls)
 
@@ -38,7 +42,7 @@ class Endpoints(object):
         # For each RESTful resource i receive
         for resource in resources:
             endpoint, endkey = resource().get_endpoint()
-            self.create_single(resource, endpoint, endkey)
+            self.create_single(resource, [endpoint], endkey)
 
     def many_from_module(self, module):
         """ Automatic creation of endpoint from specified resources """
