@@ -18,12 +18,6 @@ BUGS:
   ☐ Limit a before request to a certain endpoint, not to all??
   ☐ take off 'server.py'
 
-Routing:
-  ✔ Add complex routing to ini file @done (16-02-10 15:16)
-    ✔ except normal read, go to another function @done (16-02-10 14:49)
-    ✔ json reading @done (16-02-10 14:49)
-    ✔ convert ini sections into a dictionary like json load @done (16-02-10 15:16)
-
 UPLOAD:
   http --form POST 192.168.64.7:8081/api/upload file@~
   ✔ copy skeleton @done (16-02-08 16:02)
@@ -207,3 +201,7 @@ COMPLETED:
      ✔ default parameters @done (16-01-22 14:47)
  ✔ PUT method / update @done (16-02-01 18:38)
  ✔ DELETE method @done (16-02-02 07:58)
+  ✔ Add complex routing to ini file @done (16-02-10 15:16)
+    ✔ except normal read, go to another function @done (16-02-10 14:49)
+    ✔ json reading @done (16-02-10 14:49)
+    ✔ convert ini sections into a dictionary like json load @done (16-02-10 15:16)

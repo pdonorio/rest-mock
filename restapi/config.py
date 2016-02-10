@@ -72,11 +72,15 @@ class MyConfigs(object):
             sections = self.read_config(ini_file)
         except configparser.MissingSectionHeaderError:
             logger.warning("'%s' file is not in base format" % ini_file)
+            # print(e)  # DEBUG?
             # JSON CASE
             try:
                 sections = self.read_complex_config(ini_file)
-            except Exception as e:
-                logger.critical("Failed complex format too.")
+            except json.commentjson.JSONLibraryException:
+                logger.critical(
+                    "Failed to read also complex format too." +
+                    "\nPlease verify that your file is in " +
+                    "'ini' or 'json' format!")
                 exit(1)
 
         #########################
