@@ -104,18 +104,21 @@ class ExtendedApiResource(Resource):
         self.endtype = idtype + ':' + name
 
     def response(self, obj=None,
-        fail=False, elements=0, data_type='dict',
-        code=hcodes.HTTP_OK_BASIC):
+                 fail=False, elements=0, data_type='dict',
+                 code=hcodes.HTTP_OK_BASIC):
         """ Handle a standard response following some criteria """
 
+        data_type = str(type(obj))
         if elements < 1:
-            elements = len(obj)
-# // TO FIX:
-# Automatic?
+            if isinstance(obj, str):
+                elements = 1
+            else:
+                elements = len(obj)
+
         response = {
-                'data_type': data_type,
-                'elements': elements,
                 'data': obj,
+                'elements': elements,
+                'data_type': data_type
             }
 
 # // TO FIX:
