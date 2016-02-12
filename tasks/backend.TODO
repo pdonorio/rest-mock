@@ -1,23 +1,34 @@
 
 --- ✄ -----------------------
-GUIDELINES
-- python 3.4
-- mock as base service
-- relative imports
-  ### PYTHON DEBUGGER
+GUIDELINES:
+- python 3.5
+- configuration via INI file
+- extended a small list of initial services
+
+ ### python debugger
 http://nbviewer.ipython.org/github/donnemartin/data-science-ipython-notebooks/blob/master/python-data/pdb.ipynb
+
+--- ✄ -----------------------
+SERVICES:
+ - Uploader @inprogress
+ - Neo4j graphdb @inprogress
+ - Irods virtual resources @todo
+ - Rethinkdb: nosql json + joins + changefeed @inprogress
+ - Elasticsearch @justadraft
+
 
 --- ✄ -----------------------
 BUGS:
 ✔ adding id argument in more than one rest class  @done (16-02-01 15:00)
 ✔ wait for rethinkdb connection at startup if container link exists @done (16-02-09 11:08)
 ☐ returning template not working
-  ☐ that's because i use f****ing marshals
+  ☐ that's because of my tests with marshals json...
   ☐ change the decorator to avoid marshal if htmlcode is higher than 250?
 ☐ Rethinkdb or other db connection before request...?
   ☐ Limit a before request to a certain endpoint, not to all??
   ☐ take off 'server.py'
 
+--- ✄ -----------------------
 UPLOAD:
   http --form POST 192.168.64.7:8081/api/upload file@~
   ✔ copy skeleton @done (16-02-08 16:02)
@@ -97,26 +108,8 @@ r.db('test').table('taskQueue').get("eb533cd0-fef1-48bf-9fb8-b66261c9171b").upda
   ☐ A valid @PySix [implementation]
     ☐ e.g. jinja2 compat
 
-TO DO:
-   ✔ Marshals @done (15-09-30 16:50)
-     ✘ force in exceptions? @cancelled (15-09-30 16:50)
-   ✔ Key id as class decorator @done (15-09-30 17:47)
-   ☐ Types
-     ☐ list
-     ☐ also examples of post, put, delete
-   ☐ mixed resources
-   UsersByCityAPI, '/api/cities/<int:id>/users'
-   http://stackoverflow.com/a/20722760/2114395
- ☐ Blog post
-   ☐ ideas, libs, what i will slowly try to reach
-
-TO FIX:
   ☐ add to project some @libraries
-    ☐ https://github.com/danrobinson/tracestack
-      from tracestack import trace
-      >>> @trace
-      >>> def divide_by_zero():
-      ...     1 / 0
+    https://github.com/danrobinson/tracestack
 
 COMPLETED:
  ✔ restful code and test @done (15-09-10 13:14)
