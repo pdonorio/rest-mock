@@ -6,7 +6,7 @@ from .. import htmlcodes as hcodes
 from confs.config import STACKTRACE
 from .. import get_logger
 from ..jsonify import output_json, RESTError
-from flask_restful import Resource, reqparse, fields, abort
+from flask.ext.restful import Resource, reqparse, fields, abort, request
 
 logger = get_logger(__name__)
 
@@ -102,6 +102,10 @@ class ExtendedApiResource(Resource):
     def set_method_id(self, name='myid', idtype='string'):
         """ How to have api/method/:id route possible"""
         self.endtype = idtype + ':' + name
+
+    def get_input(self):
+        """ Get JSON. The power of having a real object in our hand. """
+        return request.get_json(force=True)
 
     def response(self, obj=None,
                  fail=False, elements=0, data_type='dict',
