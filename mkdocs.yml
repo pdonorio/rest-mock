@@ -6,4 +6,5 @@ pages:
 - Run the server: run.md
 - Manage APIs: manage.md
 - Security: security.md
+- Services: services.md
 theme: journal
