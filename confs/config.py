@@ -50,6 +50,7 @@ ROLE_USER = 'justauser'
 # I am inside the conf dir.
 # The base dir is one level up from here
 BASE_DIR = re.sub(__package__, '', os.path.abspath(os.path.dirname(__file__)))
+USER_HOME = os.environ['HOME']
 
 # Uploads
 MAX_CONTENT_LENGTH = 128 * (1024 * 1024)  # 128MB
@@ -80,3 +81,6 @@ SECURITY_PASSWORD_SALT = "thishastobelongenoughtosayislonglongverylong"
 # ENDPOINTS
 ALL_API_URL = '/api'
 SECURITY_URL_PREFIX = ALL_API_URL
+
+# IRODS
+IRODS_ENV = USER_HOME + "/.irods/.irodsEnv"
