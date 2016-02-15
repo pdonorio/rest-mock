@@ -6,20 +6,30 @@ from restapi import get_logger
 
 logger = get_logger(__name__)
 
-# Parameters. To fix: take them from environment variables
-PROTOCOL = 'http'
-#GDB_NAME
-HOST = 'gdb'
-PORT = '7474'
-#GDB_PORT_7474_TCP_PORT
-USER = 'neo4j'
-PW = 'eudatapi'
-#GDB_ENV_NEO4J_AUTH
+###############################
+# Verify Graph existence
 
+PROTOCOL = 'http'
+HOST = 'agraphdb'
+PORT = '7474'
+USER = 'neo4j'
+PW = USER
+
+try:
+    HOST = os.environ['GDB_NAME'].split('/')[2]
+    PORT = os.environ['GDB_PORT_7474_TCP_PORT']
+    tmp = os.environ['GDB_ENV_NEO4J_AUTH'].split('/')
+    USER = tmp[0]
+    PW = tmp[1]
+except Exception as e:
+    logger.critical("Cannot find Graph database...!")
+    # raise e
+    exit(1)
 
 ##############################################################################
 # GRAPHDB
 ##############################################################################
+
 
 class MyGraph(object):
     """" A graph db neo4j instance """
