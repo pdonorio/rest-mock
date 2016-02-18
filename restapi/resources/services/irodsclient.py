@@ -23,6 +23,8 @@ from confs.config import IRODS_ENV
 from restapi import get_logger
 logger = get_logger(__name__)
 
+IRODS_USER_ALIAS = 'clientUserName'
+
 
 # ######################################
 #
@@ -44,9 +46,10 @@ class ICommands(BashCommands):
         # Recover plumbum shell enviroment
         super(ICommands, self).__init__()
 
+#iadmin mkuser guest rodsuser
+
         self.irodsenv = irodsenv
         self.become_admin()
-        # self.init_get()
         logger.info("iRODS environment defined: %s" % self._init_data)
 
         self._base_dir = self.get_base_dir()
@@ -92,27 +95,25 @@ class ICommands(BashCommands):
         os.remove(tmpfile)
         logger.debug("Pushed credentials")
 
-    def init_get(self):
-        """ Recover current user setup for irods """
-        # Check if irods client exists and is configured
-        if not os.path.exists(self.irodsenv):
-            raise EnvironmentError("No irods environment found")
-
-        # Recover irods data
-        data = {}
-        for element in [line.strip() for line in open(self.irodsenv, 'r')]:
-            if element == '':
-                continue
-            key, value = element.split(" ")
-            data[key] = value
-        if data.__len__() < 2:
-            raise EnvironmentError("Wrong irods environment: " + self.irodsenv)
-
-        self._init_data = data
-        return data
-
     def get_init(self):
         return self._init_data
+
+    def get_user_home(self, user):
+        return os.path.join(
+            '/' + self._init_data['irods_zone_name'],
+            'home',
+            user)
+
+    def change_user(self, user=None):
+        """ Impersonification of another user because you're an admin """
+
+        if user is None:
+            user = self._init_data['irods_user_name']
+        else:
+            # Use an environment variable to reach the goal
+            os.environ[IRODS_USER_ALIAS] = user
+        logger.info("Switched to user '%s'" % user)
+        return self.list(self.get_user_home(user))
 
     ###################
     # ICOMs
