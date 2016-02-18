@@ -11,7 +11,6 @@ import commentjson as json
 from rethinkdb import r, RqlDriverError
 
 from flask import g  # , url_for, redirect
-from flask.ext.restful import request  # , fields, marshal
 from .connections import Connection
 from ..base import ExtendedApiResource
 from ... import htmlcodes as hcodes
@@ -299,10 +298,6 @@ class BaseRethinkResource(ExtendedApiResource, RDBquery):
         current_page = self._args['currentpage']
 
         return self.get_content(data_key, limit)
-
-    def get_input(self):
-        """ Get JSON. The power of having a real object in our hand. """
-        return request.get_json(force=True)
 
     def check_valid(self, json_data):
         """ Verify if the json data follows the schema """
