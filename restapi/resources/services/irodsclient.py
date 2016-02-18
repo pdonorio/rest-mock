@@ -45,6 +45,7 @@ class ICommands(BashCommands):
         super(ICommands, self).__init__()
 
         self.irodsenv = irodsenv
+
         self.iinit()
         logger.info("iRODS environment found: %s" % self._init_data)
 
@@ -501,3 +502,5 @@ class ICommands(BashCommands):
 #     def eudat_find_ppid(self, dataobj):
 #         logger.debug("***REPLICA EUDAT LIST NOT IMPLEMENTED YET ***")
 #         exit()
+
+icom = ICommands()
