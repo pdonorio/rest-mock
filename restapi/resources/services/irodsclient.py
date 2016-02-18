@@ -45,16 +45,54 @@ class ICommands(BashCommands):
         super(ICommands, self).__init__()
 
         self.irodsenv = irodsenv
-
-        self.iinit()
-        logger.info("iRODS environment found: %s" % self._init_data)
+        self.become_admin()
+        # self.init_get()
+        logger.info("iRODS environment defined: %s" % self._init_data)
 
         self._base_dir = self.get_base_dir()
 
     #######################
     # ABOUT CONFIGURATION
 
-    def iinit(self):
+    def become_admin(self):
+        """
+        Try to check if you're on Docker and have variables set
+        to become iRODS administrator.
+
+        It can also be used without docker by setting the same
+        environment variables.
+        """
+
+        from collections import OrderedDict
+        self._init_data = OrderedDict({
+            "irods_host": os.environ['ICAT_1_ENV_IRODS_HOST'],
+            "irods_port":
+                int(os.environ['ICAT_1_PORT'].split(':')[::-1][0]),
+            "irods_user_name": os.environ['IRODS_USER'],
+            "irods_zone_name": os.environ['IRODS_ZONE'],
+            # "irods_password": os.environ['ICAT_1_ENV_IRODS_PASS']
+        })
+        with open(self.irodsenv, 'w') as fw:
+            import json
+            json.dump(self._init_data, fw)
+
+        self.set_password()
+        logger.info("Saved irods admin credentials")
+
+    def set_password(self, tmpfile='/tmp/temppw'):
+        """
+        Interact with iinit to set the password
+        """
+
+        from plumbum.cmd import iinit
+        with open(tmpfile, 'w') as fw:
+            fw.write(os.environ['ICAT_1_ENV_IRODS_PASS'])
+        com = iinit < tmpfile
+        com()
+        os.remove(tmpfile)
+        logger.debug("Pushed credentials")
+
+    def init_get(self):
         """ Recover current user setup for irods """
         # Check if irods client exists and is configured
         if not os.path.exists(self.irodsenv):
@@ -153,13 +191,17 @@ class ICommands(BashCommands):
         logger.debug("Check %s with %s " % (path, status))
         return status == 0
 
-    def list(self, path, detailed=False, retcodes=None):
+    def list(self, path=None, detailed=False, retcodes=None):
         com = "ils"
+        if path is None:
+            path = self.get_base_dir()
         args = [path]
         if detailed:
             args.append("-l")
         if retcodes is not None:
-            return self.execute_command_advanced(com, args, retcodes=retcodes)
+            out = self.execute_command_advanced(
+                com, args, retcodes=retcodes)
+            return out
 
         # Normal command
         stdout = self.execute_command(com, args)

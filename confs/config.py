@@ -82,5 +82,9 @@ SECURITY_PASSWORD_SALT = "thishastobelongenoughtosayislonglongverylong"
 ALL_API_URL = '/api'
 SECURITY_URL_PREFIX = ALL_API_URL
 
-# IRODS
-IRODS_ENV = USER_HOME + "/.irods/.irodsEnv"
+# IRODS 4
+IRODS_HOME = os.path.join(USER_HOME, ".irods")
+if not os.path.exists(IRODS_HOME):
+    os.mkdir(IRODS_HOME)
+IRODS_ENV = os.path.join(IRODS_HOME, "irods_environment.json")
+# IRODS_ENV = USER_HOME + "/.irods/.irodsEnv"
