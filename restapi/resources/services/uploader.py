@@ -18,6 +18,35 @@ ZBIN = '/zoomify/processor/ZoomifyFileProcessor.py'
 logger = get_logger(__name__)
 
 
+######################################
+# Create images part for zoomification
+class ZoomEnabling(object):
+
+    def preprocess(self, filename):
+        """
+        Make zoomify object + a small thumbnail
+        """
+
+        #Check Extension for image?
+
+        # Process via current shell
+        import subprocess as shell
+        cmd = [INTERPRETER, ZBIN, filename]
+        proc = shell.Popen(cmd, stdout=shell.PIPE, stderr=shell.PIPE)
+        out, err = proc.communicate()
+
+        # Handle output
+        if proc.returncode == 0:
+            if out is not None and out != "":
+                logger.debug("Zoom output: %s" % out)
+        else:
+            logger.critical(
+                "Failed to process image '%s'. Error: \n '%s' "
+                % (filename, err))
+        return proc.returncode
+
+
+######################################
 # Save files http://API/upload
 class Uploader(ExtendedApiResource):
 
@@ -67,20 +96,10 @@ class Uploader(ExtendedApiResource):
 # TO FIX:
 # Let the user decide about zoomify inside the JSON configuration
 
-#             # Make zoomify object and thumbnail
-#             app.logger.info("Elaborate image")
-#             # Proc via current shell
-#             cmd = [INTERPRETER, ZBIN, abs_file]
-#             proc = shell.Popen(cmd, stdout=shell.PIPE, stderr=shell.PIPE)
-#             out, err = proc.communicate()
-#             # Handle output
-#             if proc.returncode == 0:
-#                 if out != None and out != "":
-#                     app.logger.info("Comm output: " + out)
-#             else:
-#                 app.logger.critical("Failed to process image " + abs_file + \
-#                     ". Error: " + err)
-#                 abort(hcodes.HTTP_BAD_REQUEST, "Could not process file")
+        # If image and user_enabled_zoomify
+
+        # abort(hcodes.HTTP_BAD_REQUEST, "Could not process file")
+# TO FIX
 
         # Default redirect is to 302 state, which makes client
         # think that response was unauthorized....
