@@ -45,7 +45,7 @@ class MyGraph(object):
             os.environ["NEO4J_REST_URL"] = \
                 PROTOCOL + "://" + USER + ":" + PW + "@" + \
                 HOST + ":" + PORT + "/db/data"
-            logger.info("Connected to neo4j instance")
+            logger.info("Neo4j connection is set")
             # print(os.environ["NEO4J_REST_URL"])
         except:
             raise EnvironmentError("Missing URL to connect to graph")

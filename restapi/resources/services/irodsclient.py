@@ -50,7 +50,7 @@ class ICommands(BashCommands):
 
         self.irodsenv = irodsenv
         self.become_admin()
-        logger.info("iRODS environment defined: %s" % self._init_data)
+        logger.debug("iRODS environment found\n%s" % self._init_data)
 
         self._base_dir = self.get_base_dir()
 

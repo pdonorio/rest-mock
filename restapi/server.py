@@ -98,7 +98,14 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
 
         ############################################
 # Should open an issue on flask-admin!
-# BUG!
+        """
+        # BUG!
+         The following is how it should be, but we get infinite loop:
+          File "/usr/local/lib/python3.4/dist-packages/flask_security/core.py"
+          , line 450, in __getattr__
+            return getattr(self._state, name, None)
+        RuntimeError: maximum recursion depth exceeded
+        """
         # from .security import security
         # security.init_app(microservice)
 # WORKAROUND

@@ -25,7 +25,7 @@ class Endpoints(object):
 
         for endpoint in endpoints:
             address = ALL_API_URL + '/' + endpoint
-            logger.info("Adding '%s' resource to REST address: *%s*",
+            logger.info("Mapping '%s' res to '%s'",
                         resource.__name__, address)
             # Normal endpoint, e.g. /api/foo
             urls.append(address)
