@@ -14,6 +14,7 @@ from rethinkdb import r
 from rethinkdb.net import DefaultCursorEmpty
 from datetime import datetime
 from elasticsearch import Elasticsearch
+from confs.config import args
 
 ES_HOST = {"host": "el", "port": 9200}
 EL_INDEX = "autocomplete"
@@ -21,6 +22,72 @@ STEPS = {}
 
 logger = get_logger(__name__)
 logger.setLevel(logging.DEBUG)
+
+TESTING = False
+
+# Tables
+t1 = "stepstemplate"
+t2 = "steps"
+t3 = "stepscontent"
+t4 = "docs"
+tin = "datakeys"
+t2in = "datavalues"
+t3in = "datadocs"
+
+# Connection
+RethinkConnection()
+# Query main object
+query = RDBquery()
+
+######################
+# Parameters
+if args.rm:
+    logger.info("Remove previous data")
+    tables = query.list_tables()
+    if tin in tables:
+        query.get_query().table_drop(tin).run()
+    if t2in in tables:
+        query.get_query().table_drop(t2in).run()
+    if t3in in tables:
+        query.get_query().table_drop(t3in).run()
+
+
+#################################
+# MAIN
+#################################
+def convert_schema():
+    """ Do all ops """
+
+    ######################
+    # Make tests
+    if TESTING:
+        test_el()
+        test_query()
+
+    ######################
+    # Conversion from old structure to the new one
+    tables = query.list_tables()
+
+    if tin not in tables:
+        convert_submission()
+    if t2in not in tables:
+        convert_search()
+    if t3in not in tables:
+        convert_docs()
+
+    # check_indexes(t2in)
+
+    convert_pending_images()
+
+#################################
+#################################
+
+
+def convert_pending_images():
+    """ Find images not linked to documents """
+
+    print("DEBUG")
+    exit(1)
 
 
 def split_and_html_strip(string):
@@ -46,21 +113,6 @@ def split_and_html_strip(string):
             word = ""
 
     return set(words)
-
-
-# Tables
-t1 = "stepstemplate"
-t2 = "steps"
-t3 = "stepscontent"
-t4 = "docs"
-tin = "datakeys"
-t2in = "datavalues"
-t3in = "datadocs"
-
-# Connection
-RethinkConnection()
-# Query main object
-query = RDBquery()
 
 
 def convert_docs():
@@ -353,19 +405,3 @@ def test_el():
     #es.search(index='posts', q='author:"Benjamin Pollack"')
 
     exit(1)
-
-
-def convert_schema():
-    """ Do all ops """
-
-    ######################
-    # Make tests
-    #test_query()
-    #test_el()
-
-    ######################
-    # Conversion from old structure to the new one
-    convert_submission()
-    #check_indexes(t2in)
-    convert_search()
-    convert_docs()

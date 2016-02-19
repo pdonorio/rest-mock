@@ -196,6 +196,9 @@ class RDBquery(RDBdefaults):
         # Use the table
         return base.table(table)
 
+    def list_tables(self):
+        return list(self.get_query().table_list().run())
+
     def execute_query(self, query, limit):
         count = 0
         data = {}

@@ -22,6 +22,9 @@ arg.add_argument("--no-security", action="store_false", dest='security',
                  help='force removal of login authentication on resources')
 arg.add_argument("--debug", action="store_true", dest='debug',
                  help='enable debugging mode')
+arg.add_argument(
+    "--remove-old", action="store_true", dest='rm',
+    help='force removal of previous new tables')
 arg.set_defaults(security=True, debug=False)
 args = arg.parse_args()
 

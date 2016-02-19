@@ -5,7 +5,7 @@
 import os
 # import shutil
 # import subprocess as shell
-from flask import request, send_from_directory
+from flask import request  # , send_from_directory
 from werkzeug import secure_filename
 from ... import htmlcodes as hcodes
 from ..base import ExtendedApiResource
@@ -63,7 +63,7 @@ class Uploader(ExtendedApiResource):
     def get(self, filename):
         abs_file = self.absolute_upload_file(filename)
         logger.info("Provide '%s' " % abs_file)
-        #return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+        # return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
         return "Not implemented yet", hcodes.HTTP_OK_NORESPONSE
 
     def post(self):
