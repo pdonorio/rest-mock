@@ -113,22 +113,42 @@ def convert_pending_images():
             q.get(obj['record'].pop()).delete().run()
             logger.debug("Removed pending file '%s' from table", absfile)
 
-# # REMOVE IMAGES WHICH DO NOT BELONG TO ANY RECORD
+# // TO FIX:
+# MAKE A TABLE OF DRAFTS INSTEAD
 
-#     # Pending
-#     print("See which files remain", images)
-#     exit(1)
-#     q = query.get_table_query(t4in)
-#     q = query.get_table_query(t5in)
+    # REMOVE
+    # # Remove physical images which do not belong to any record?
+    # for image in images:
+    #     os.unlink(image)
+    #     logger.debug("Removed unused image '%s'" % image)
+
+    # q = query.get_table_query(t4in)
+    # q = query.get_table_query(t5in)
+    # REMOVE
+
 
 # # JOIN
-#     cursor = query.get_table_query(t2in) \
-#         .eq_join("record", r.table(t3in), index="record").run()
 
-#     test = list(cursor).pop()
-#     print(test['left'], test['left']['record'])
-#     print(test['right'], test['right']['record'])
-#     exit(1)
+    # Get the record value and the party name associated
+    first = query.get_table_query(t2in) \
+        .concat_map(lambda doc: doc['steps'].concat_map(
+                lambda step: step['data'].concat_map(
+                    lambda data: [{
+                        'record': doc['record'], 'step': step['step'],
+                        'pos': data['position'], 'party': data['value'],
+                    }])
+            )) \
+        .filter({'step': 3, 'pos': 1}) \
+        .pluck('record', 'party')
+
+    # Join the records with the uploaded files
+    second = first.eq_join("record", r.table(t3in), index="record").zip()
+    # Group everything by party name
+    cursor = second.group('party').run()
+
+    for (element, data) in cursor.items():
+        print(element, data)
+    exit(1)
 # # JOIN
 
 
