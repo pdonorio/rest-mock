@@ -34,6 +34,9 @@ UPLOAD:
   ✔ copy skeleton @done (16-02-08 16:02)
   ✔ make it restful @done (16-02-08 16:29)
   ✔ delete method @done (16-02-09 08:17)
+  ☐ find missing files in rethinkdb schema
+    ✔ remove pending @done (16-02-20 13:43)
+    ☐ remove others
   ☐ test with js
 
 Token:

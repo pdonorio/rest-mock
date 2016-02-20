@@ -7,22 +7,23 @@
 """
 
 from __future__ import absolute_import
-import logging
+import os
+import glob
 from restapi.resources.services.rethink import RethinkConnection, RDBquery
 from restapi import get_logger
 from rethinkdb import r
 from rethinkdb.net import DefaultCursorEmpty
 from datetime import datetime
 from elasticsearch import Elasticsearch
-from confs.config import args
+from confs.config import args, UPLOAD_FOLDER
+
+import logging
+logger = get_logger(__name__)
+logger.setLevel(logging.DEBUG)
 
 ES_HOST = {"host": "el", "port": 9200}
 EL_INDEX = "autocomplete"
 STEPS = {}
-
-logger = get_logger(__name__)
-logger.setLevel(logging.DEBUG)
-
 TESTING = False
 
 # Tables
@@ -33,6 +34,8 @@ t4 = "docs"
 tin = "datakeys"
 t2in = "datavalues"
 t3in = "datadocs"
+t4in = "datapending"
+t5in = "datamissing"
 
 # Connection
 RethinkConnection()
@@ -50,6 +53,8 @@ if args.rm:
         query.get_query().table_drop(t2in).run()
     if t3in in tables:
         query.get_query().table_drop(t3in).run()
+    if t4in in tables:
+        query.get_query().table_drop(t4in).run()
 
 
 #################################
@@ -74,10 +79,10 @@ def convert_schema():
         convert_search()
     if t3in not in tables:
         convert_docs()
+    ##if t4in not in tables:
+    convert_pending_images()
 
     # check_indexes(t2in)
-
-    convert_pending_images()
 
 #################################
 #################################
@@ -86,8 +91,45 @@ def convert_schema():
 def convert_pending_images():
     """ Find images not linked to documents """
 
-    print("DEBUG")
-    exit(1)
+    q = query.get_table_query(t3in)
+    cursor = q['images'] \
+        .map(
+            lambda images:
+                {'file': images['filename'], 'record': images['recordid']}
+         ).distinct().run()
+
+    logger.info("Obtained pending data")
+    images = glob.glob(os.path.join(UPLOAD_FOLDER, "*.jpg"))
+
+    # Missing
+    for obj in list(cursor):
+
+        # Check if exists
+        absfile = os.path.join(UPLOAD_FOLDER, obj['file'].pop())
+        if absfile in images:
+            images.pop(images.index(absfile))
+        else:
+            # Remove images which are not physical uploaded
+            q.get(obj['record'].pop()).delete().run()
+            logger.debug("Removed pending file '%s' from table", absfile)
+
+# # REMOVE IMAGES WHICH DO NOT BELONG TO ANY RECORD
+
+#     # Pending
+#     print("See which files remain", images)
+#     exit(1)
+#     q = query.get_table_query(t4in)
+#     q = query.get_table_query(t5in)
+
+# # JOIN
+#     cursor = query.get_table_query(t2in) \
+#         .eq_join("record", r.table(t3in), index="record").run()
+
+#     test = list(cursor).pop()
+#     print(test['left'], test['left']['record'])
+#     print(test['right'], test['right']['record'])
+#     exit(1)
+# # JOIN
 
 
 def split_and_html_strip(string):
@@ -136,8 +178,8 @@ def convert_docs():
     # Check images
         for row in rows:
             if key in row:
-    # Fix transcriptions
                 words = set()
+    # Fix transcriptions
                 for trans in row[key]:
                     words = words | split_and_html_strip(trans)
                 row[key+'_split'] = list(words)
