@@ -10,10 +10,8 @@ from werkzeug import secure_filename
 from ... import htmlcodes as hcodes
 from ..base import ExtendedApiResource
 from ... import get_logger
+from confs.config import INTERPRETER, UPLOAD_FOLDER
 
-UPLOAD_FOLDER = '/uploads'
-INTERPRETER = 'python'
-ZBIN = '/zoomify/processor/ZoomifyFileProcessor.py'
 
 logger = get_logger(__name__)
 
@@ -22,16 +20,18 @@ logger = get_logger(__name__)
 # Create images part for zoomification
 class ZoomEnabling(object):
 
+    _zbin = '/zoomify/processor/ZoomifyFileProcessor.py'
+
     def preprocess(self, filename):
         """
         Make zoomify object + a small thumbnail
         """
 
-        #Check Extension for image?
+        #Should i check Extension for image?
 
         # Process via current shell
         import subprocess as shell
-        cmd = [INTERPRETER, ZBIN, filename]
+        cmd = [INTERPRETER, self._zbin, filename]
         proc = shell.Popen(cmd, stdout=shell.PIPE, stderr=shell.PIPE)
         out, err = proc.communicate()
 
@@ -54,7 +54,7 @@ class Uploader(ExtendedApiResource):
 
     @staticmethod
     def absolute_upload_file(filename):
-        return os.path.join(UPLOAD_FOLDER, filename)
+        return os.path.join(UPLOAD_FOLDER, filename.lower())
 
     def allowed_file(self, filename):
         return '.' in filename \
