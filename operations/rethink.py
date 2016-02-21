@@ -127,31 +127,6 @@ def convert_pending_images():
     # REMOVE
 
 
-# # JOIN
-
-    # Get the record value and the party name associated
-    first = query.get_table_query(t2in) \
-        .concat_map(lambda doc: doc['steps'].concat_map(
-                lambda step: step['data'].concat_map(
-                    lambda data: [{
-                        'record': doc['record'], 'step': step['step'],
-                        'pos': data['position'], 'party': data['value'],
-                    }])
-            )) \
-        .filter({'step': 3, 'pos': 1}) \
-        .pluck('record', 'party')
-
-    # Join the records with the uploaded files
-    second = first.eq_join("record", r.table(t3in), index="record").zip()
-    # Group everything by party name
-    cursor = second.group('party').run()
-
-    for (element, data) in cursor.items():
-        print(element, data)
-    exit(1)
-# # JOIN
-
-
 def split_and_html_strip(string):
     """ Compute words from transcriptions """
     words = []
