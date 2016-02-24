@@ -114,10 +114,10 @@ class ExtendedApiResource(Resource):
 
         data_type = str(type(obj))
         if elements < 1:
-            if isinstance(obj, str):
-                elements = 1
-            else:
+            try:
                 elements = len(obj)
+            except:
+                elements = 1
 
         response = {
                 'data': obj,
