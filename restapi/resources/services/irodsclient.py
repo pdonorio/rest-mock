@@ -46,6 +46,7 @@ class ICommands(BashCommands):
         # Recover plumbum shell enviroment
         super(ICommands, self).__init__()
 
+# How to add a new user
 #iadmin mkuser guest rodsuser
 
         self.irodsenv = irodsenv
@@ -193,6 +194,8 @@ class ICommands(BashCommands):
         return status == 0
 
     def list(self, path=None, detailed=False, retcodes=None):
+        """ List the files inside an iRODS path/collection """
+
         com = "ils"
         if path is None:
             path = self.get_base_dir()
@@ -221,8 +224,7 @@ class ICommands(BashCommands):
         try:
             out = self.execute_command(com, path)
         except Exception:
-            logger.debug("No data found. " +
-                         "You may try 'popolae' command first.")
+            logger.debug("No data found.")
             exit(1)
         if out:
             return out.strip().split('\n')
@@ -546,4 +548,10 @@ class ICommands(BashCommands):
 #         logger.debug("***REPLICA EUDAT LIST NOT IMPLEMENTED YET ***")
 #         exit()
 
+
+#######################################
+# Creating the iRODS main instance
 icom = ICommands()
+# Note: this will be changed in the near future
+# We should create the instance before every request
+# (see Flask before_request decorator)
