@@ -60,11 +60,15 @@ class Uploader(ExtendedApiResource):
         return '.' in filename \
             and filename.rsplit('.', 1)[1].lower() in self.allowed_exts
 
-    def get(self, filename):
-        abs_file = self.absolute_upload_file(filename)
-        logger.info("Provide '%s' " % abs_file)
-        # return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-        return "Not implemented yet", hcodes.HTTP_OK_NORESPONSE
+    def get(self, filename=None):
+
+        if filename is not None:
+            abs_file = self.absolute_upload_file(filename)
+            logger.info("Provide '%s' " % abs_file)
+            # return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+            return "Not implemented yet", hcodes.HTTP_OK_NORESPONSE
+
+        return "No flow chunks for now", hcodes.HTTP_OK_NORESPONSE
 
     def post(self):
 
