@@ -72,6 +72,9 @@ class Uploader(ExtendedApiResource):
 
     def post(self):
 
+        # Just a debug (on flow) test. Failed..
+        # print("JSON IS\n\n\n", self.get_input(False))
+
         if 'file' not in request.files:
             return "No files specified"
 

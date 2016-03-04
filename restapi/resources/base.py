@@ -6,7 +6,7 @@ from .. import htmlcodes as hcodes
 from confs.config import STACKTRACE
 from .. import get_logger
 from ..jsonify import output_json, RESTError
-from flask_restful import Resource, reqparse, fields, abort
+from flask.ext.restful import request, Resource, reqparse, fields, abort
 
 logger = get_logger(__name__)
 
@@ -61,6 +61,10 @@ class ExtendedApiResource(Resource):
 
     def get_endpoint(self):
         return (self.endpoint, self.endtype)
+
+    def get_input(self, forcing=True):
+        """ Get JSON. The power of having a real object in our hand. """
+        return request.get_json(force=forcing)
 
     def add_parameter(self, name, mytype=str, default=None, required=False):
         """ Save a parameter inside the class """

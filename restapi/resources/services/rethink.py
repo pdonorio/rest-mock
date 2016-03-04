@@ -303,10 +303,6 @@ class BaseRethinkResource(ExtendedApiResource, RDBquery):
 
         return self.get_content(data_key, limit)
 
-    def get_input(self):
-        """ Get JSON. The power of having a real object in our hand. """
-        return request.get_json(force=True)
-
     def check_valid(self, json_data):
         """ Verify if the json data follows the schema """
         # Check if dictionary and not empty
