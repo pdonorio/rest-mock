@@ -162,8 +162,19 @@ def apimethod(func):
         # DO NOT INTERCEPT 404 or status from other plugins (e.g. security)
         if isinstance(out, Response):
             return out
+
+        # BASE STATUS?
+        status = hcodes.HTTP_OK_BASIC
+
+        # VERY IMPORTANT
+        # DO NOT INTERFERE when
+        # at some level we already provided the couple out/response
+        if isinstance(out, tuple) and len(out) == 2:
+            subout, status = out
+            out = subout
+
         # Set standards for my response as specified in base.py
-        return marshal(out, self.resource_fields)
+        return marshal(out, self.resource_fields), status
 
     return wrapper
 

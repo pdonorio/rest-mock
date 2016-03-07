@@ -27,7 +27,7 @@ class ZoomEnabling(object):
         Make zoomify object + a small thumbnail
         """
 
-        #Should i check Extension for image?
+# Should i check Extension for image?
 
         # Process via current shell
         import subprocess as shell
@@ -71,9 +71,6 @@ class Uploader(ExtendedApiResource):
         return "No flow chunks for now", hcodes.HTTP_OK_NORESPONSE
 
     def post(self):
-
-        # Just a debug (on flow) test. Failed..
-        # print("JSON IS\n\n\n", self.get_input(False))
 
         if 'file' not in request.files:
             return "No files specified"
