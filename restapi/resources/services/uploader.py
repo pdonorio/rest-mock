@@ -105,17 +105,20 @@ class Uploader(ExtendedApiResource):
                 "Failed to save file",
                 fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
-# TO FIX:
-# Let the user decide about zoomify inside the JSON configuration
+        ########################
+        # TO FIX:
+        # Let the user decide about zoomify inside the JSON configuration
 
         # If image and user_enabled_zoomify
 
         # abort(hcodes.HTTP_BAD_REQUEST, "Could not process file")
-# TO FIX
 
+        ########################
         # Default redirect is to 302 state, which makes client
         # think that response was unauthorized....
         # see http://dotnet.dzone.com/articles/getting-know-cross-origin
+
+        ########################
         return self.response(
             {'filename': filename},
             code=hcodes.HTTP_OK_BASIC)
@@ -143,7 +146,10 @@ class Uploader(ExtendedApiResource):
         try:
             os.remove(abs_file)
         except Exception:
-            return "Failed to save file", hcodes.HTTP_DEFAULT_SERVICE_FAIL
+            return self.response(
+                "Failed to save file",
+                code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
         logger.warn("Removed '%s' " % abs_file)
 
-        return "Deleted", hcodes.HTTP_OK_NORESPONSE
+        return self.response(
+            "Deleted", code=hcodes.HTTP_OK_NORESPONSE)
