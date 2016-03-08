@@ -43,17 +43,6 @@ def enable_endpoint_identifier(name='myid', idtype='string'):
     """
     def class_rebuilder(cls):   # decorator
 
-# # // TO FIX
-# # This class has to change name everytime :/
-#         class NewClass(cls):    # decorated
-#             # Rewrite init
-#             def __init__(self):
-#                 logger.info("[%s] Applying ID to endopoint:%s of type '%s'"
-#                             % (self.__class__.__name__, name, idtype))
-#                 self.set_method_id(name, idtype)
-#                 # logger.debug("New init %s %s" % (name, idtype))
-#                 super(cls, self).__init__()
-
         def init(self):
             logger.info("[%s] Applying ID to endopoint:%s of type '%s'"
                         % (self.__class__.__name__, name, idtype))
@@ -174,25 +163,20 @@ def apimethod(func):
             out = subout
 
         # Set standards for my response as specified in base.py
-        return marshal(out, self.resource_fields), status
+        #return marshal(out, self.resource_fields), status
+        return out, status
 
     return wrapper
 
 
 ##############################
-# Since my previous decorator would be necessary
-# for any typical method inside a rest resource
-# such as GET, POST, PUT, DELETE (and more?)
-# i looked for a solution online
-# Source:
-# http://stackoverflow.com/a/6307868/2114395
+# A decorator for the whole class
 
 def all_rest_methods(decorator):
     """ Decorate all the api methods inside one class """
 
-# // TO FIX
-# ADD OTHER METHODS IF THERE WILL BE OTHERS
-    api_methods = ['get', 'post', 'put', 'delete']
+# ADD OTHER METHODS HERE, IF SOME ARE MISSING
+    api_methods = ['get', 'post', 'put', 'patch', 'delete']
 
     def decorate(cls):
         # there's propably a better way to do this

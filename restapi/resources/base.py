@@ -23,6 +23,8 @@ class ExtendedApiResource(Resource):
     hcode = hcodes.HTTP_OK_BASIC
     # How to have a standard response
     resource_fields = {
+        # html code embedded for semplicity
+        'status': fields.Integer,
         # Hashtype, Vector, String, Int/Float, and so on
         'data_type': fields.String,
         # Count
@@ -108,9 +110,14 @@ class ExtendedApiResource(Resource):
         self.endtype = idtype + ':' + name
 
     def response(self, obj=None,
-                 fail=False, elements=0, data_type='dict',
-                 code=hcodes.HTTP_OK_BASIC):
+                 elements=0, data_type='dict',
+                 fail=False, code=hcodes.HTTP_OK_BASIC):
         """ Handle a standard response following some criteria """
+
+        if fail:
+            obj = {'error': obj}
+            if code < hcodes.HTTP_BAD_REQUEST:
+                code = hcodes.HTTP_BAD_REQUEST
 
         data_type = str(type(obj))
         if elements < 1:
@@ -120,22 +127,22 @@ class ExtendedApiResource(Resource):
                 elements = len(obj)
 
         response = {
-                'data': obj,
-                'elements': elements,
-                'data_type': data_type
-            }
+            'data': obj,
+            'elements': elements,
+            'data_type': data_type,
+            'status': code
+        }
 
-# // TO FIX:
-# Specify status?
-# Can i recover it inside the decorator code???
+        # ## In case we want to handle the failure at this level
+        # # I want to use the same marshal also if i say "fail"
+        # if fail:
+        #     code = hcodes.HTTP_BAD_REQUEST
+        #     if STACKTRACE:
+        #         # I could raise my exception if i need again stacktrace
+        #         raise RESTError(obj, status_code=code)
+        #     else:
+        #         # Normal abort
+        #         abort(code, **response)
+        # ## But it's probably a better idea to do it inside the decorators
 
-        # I want to use the same marshal also if i say "fail"
-        if fail:
-            code = hcodes.HTTP_BAD_REQUEST
-            if STACKTRACE:
-                # I could raise my exception if i need again stacktrace
-                raise RESTError(obj, status_code=code)
-            else:
-                # Normal abort
-                abort(code, **response)
-        return response
+        return response, code

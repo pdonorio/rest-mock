@@ -66,9 +66,11 @@ class Uploader(ExtendedApiResource):
             abs_file = self.absolute_upload_file(filename)
             logger.info("Provide '%s' " % abs_file)
             # return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-            return "Not implemented yet", hcodes.HTTP_OK_NORESPONSE
+            return self.response(
+                "Not implemented yet", code=hcodes.HTTP_OK_NORESPONSE)
 
-        return "No flow chunks for now", hcodes.HTTP_OK_NORESPONSE
+        return self.response(
+            "No flow chunks for now", code=hcodes.HTTP_OK_NORESPONSE)
 
     def post(self):
 
@@ -78,7 +80,9 @@ class Uploader(ExtendedApiResource):
         myfile = request.files['file']
 
         if not self.allowed_file(myfile.filename):
-            return "File extension not allowed", hcodes.HTTP_BAD_REQUEST
+            return self.response(
+                "File extension not allowed",
+                fail=True, code=hcodes.HTTP_BAD_REQUEST)
 
         # Check file name
         filename = secure_filename(myfile.filename)
@@ -88,14 +92,18 @@ class Uploader(ExtendedApiResource):
         if os.path.exists(abs_file):
             # os.remove(abs_file) # ??
             logger.warn("Already exists")
-            return "File '" + filename + "' already exists. Please " + \
-                "change its name and retry.", hcodes.HTTP_BAD_REQUEST
+            return self.response(
+                "File '" + filename + "' already exists. Please " +
+                "change its name and retry.",
+                fail=True, code=hcodes.HTTP_BAD_REQUEST)
 
         # Save the file
         try:
             myfile.save(abs_file)
         except Exception:
-            return "Failed to save file", hcodes.HTTP_DEFAULT_SERVICE_FAIL
+            return self.response(
+                "Failed to save file",
+                fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
 # TO FIX:
 # Let the user decide about zoomify inside the JSON configuration
@@ -108,7 +116,9 @@ class Uploader(ExtendedApiResource):
         # Default redirect is to 302 state, which makes client
         # think that response was unauthorized....
         # see http://dotnet.dzone.com/articles/getting-know-cross-origin
-        return "Uploaded", hcodes.HTTP_OK_BASIC
+        return self.response(
+            {'filename': filename},
+            code=hcodes.HTTP_OK_BASIC)
 
     def delete(self, filename):
         """ Remove the file if requested """
@@ -118,7 +128,9 @@ class Uploader(ExtendedApiResource):
         # Check file existence
         if not os.path.exists(abs_file):
             logger.critical("File '%s' not found" % abs_file)
-            return "File requested does not exists", hcodes.HTTP_BAD_NOTFOUND
+            return self.response(
+                "File requested does not exists",
+                fail=True, code=hcodes.HTTP_BAD_NOTFOUND)
 
 #         # Remove zoomified directory
 #         filebase, fileext = os.path.splitext(abs_file)
