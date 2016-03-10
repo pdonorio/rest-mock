@@ -119,19 +119,25 @@ class ExtendedApiResource(Resource):
             if code < hcodes.HTTP_BAD_REQUEST:
                 code = hcodes.HTTP_BAD_REQUEST
 
-        data_type = str(type(obj))
-        if elements < 1:
-            if isinstance(obj, str):
-                elements = 1
-            else:
-                elements = len(obj)
+        # Do not apply if the object has already been used
+        # as a 'standard response' from a parent call
+        if 'data_type' in obj and 'status' in obj:
+            response = obj
+        # Compute the elements
+        else:
+            data_type = str(type(obj))
+            if elements < 1:
+                if isinstance(obj, str):
+                    elements = 1
+                else:
+                    elements = len(obj)
 
-        response = {
-            'data': obj,
-            'elements': elements,
-            'data_type': data_type,
-            'status': code
-        }
+            response = {
+                'data': obj,
+                'elements': elements,
+                'data_type': data_type,
+                'status': code
+            }
 
         # ## In case we want to handle the failure at this level
         # # I want to use the same marshal also if i say "fail"
