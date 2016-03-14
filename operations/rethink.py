@@ -202,12 +202,12 @@ def convert_search():
     # Query
     res = qt1.group('recordid').order_by('step').run()
 
-    # Elasticsearch magic
-    print("Elasticsearch and indexes")
-    es = Elasticsearch(hosts=[ES_HOST])
-    es.indices.delete(index=EL_INDEX, ignore=[400, 404])
-    es.indices.create(index=EL_INDEX, ignore=400)
-    #es.indices.refresh(index=EL_INDEX)
+    # # Elasticsearch magic
+    # print("Elasticsearch and indexes")
+    # es = Elasticsearch(hosts=[ES_HOST])
+    # es.indices.delete(index=EL_INDEX, ignore=[400, 404])
+    # es.indices.create(index=EL_INDEX, ignore=400)
+    # #es.indices.refresh(index=EL_INDEX)
 
     for record, rows in res.items():
         steps = []
@@ -269,10 +269,10 @@ def convert_search():
             'text': title,
             'timestamp': datetime.now(),
         }
-# TO FIX?
-        #print(doc)
-        es.index(index=EL_INDEX, doc_type='normal', body=doc)
-        #print("DEBUG EXIT"); exit(1)
+# # TO FIX?
+#         #print(doc)
+#         es.index(index=EL_INDEX, doc_type='normal', body=doc)
+#         #print("DEBUG EXIT"); exit(1)
 
 
         # Save the record
