@@ -54,7 +54,7 @@ class Uploader(ExtendedApiResource):
 
     @staticmethod
     def absolute_upload_file(filename):
-        return os.path.join(UPLOAD_FOLDER, filename.lower())
+        return os.path.join(UPLOAD_FOLDER, filename)  # filename.lower())
 
     def allowed_file(self, filename):
         return '.' in filename \
