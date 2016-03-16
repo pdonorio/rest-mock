@@ -24,7 +24,8 @@ logger.setLevel(logging.DEBUG)
 ES_HOST = {"host": "el", "port": 9200}
 EL_INDEX = "autocomplete"
 STEPS = {}
-TESTING = False
+#TESTING = False
+TESTING = True
 
 # Tables
 t1 = "stepstemplate"
@@ -66,8 +67,8 @@ def convert_schema():
     ######################
     # Make tests
     if TESTING:
-        test_el()
         test_query()
+        # test_el()
 
     ######################
     # Conversion from old structure to the new one
@@ -347,8 +348,16 @@ def convert_submission():
 
 def test_query():
     """ test queries on rdb """
-    # q = query.get_table_query(t2in)
+
     q = query.get_table_query(t3in)
+
+    cursor = q. \
+        filter({'record': '0a98cdbf-4db6-4042-812b-033ca9dda009'})['images'] \
+        .run()
+    print(next(cursor))
+
+    print("DEBUG")
+    exit(1)
 
     # cursor = q \
     #     .concat_map(
