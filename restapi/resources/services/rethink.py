@@ -268,14 +268,14 @@ class RDBquery(RDBdefaults):
             return rdb_out['generated_keys'].pop()
         return 'Unknown ID'
 
+    def replace(self, data, table=None):
+        self.get_table_query(table).replace(
+            self.save_action_info(data, action='try_replace')).run()
+
     def update(self, key, data, table=None):
         # Prepare the query
-        query = self.get_table_query(table)
-        # Execute the insert
-        rdb_out = query.update(key, self.save_action_info(data)).run()
-        print("\n\n\nUPDATE!", rdb_out, "\n\n\n")
-        # Get the id
-        return True
+        self.get_table_query(table).update(
+            key, self.save_action_info(data, action='update')).run()
 
 # # USELESS FOR REST MOCK API
 #     def marshal(self, data, count=0):
