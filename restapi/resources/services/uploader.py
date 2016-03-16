@@ -10,8 +10,7 @@ from werkzeug import secure_filename
 from ... import htmlcodes as hcodes
 from ..base import ExtendedApiResource
 from ... import get_logger
-from confs.config import INTERPRETER, UPLOAD_FOLDER
-
+from confs.config import UPLOAD_FOLDER, PY2_INTERPRETER
 
 logger = get_logger(__name__)
 
@@ -20,45 +19,71 @@ logger = get_logger(__name__)
 # Create images part for zoomification
 class ZoomEnabling(object):
 
-    _zbin = '/zoomify/processor/ZoomifyFileProcessor.py'
+    _zbin = UPLOAD_FOLDER + '/pyimgs/processor/ZoomifyFileProcessor.py'
+    _images_exts = ['png', 'jpg', 'jpeg', 'tiff']
 
-    def preprocess(self, filename):
+    def split_dir_and_extension(self, filepath):
+        filebase, fileext = os.path.splitext(filepath)
+        return filebase, fileext.strip('.')
+
+    def process_zoom(self, filename):
         """
         Make zoomify object + a small thumbnail
         """
 
-# Should i check Extension for image?
+        # Check Zoomify binaries
+        if not os.path.exists(self._zbin):
+            logger.critical("Zoomify is not available at: %s" % self._zbin)
+            return False
+
+        # Check Extension for image
+        _, ext = self.split_dir_and_extension(filename)
+        if ext.lower() not in self._images_exts:
+            logger.warning("Extension is not an image: %s" % ext)
+            return False
 
         # Process via current shell
         import subprocess as shell
-        cmd = [INTERPRETER, self._zbin, filename]
-        proc = shell.Popen(cmd, stdout=shell.PIPE, stderr=shell.PIPE)
-        out, err = proc.communicate()
+        cmd = [PY2_INTERPRETER, self._zbin, filename]
 
-        # Handle output
-        if proc.returncode == 0:
-            if out is not None and out != "":
-                logger.debug("Zoom output: %s" % out)
-        else:
+        try:
+            proc = shell.Popen(cmd, stdout=shell.PIPE, stderr=shell.PIPE)
+            out, err = proc.communicate()
+            # Handle output
+            if proc.returncode == 0:
+                if out is not None and out != "":
+                    logger.debug("Zoom output: %s" % out)
+            else:
+                logger.critical(
+                    "Failed to process image '%s'. Error: \n '%s' "
+                    % (filename, err))
+                return False
+        except Exception as e:
             logger.critical(
                 "Failed to process image '%s'. Error: \n '%s' "
-                % (filename, err))
+                % (filename, e))
+            return False
+
         return proc.returncode
 
 
 ######################################
 # Save files http://API/upload
-class Uploader(ExtendedApiResource):
+class Uploader(ExtendedApiResource, ZoomEnabling):
 
-    allowed_exts = ['png', 'jpg', 'jpeg', 'tiff']
+    ZOOMIFY_ENABLE = False
+    allowed_exts = []
+    # allowed_exts = ['png', 'jpg', 'jpeg', 'tiff']
+
+    def allowed_file(self, filename):
+        if len(self.allowed_exts) < 1:
+            return True
+        return '.' in filename \
+            and filename.rsplit('.', 1)[1].lower() in self.allowed_exts
 
     @staticmethod
     def absolute_upload_file(filename):
         return os.path.join(UPLOAD_FOLDER, filename)  # filename.lower())
-
-    def allowed_file(self, filename):
-        return '.' in filename \
-            and filename.rsplit('.', 1)[1].lower() in self.allowed_exts
 
     def get(self, filename=None):
 
@@ -67,7 +92,8 @@ class Uploader(ExtendedApiResource):
             logger.info("Provide '%s' " % abs_file)
             # return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
             return self.response(
-                "Not implemented yet", code=hcodes.HTTP_OK_NORESPONSE)
+                "File Request! Not implemented yet",
+                code=hcodes.HTTP_OK_NORESPONSE)
 
         return self.response(
             "No flow chunks for now", code=hcodes.HTTP_OK_NORESPONSE)
@@ -79,6 +105,7 @@ class Uploader(ExtendedApiResource):
 
         myfile = request.files['file']
 
+        # Check file extension?
         if not self.allowed_file(myfile.filename):
             return self.response(
                 "File extension not allowed",
@@ -109,16 +136,22 @@ class Uploader(ExtendedApiResource):
         # TO FIX:
         # Let the user decide about zoomify inside the JSON configuration
 
-        # If image and user_enabled_zoomify
-
-        # abort(hcodes.HTTP_BAD_REQUEST, "Could not process file")
+        if self.ZOOMIFY_ENABLE:
+            if self.process_zoom(abs_file):
+                logger.info("Zoomified the image")
+            else:
+                os.unlink(abs_file)     # Remove the file!
+                return self.response(
+                    "Failed to zoomify as requested",
+                    fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
         ########################
+        # ## Final response
+
         # Default redirect is to 302 state, which makes client
         # think that response was unauthorized....
         # see http://dotnet.dzone.com/articles/getting-know-cross-origin
 
-        ########################
         return self.response(
             {'filename': filename},
             code=hcodes.HTTP_OK_BASIC)
@@ -135,12 +168,13 @@ class Uploader(ExtendedApiResource):
                 "File requested does not exists",
                 fail=True, code=hcodes.HTTP_BAD_NOTFOUND)
 
-#         # Remove zoomified directory
-#         filebase, fileext = os.path.splitext(abs_file)
-#         if os.path.exists(filebase):
-#             shutil.rmtree(filebase)
-#             logger.warn("Removed dir '%s' " % \
-#    filebase +" [extension '"+fileext+"']")
+#TOFIX
+        # Remove zoomified directory
+        filebase, fileext = os.path.splitext(abs_file)
+        if os.path.exists(filebase):
+            shutil.rmtree(filebase)
+            logger.warn("Removed dir '%s' " %
+                        filebase +" [extension '"+fileext+"']")
 
         # Remove the real file
         try:

@@ -56,9 +56,9 @@ BASE_DIR = re.sub(__package__, '', os.path.abspath(os.path.dirname(__file__)))
 
 # Uploads
 MAX_CONTENT_LENGTH = 128 * (1024 * 1024)  # 128MB
-#app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 UPLOAD_FOLDER = '/uploads'
-INTERPRETER = 'python'
+INTERPRETER = 'python3'
+PY2_INTERPRETER = 'python2'
 
 #################################
 # SQLALCHEMY
