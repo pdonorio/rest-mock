@@ -54,8 +54,10 @@ ROLE_USER = 'justauser'
 # The base dir is one level up from here
 BASE_DIR = re.sub(__package__, '', os.path.abspath(os.path.dirname(__file__)))
 
+###################
 # Uploads
-MAX_CONTENT_LENGTH = 128 * (1024 * 1024)  # 128MB
+# ## default no limits
+#MAX_CONTENT_LENGTH = 128 * (1024 * 1024)  # 128MB
 UPLOAD_FOLDER = '/uploads'
 INTERPRETER = 'python3'
 PY2_INTERPRETER = 'python2'
