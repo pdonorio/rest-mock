@@ -53,18 +53,17 @@ class ZoomEnabling(object):
             if proc.returncode == 0:
                 if out is not None and out != "":
                     logger.debug("Zoom output: %s" % out)
+                    return True
             else:
                 logger.critical(
                     "Failed to process image '%s'. Error: \n '%s' "
                     % (filename, err))
-                return False
         except Exception as e:
             logger.critical(
                 "Failed to process image '%s'. Error: \n '%s' "
                 % (filename, e))
-            return False
 
-        return proc.returncode
+        return False
 
 
 ######################################
