@@ -33,16 +33,33 @@ class InitProfile(ExtendedApiResource):
                 "No user identifier specified to init the profile",
                 fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
-        ######################
-        user = User.query.get(int(j[key]))
-        print("TEST USER", user)
-        user.first_name = 'pippo'
-        user.last_name = 'xyz'
+        key1 = 'name'
+        key2 = 'surname'
+        if key1 not in j or key2 not in j:
+            return self.response(
+                "No profile info: name and/or surname",
+                fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
         ######################
-        # ### Bypassing with email confirmation
+        user = User.query.get(int(j[key]))
+        if user is None:
+            return self.response(
+                "Invalid account",
+                fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
+
+        user.first_name = j[key1]
+        user.last_name = j[key2]
+
+        ######################
+        # ACTIVE OR NOT
         # # Not active after registration
-        # user.active = False
+        user.active = False
+        # email confirmation
+        user.confirmed_at = None
+
+        # ## To activate:
+        # import datetime
+        # user.confirmed_at = datetime.datetime.utcnow()
 
         ######################
         # Base role
@@ -54,4 +71,4 @@ class InitProfile(ExtendedApiResource):
         db.session.add(user)
         db.session.commit()
 
-        return "Yet to do"
+        return self.response({'message': 'Profiling activated'})
