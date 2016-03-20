@@ -83,6 +83,11 @@ SECURITY_TOKEN_MAX_AGE = 3600 * 24
 SECURITY_PASSWORD_HASH = "pbkdf2_sha512"
 SECURITY_PASSWORD_SALT = "thishastobelongenoughtosayislonglongverylong"
 
+SECURITY_REGISTERABLE = True
+SECURITY_CONFIRMABLE = False
+SECURITY_SEND_REGISTER_EMAIL = False
+#SECURITY_TRACKABLE
+
 #################################
 # ENDPOINTS
 ALL_API_URL = '/api'
