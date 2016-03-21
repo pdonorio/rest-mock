@@ -24,8 +24,8 @@ logger.setLevel(logging.DEBUG)
 ES_HOST = {"host": "el", "port": 9200}
 EL_INDEX = "autocomplete"
 STEPS = {}
-#TESTING = False
-TESTING = True
+TESTING = False
+#TESTING = True
 
 # Tables
 t1 = "stepstemplate"
