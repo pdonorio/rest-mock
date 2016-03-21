@@ -36,7 +36,6 @@ tin = "datakeys"
 t2in = "datavalues"
 t3in = "datadocs"
 t4in = "datapending"
-t5in = "datamissing"
 
 # Connection
 RethinkConnection()
@@ -54,8 +53,8 @@ if args.rm:
         query.get_query().table_drop(t2in).run()
     if t3in in tables:
         query.get_query().table_drop(t3in).run()
-    if t4in in tables:
-        query.get_query().table_drop(t4in).run()
+    # if t4in in tables:
+    #     query.get_query().table_drop(t4in).run()
 
 
 #################################
@@ -80,6 +79,7 @@ def convert_schema():
         convert_search()
     if t3in not in tables:
         convert_docs()
+    # remove pending files...
     ##if t4in not in tables:
     convert_pending_images()
 
@@ -109,7 +109,7 @@ def convert_pending_images():
         absfile = os.path.join(UPLOAD_FOLDER, obj['file'].pop())
         if absfile in images:
             images.pop(images.index(absfile))
-        else:
+        elif len(obj['record']) > 0:
             # Remove images which are not physical uploaded
             q.get(obj['record'].pop()).delete().run()
             logger.debug("Removed pending file '%s' from table", absfile)
