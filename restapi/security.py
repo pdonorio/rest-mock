@@ -39,9 +39,11 @@ def db_auth():
     missing_user = not User.query.first()
     logger.debug("Missing user")
     if missing_user:
+        import datetime
+        now = datetime.datetime.utcnow()
         from flask.ext.security.utils import encrypt_password
-        udstore.create_user(first_name='User', last_name='IAm',
-                            email=config.USER,
+        udstore.create_user(first_name='TheOnlyUser', last_name='IAm',
+                            email=config.USER, confirmed_at=now,
                             password=encrypt_password(config.PWD))
         udstore.add_role_to_user(config.USER, config.ROLE_ADMIN)
         logger.debug("Created user")
