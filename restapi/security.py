@@ -39,7 +39,7 @@ def db_auth():
     missing_user = not User.query.first()
     logger.debug("Missing user")
     if missing_user:
-        from flask_security.utils import encrypt_password
+        from flask.ext.security.utils import encrypt_password
         udstore.create_user(first_name='User', last_name='IAm',
                             email=config.USER,
                             password=encrypt_password(config.PWD))

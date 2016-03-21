@@ -8,9 +8,9 @@ We create all the components here!
 from __future__ import division, absolute_import
 from . import myself, lic, get_logger
 
-from flask_admin import Admin
 from flask import redirect
-from flask_admin.contrib import sqla
+from flask.ext.admin import Admin
+from flask.ext.admin.contrib import sqla
 from flask.ext.security import current_user
 from flask.ext.restful import request, url_for, abort
 from confs import config

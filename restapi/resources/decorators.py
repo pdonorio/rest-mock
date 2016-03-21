@@ -20,7 +20,7 @@ different solutions.
 from __future__ import division, absolute_import
 from .. import myself, lic, get_logger
 
-from flask_restful import marshal
+from flask.ext.restful import marshal
 from flask.wrappers import Response
 from .. import htmlcodes as hcodes
 from ..meta import Meta
