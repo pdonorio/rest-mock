@@ -65,11 +65,17 @@ PY2_INTERPRETER = 'python2'
 #################################
 # SQLALCHEMY
 BASE_DB_DIR = '/dbs'
-SQLLITE_DBFILE = 'backend.db'
+SQLLITE_EXTENSION = 'db'
+SQLLITE_DBFILE = 'backend' + '.' + SQLLITE_EXTENSION
 dbfile = os.path.join(BASE_DB_DIR, SQLLITE_DBFILE)
 SECRET_KEY = 'my-super-secret-keyword_referringtoapiside'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + dbfile
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+# extra
+SQLLITE_FRONTEND_DBFILE = 'frontend' + '.' + SQLLITE_EXTENSION
+dbfrontendfile = os.path.join(BASE_DB_DIR, SQLLITE_FRONTEND_DBFILE)
+SQLALCHEMY_FRONTEND_DATABASE_URI = 'sqlite:///' + dbfrontendfile
 
 #################################
 # SECURITY

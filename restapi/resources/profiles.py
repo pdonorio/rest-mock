@@ -7,8 +7,10 @@ Profiles for internal users
 from __future__ import division, absolute_import
 from .. import myself, lic, get_logger
 
+from flask.ext.security import auth_token_required  # , roles_required
+from flask.ext.restful import request
 from .base import ExtendedApiResource
-from ..models import db, User, Role
+from ..models import db, User, Role, Tokenizer
 from . import decorators as deck
 from .. import htmlcodes as hcodes
 from confs import config
@@ -72,3 +74,40 @@ class InitProfile(ExtendedApiResource):
         db.session.commit()
 
         return self.response({'message': 'Profiling activated'})
+
+
+class Account(ExtendedApiResource):
+    """ Information about the authenticated user """
+
+    @deck.apimethod
+    @auth_token_required
+    def get(self):
+
+        # Use original sqlalchemy to open another DB
+        from sqlalchemy import create_engine
+        from sqlalchemy.orm import sessionmaker
+
+        # Open frontend sqllite db?
+        from confs.config import SQLALCHEMY_FRONTEND_DATABASE_URI
+        engine = create_engine(SQLALCHEMY_FRONTEND_DATABASE_URI)
+        DBSession = sessionmaker(bind=engine)
+        session = DBSession()
+
+        # User from token
+        token = request.headers.get('Authentication-Token')
+        tokenizer = session.query(Tokenizer).filter_by(token=token).first()
+        session.close()
+
+        # User informations
+        user = User.query.get(int(tokenizer.user_id))
+        roles = ""
+        for role in user.roles:
+            roles += role.name + '; '
+        response = {
+            'Name': user.first_name,
+            'Surname': user.last_name,
+            'Email': user.email,
+            'Roles': roles
+        }
+
+        return self.response(response)
