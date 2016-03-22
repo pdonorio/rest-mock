@@ -104,6 +104,16 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
 
         myfile = request.files['file']
 
+        # ## IN CASE WE WANT TO CHUNK
+        ###parser = reqparse.RequestParser()
+        # &flowChunkNumber=1
+        # &flowChunkSize=1048576&flowCurrentChunkSize=1367129
+        # &flowTotalSize=1367129
+        # &flowIdentifier=1367129-IMG_4364CR2jpg
+        # &flowFilename=IMG_4364.CR2.jpg
+        # &flowRelativePath=IMG_4364.CR2.jpg
+        # &flowTotalChunks=1
+
         # Check file extension?
         if not self.allowed_file(myfile.filename):
             return self.response(
@@ -131,6 +141,12 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
                 "Failed to save file",
                 fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
+        # Check exists
+        if not os.path.exists(abs_file):
+            return self.response(
+                "Server error: failed to save the uploaded file",
+                fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
+
         ########################
         # TO FIX:
         # Let the user decide about zoomify inside the JSON configuration
@@ -144,6 +160,19 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
                     "Failed to zoomify as requested",
                     fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
+        # Extra info
+        ftype = None
+        fcharset = None
+        try:
+            # Check the type
+            from plumbum.cmd import file
+            out = file["-ib", abs_file]()
+            tmp = out.split(';')
+            ftype = tmp[0].strip()
+            fcharset = tmp[1].split('=')[1].strip()
+        except Exception:
+            logger.warning("Unknown type for '%s'" % abs_file)
+
         ########################
         # ## Final response
 
@@ -151,9 +180,10 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
         # think that response was unauthorized....
         # see http://dotnet.dzone.com/articles/getting-know-cross-origin
 
-        return self.response(
-            {'filename': filename},
-            code=hcodes.HTTP_OK_BASIC)
+        return self.response({
+                'filename': filename,
+                'meta': {'type': ftype, 'charset': fcharset}
+            }, code=hcodes.HTTP_OK_BASIC)
 
     def delete(self, filename):
         """ Remove the file if requested """

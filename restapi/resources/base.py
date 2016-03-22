@@ -55,6 +55,7 @@ class ExtendedApiResource(Resource):
     def parse(self):
         """ Parameters may be necessary at any method """
         self._args = self._parser.parse_args()
+        logger.debug("Received parameters: %s" % self._args)
 
     def set_endpoint(self):
         if self.endpoint is None:
