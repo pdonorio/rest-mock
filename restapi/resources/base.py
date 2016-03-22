@@ -115,17 +115,13 @@ class ExtendedApiResource(Resource):
                  fail=False, code=hcodes.HTTP_OK_BASIC):
         """ Handle a standard response following some criteria """
 
-        if fail:
-            obj = {'error': obj}
-            if code < hcodes.HTTP_BAD_REQUEST:
-                code = hcodes.HTTP_BAD_REQUEST
-
         # Do not apply if the object has already been used
         # as a 'standard response' from a parent call
         if 'data_type' in obj and 'status' in obj:
             response = obj
         # Compute the elements
         else:
+
             data_type = str(type(obj))
             if elements < 1:
                 if isinstance(obj, str):
@@ -151,5 +147,16 @@ class ExtendedApiResource(Resource):
         #         # Normal abort
         #         abort(code, **response)
         # ## But it's probably a better idea to do it inside the decorators
+
+        if code > hcodes.HTTP_OK_NORESPONSE:
+            fail = True
+
+        # Announced failure
+        if fail:
+            if not isinstance(obj, list):
+                obj = [obj]
+            obj = {'errors': obj}
+            if code < hcodes.HTTP_BAD_REQUEST:
+                code = hcodes.HTTP_BAD_REQUEST
 
         return response, code
