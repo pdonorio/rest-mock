@@ -10,6 +10,7 @@ from __future__ import absolute_import
 import os
 import glob
 from restapi.resources.services.rethink import RethinkConnection, RDBquery
+from restapi.resources.custom.docs import image_destination
 from restapi import get_logger
 from rethinkdb import r
 from rethinkdb.net import DefaultCursorEmpty
@@ -182,7 +183,11 @@ def convert_docs():
             images.append(row)
 
         # Insert
-        qtin.insert({pkey: record, 'images': images}).run()
+        qtin.insert({
+            pkey: record,
+            'images': images,
+            'type': image_destination({})
+        }).run()
         logger.info("Insert of record '%s'" % record)
 
 
