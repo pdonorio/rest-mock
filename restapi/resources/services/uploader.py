@@ -81,7 +81,12 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
             and filename.rsplit('.', 1)[1].lower() in self.allowed_exts
 
     @staticmethod
-    def absolute_upload_file(filename):
+    def absolute_upload_file(filename, subfolder):
+        if subfolder:
+            filename = os.path.join(subfolder, filename)
+            dir = os.path.join(UPLOAD_FOLDER, subfolder)
+            if not os.path.exists(dir):
+                os.mkdir(dir)
         return os.path.join(UPLOAD_FOLDER, filename)  # filename.lower())
 
     def get(self, filename=None):
@@ -97,7 +102,7 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
         return self.response(
             "No flow chunks for now", code=hcodes.HTTP_OK_NORESPONSE)
 
-    def post(self):
+    def post(self, subfolder=None):
 
         if 'file' not in request.files:
             return "No files specified"
@@ -122,7 +127,7 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
 
         # Check file name
         filename = secure_filename(myfile.filename)
-        abs_file = self.absolute_upload_file(filename)
+        abs_file = self.absolute_upload_file(filename, subfolder)
         logger.info("File request for [%s](%s)" % (myfile, abs_file))
 
         if os.path.exists(abs_file):
