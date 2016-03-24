@@ -4,6 +4,11 @@
 ## RETHINKDB
 # Convert old rethinkdb schema
 # into new cool and fancy json automatic documents
+
+r.connect(host='rdb').repl()
+v = r.db('webapp')
+a = v.table('datadocs').update({"type":'documents'}).run()
+
 """
 
 from __future__ import absolute_import
