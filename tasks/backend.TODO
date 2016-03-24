@@ -5,6 +5,9 @@ GUIDELINES:
 - configuration via INI file
 - extended a small list of initial services
 
+### protocol specifications?
+https://github.com/ga4gh/mme-apis/blob/v1.0a/search-api.md
+
  ### python debugger
 http://nbviewer.ipython.org/github/donnemartin/data-science-ipython-notebooks/blob/master/python-data/pdb.ipynb
 
