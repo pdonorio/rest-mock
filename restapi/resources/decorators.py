@@ -83,9 +83,9 @@ class add_endpoint_parameter(object):
 
     def __call__(self, fn, *args, **kwargs):
 
-#def add_parameter(self, name, mytype=str, default=None, required=False):
         params = {
             'name': self.name,
+# Check list type? for filters
             'mytype': self.ptype,
             'default': self.default,
             'required': self.required,
