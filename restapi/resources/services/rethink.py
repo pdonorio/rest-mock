@@ -26,8 +26,9 @@ JSONS_EXT = '.json'
 # Database and tables to use
 APP_DB = "webapp"
 DEFAULT_TABLE = "test"
-TIME_COLUMN = 'latest_timestamp'
-IP_COLUMN = 'latest_ipaddress'
+ACTION_COLUMN = 'operation'
+TIME_COLUMN = 'timestamp'
+IP_COLUMN = 'ipaddress'
 USER_COLUMN = 'latest_user'
 
 logger = get_logger(__name__)
@@ -162,14 +163,30 @@ class RDBdefaults(object):
     db = APP_DB
     order = TIME_COLUMN
 
-    def save_action_info(self, user=None):
+    def save_action_info(self, document, action='record_creation'):
+
+        if not isinstance(document, dict):
+            logger.warning("The element to insert is not a document")
+            return document
+
+        key = "logs"
+# RECOVER THE USER FROM FLASK!
+# Recover from token? # Somewhere with Flask security
+        user = None
         if user is None:
             user = 'UNKNOWN'
-        return {
+
+        log = {
             TIME_COLUMN: time.time(),
+            ACTION_COLUMN: action,
             IP_COLUMN: get_ip(),
             USER_COLUMN: user
         }
+        if key not in document:
+            document[key] = []
+        document[key].append(log)
+
+        return document
 
 
 ##########################################
@@ -194,6 +211,9 @@ class RDBquery(RDBdefaults):
             base.table_create(table).run()
         # Use the table
         return base.table(table)
+
+    def list_tables(self):
+        return list(self.get_query().table_list().run())
 
     def execute_query(self, query, limit):
         count = 0
@@ -223,29 +243,38 @@ class RDBquery(RDBdefaults):
         # Process
         return self.execute_query(query, limit)
 
-    def insert(self, data, user=None):
-#TOFIX:
-# Find the user?
+    def insert(self, data, table=None):
         # Prepare the query
-        query = self.get_table_query()
-        # Add extra info: (ip, timestamp, user)
-        data['infos'] = self.save_action_info(user)
+        query = self.get_table_query(table)
+        # Add extra info: (ip, timestamp, user, action)
         # Execute the insert
-        rdb_out = query.insert(data).run()
-        # Get the id
-#first_error?
-        return rdb_out['generated_keys'].pop()
+        rdb_out = query.insert(self.save_action_info(data)).run()
 
-    def update(self, key, data, user=None):
-        # Prepare the query
-        query = self.get_table_query()
-        # Add extra info: (ip, timestamp, user)
-        data['infos'] = self.save_action_info(user)
-        # Execute the insert
-        rdb_out = query.update(key, data).run()
-        print("\n\n\n", rdb_out, "\n\n\n")
+        logger.debug("Debugging ReThinkDB insert: %s" % rdb_out)
+
+        # Handling error
+        key = 'errors'
+        if key in rdb_out and rdb_out[key] > 0:
+            error = "Failed to insert"
+            key = 'first_error'
+            if key in rdb_out:
+                error = rdb_out[key]
+            raise BaseException(error)
+
         # Get the id
-        return True
+        key = 'generated_keys'
+        if key in rdb_out:
+            return rdb_out['generated_keys'].pop()
+        return 'Unknown ID'
+
+    def replace(self, data, table=None):
+        self.get_table_query(table).replace(
+            self.save_action_info(data, action='try_replace')).run()
+
+    def update(self, key, data, table=None):
+        # Prepare the query
+        self.get_table_query(table).update(
+            key, self.save_action_info(data, action='update')).run()
 
 # # USELESS FOR REST MOCK API
 #     def marshal(self, data, count=0):
@@ -302,6 +331,8 @@ class BaseRethinkResource(ExtendedApiResource, RDBquery):
     def check_valid(self, json_data):
         """ Verify if the json data follows the schema """
         # Check if dictionary and not empty
+        if self.schema is None:
+            return True
         if not isinstance(json_data, dict) or len(json_data) < 1:
             return False
         # Check template

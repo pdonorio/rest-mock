@@ -7,20 +7,126 @@
 """
 
 from __future__ import absolute_import
-import logging
+import os
+import glob
 from restapi.resources.services.rethink import RethinkConnection, RDBquery
+from restapi.resources.custom.docs import image_destination
 from restapi import get_logger
 from rethinkdb import r
 from rethinkdb.net import DefaultCursorEmpty
 from datetime import datetime
 from elasticsearch import Elasticsearch
+from confs.config import args, UPLOAD_FOLDER
+
+import logging
+logger = get_logger(__name__)
+logger.setLevel(logging.DEBUG)
 
 ES_HOST = {"host": "el", "port": 9200}
 EL_INDEX = "autocomplete"
 STEPS = {}
+TESTING = False
+#TESTING = True
 
-logger = get_logger(__name__)
-logger.setLevel(logging.DEBUG)
+# Tables
+t1 = "stepstemplate"
+t2 = "steps"
+t3 = "stepscontent"
+t4 = "docs"
+tin = "datakeys"
+t2in = "datavalues"
+t3in = "datadocs"
+t4in = "datapending"
+
+# Connection
+RethinkConnection()
+# Query main object
+query = RDBquery()
+
+######################
+# Parameters
+if args.rm:
+    logger.info("Remove previous data")
+    tables = query.list_tables()
+    if tin in tables:
+        query.get_query().table_drop(tin).run()
+    if t2in in tables:
+        query.get_query().table_drop(t2in).run()
+    if t3in in tables:
+        query.get_query().table_drop(t3in).run()
+    # if t4in in tables:
+    #     query.get_query().table_drop(t4in).run()
+
+
+#################################
+# MAIN
+#################################
+def convert_schema():
+    """ Do all ops """
+
+    ######################
+    # Make tests
+    if TESTING:
+        test_query()
+        # test_el()
+
+    ######################
+    # Conversion from old structure to the new one
+    tables = query.list_tables()
+
+    if tin not in tables:
+        convert_submission()
+    if t2in not in tables:
+        convert_search()
+    if t3in not in tables:
+        convert_docs()
+    # remove pending files...
+    ##if t4in not in tables:
+    convert_pending_images()
+
+    # check_indexes(t2in)
+
+#################################
+#################################
+
+
+def convert_pending_images():
+    """ Find images not linked to documents """
+
+    q = query.get_table_query(t3in)
+    cursor = q['images'] \
+        .map(
+            lambda images:
+                {'file': images['filename'], 'record': images['recordid']}
+         ).distinct().run()
+
+    logger.info("Obtained pending data")
+    images = glob.glob(os.path.join(UPLOAD_FOLDER, "*.jpg"))
+
+    # Missing
+    for obj in list(cursor):
+
+        # Check if exists
+        absfile = os.path.join(UPLOAD_FOLDER, obj['file'].pop())
+        if absfile in images:
+            images.pop(images.index(absfile))
+        elif len(obj['record']) > 0:
+            # Remove images which are not physical uploaded
+            q.get(obj['record'].pop()).delete().run()
+            logger.debug("Removed pending file '%s' from table", absfile)
+
+# // TO FIX:
+# MAKE A TABLE OF DRAFTS INSTEAD
+
+    # REMOVE
+    # # Remove physical images which do not belong to any record?
+    # for image in images:
+    #     os.unlink(image)
+    #     logger.debug("Removed unused image '%s'" % image)
+
+    # q = query.get_table_query(t4in)
+    # q = query.get_table_query(t5in)
+    # REMOVE
 
 
 def split_and_html_strip(string):
@@ -48,21 +154,6 @@ def split_and_html_strip(string):
     return set(words)
 
 
-# Tables
-t1 = "stepstemplate"
-t2 = "steps"
-t3 = "stepscontent"
-t4 = "docs"
-tin = "datakeys"
-t2in = "datavalues"
-t3in = "datadocs"
-
-# Connection
-RethinkConnection()
-# Query main object
-query = RDBquery()
-
-
 def convert_docs():
     """ Convert Data needed for search """
     qt1 = query.get_table_query(t4)
@@ -84,15 +175,19 @@ def convert_docs():
     # Check images
         for row in rows:
             if key in row:
-    # Fix transcriptions
                 words = set()
+    # Fix transcriptions
                 for trans in row[key]:
                     words = words | split_and_html_strip(trans)
                 row[key+'_split'] = list(words)
             images.append(row)
 
         # Insert
-        qtin.insert({pkey: record, 'images': images}).run()
+        qtin.insert({
+            pkey: record,
+            'images': images,
+            'type': image_destination({})
+        }).run()
         logger.info("Insert of record '%s'" % record)
 
 
@@ -113,12 +208,12 @@ def convert_search():
     # Query
     res = qt1.group('recordid').order_by('step').run()
 
-    # Elasticsearch magic
-    print("Elasticsearch and indexes")
-    es = Elasticsearch(hosts=[ES_HOST])
-    es.indices.delete(index=EL_INDEX, ignore=[400, 404])
-    es.indices.create(index=EL_INDEX, ignore=400)
-    #es.indices.refresh(index=EL_INDEX)
+    # # Elasticsearch magic
+    # print("Elasticsearch and indexes")
+    # es = Elasticsearch(hosts=[ES_HOST])
+    # es.indices.delete(index=EL_INDEX, ignore=[400, 404])
+    # es.indices.create(index=EL_INDEX, ignore=400)
+    # #es.indices.refresh(index=EL_INDEX)
 
     for record, rows in res.items():
         steps = []
@@ -180,10 +275,10 @@ def convert_search():
             'text': title,
             'timestamp': datetime.now(),
         }
-# TO FIX?
-        #print(doc)
-        es.index(index=EL_INDEX, doc_type='normal', body=doc)
-        #print("DEBUG EXIT"); exit(1)
+# # TO FIX?
+#         #print(doc)
+#         es.index(index=EL_INDEX, doc_type='normal', body=doc)
+#         #print("DEBUG EXIT"); exit(1)
 
 
         # Save the record
@@ -258,8 +353,16 @@ def convert_submission():
 
 def test_query():
     """ test queries on rdb """
-    # q = query.get_table_query(t2in)
+
     q = query.get_table_query(t3in)
+
+    cursor = q. \
+        filter({'record': '0a98cdbf-4db6-4042-812b-033ca9dda009'})['images'] \
+        .run()
+    print(next(cursor))
+
+    print("DEBUG")
+    exit(1)
 
     # cursor = q \
     #     .concat_map(
@@ -353,19 +456,3 @@ def test_el():
     #es.search(index='posts', q='author:"Benjamin Pollack"')
 
     exit(1)
-
-
-def convert_schema():
-    """ Do all ops """
-
-    ######################
-    # Make tests
-    #test_query()
-    #test_el()
-
-    ######################
-    # Conversion from old structure to the new one
-    convert_submission()
-    #check_indexes(t2in)
-    convert_search()
-    convert_docs()

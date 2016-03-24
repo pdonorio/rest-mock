@@ -7,7 +7,7 @@ App specifications
 from __future__ import division, absolute_import
 from . import myself, lic, get_logger
 
-from flask_restful import Api, Resource
+from flask.ext.restful import Api, Resource
 from .resources.endpoints import Endpoints
 from .config import MyConfigs
 
@@ -59,6 +59,7 @@ def create_endpoints(custom_epo, security=False, debug=False):
             custom_epo.create_single(myclass, endpoint, endkey)
 
     ####################################
+    # Verify functions on the API server
     if security:
         from .resources import checkauth
         custom_epo.many_from_module(checkauth)
@@ -66,4 +67,11 @@ def create_endpoints(custom_epo, security=False, debug=False):
         from .resources.checkauth import Verify
         custom_epo.create_many([Verify])
 
+    ####################################
+    # Profile endpoint
+    from .resources import profiles
+    custom_epo.many_from_module(profiles)
+
+    ####################################
+    # The end
     return custom_epo

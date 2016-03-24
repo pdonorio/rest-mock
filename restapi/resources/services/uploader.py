@@ -5,87 +5,190 @@
 import os
 # import shutil
 # import subprocess as shell
-from flask import request, send_from_directory
+from flask import request  # , send_from_directory
 from werkzeug import secure_filename
 from ... import htmlcodes as hcodes
 from ..base import ExtendedApiResource
 from ... import get_logger
-
-UPLOAD_FOLDER = '/uploads'
-INTERPRETER = 'python'
-ZBIN = '/zoomify/processor/ZoomifyFileProcessor.py'
+from confs.config import UPLOAD_FOLDER, PY2_INTERPRETER
 
 logger = get_logger(__name__)
 
 
+######################################
+# Create images part for zoomification
+class ZoomEnabling(object):
+
+    _zbin = UPLOAD_FOLDER + '/pyimgs/processor/ZoomifyFileProcessor.py'
+    _images_exts = ['png', 'jpg', 'jpeg', 'tiff']
+
+    def split_dir_and_extension(self, filepath):
+        filebase, fileext = os.path.splitext(filepath)
+        return filebase, fileext.strip('.')
+
+    def process_zoom(self, filename):
+        """
+        Make zoomify object + a small thumbnail
+        """
+
+        # Check Zoomify binaries
+        if not os.path.exists(self._zbin):
+            logger.critical("Zoomify is not available at: %s" % self._zbin)
+            return False
+
+        # Check Extension for image
+        _, ext = self.split_dir_and_extension(filename)
+        if ext.lower() not in self._images_exts:
+            logger.warning("Extension is not an image: %s" % ext)
+            return False
+
+        # Process via current shell
+        import subprocess as shell
+        cmd = [PY2_INTERPRETER, self._zbin, filename]
+
+        try:
+            proc = shell.Popen(cmd, stdout=shell.PIPE, stderr=shell.PIPE)
+            out, err = proc.communicate()
+            # Handle output
+            if proc.returncode == 0:
+                if out is not None and out != "":
+                    logger.debug("Zoom output: %s" % out)
+                    return True
+            else:
+                logger.critical(
+                    "Failed to process image '%s'. Error: \n '%s' "
+                    % (filename, err))
+        except Exception as e:
+            logger.critical(
+                "Failed to process image '%s'. Error: \n '%s' "
+                % (filename, e))
+
+        return False
+
+
+######################################
 # Save files http://API/upload
-class Uploader(ExtendedApiResource):
+class Uploader(ExtendedApiResource, ZoomEnabling):
 
-    allowed_exts = ['png', 'jpg', 'jpeg', 'tiff']
-
-    @staticmethod
-    def absolute_upload_file(filename):
-        return os.path.join(UPLOAD_FOLDER, filename)
+    ZOOMIFY_ENABLE = False
+    allowed_exts = []
+    # allowed_exts = ['png', 'jpg', 'jpeg', 'tiff']
 
     def allowed_file(self, filename):
+        if len(self.allowed_exts) < 1:
+            return True
         return '.' in filename \
             and filename.rsplit('.', 1)[1].lower() in self.allowed_exts
 
-    def get(self, filename):
-        abs_file = self.absolute_upload_file(filename)
-        logger.info("Provide '%s' " % abs_file)
-        #return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-        return "Not implemented yet", hcodes.HTTP_OK_NORESPONSE
+    @staticmethod
+    def absolute_upload_file(filename, subfolder):
+        if subfolder:
+            filename = os.path.join(subfolder, filename)
+            dir = os.path.join(UPLOAD_FOLDER, subfolder)
+            if not os.path.exists(dir):
+                os.mkdir(dir)
+        return os.path.join(UPLOAD_FOLDER, filename)  # filename.lower())
 
-    def post(self):
+    def get(self, filename=None):
+
+        if filename is not None:
+            abs_file = self.absolute_upload_file(filename)
+            logger.info("Provide '%s' " % abs_file)
+            # return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+            return self.response(
+                "File Request! Not implemented yet",
+                code=hcodes.HTTP_OK_NORESPONSE)
+
+        return self.response(
+            "No flow chunks for now", code=hcodes.HTTP_OK_NORESPONSE)
+
+    def post(self, subfolder=None):
 
         if 'file' not in request.files:
             return "No files specified"
 
         myfile = request.files['file']
 
+        # ## IN CASE WE WANT TO CHUNK
+        ###parser = reqparse.RequestParser()
+        # &flowChunkNumber=1
+        # &flowChunkSize=1048576&flowCurrentChunkSize=1367129
+        # &flowTotalSize=1367129
+        # &flowIdentifier=1367129-IMG_4364CR2jpg
+        # &flowFilename=IMG_4364.CR2.jpg
+        # &flowRelativePath=IMG_4364.CR2.jpg
+        # &flowTotalChunks=1
+
+        # Check file extension?
         if not self.allowed_file(myfile.filename):
-            return "File extension not allowed", hcodes.HTTP_BAD_REQUEST
+            return self.response(
+                "File extension not allowed",
+                fail=True, code=hcodes.HTTP_BAD_REQUEST)
 
         # Check file name
         filename = secure_filename(myfile.filename)
-        abs_file = self.absolute_upload_file(filename)
+        abs_file = self.absolute_upload_file(filename, subfolder)
         logger.info("File request for [%s](%s)" % (myfile, abs_file))
 
         if os.path.exists(abs_file):
             # os.remove(abs_file) # ??
             logger.warn("Already exists")
-            return "File '" + filename + "' already exists. Please " + \
-                "change its name and retry.", hcodes.HTTP_BAD_REQUEST
+            return self.response(
+                "File '" + filename + "' already exists. Please " +
+                "change its name and retry.",
+                fail=True, code=hcodes.HTTP_BAD_REQUEST)
 
         # Save the file
         try:
             myfile.save(abs_file)
         except Exception:
-            return "Failed to save file", hcodes.HTTP_DEFAULT_SERVICE_FAIL
+            return self.response(
+                "Failed to save file",
+                fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
-# TO FIX:
-# Let the user decide about zoomify inside the JSON configuration
+        # Check exists
+        if not os.path.exists(abs_file):
+            return self.response(
+                "Server error: failed to save the uploaded file",
+                fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
-#             # Make zoomify object and thumbnail
-#             app.logger.info("Elaborate image")
-#             # Proc via current shell
-#             cmd = [INTERPRETER, ZBIN, abs_file]
-#             proc = shell.Popen(cmd, stdout=shell.PIPE, stderr=shell.PIPE)
-#             out, err = proc.communicate()
-#             # Handle output
-#             if proc.returncode == 0:
-#                 if out != None and out != "":
-#                     app.logger.info("Comm output: " + out)
-#             else:
-#                 app.logger.critical("Failed to process image " + abs_file + \
-#                     ". Error: " + err)
-#                 abort(hcodes.HTTP_BAD_REQUEST, "Could not process file")
+        ########################
+        # TO FIX:
+        # Let the user decide about zoomify inside the JSON configuration
+
+        if self.ZOOMIFY_ENABLE:
+            if self.process_zoom(abs_file):
+                logger.info("Zoomified the image")
+            else:
+                os.unlink(abs_file)     # Remove the file!
+                return self.response(
+                    "Failed to zoomify as requested",
+                    fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
+
+        # Extra info
+        ftype = None
+        fcharset = None
+        try:
+            # Check the type
+            from plumbum.cmd import file
+            out = file["-ib", abs_file]()
+            tmp = out.split(';')
+            ftype = tmp[0].strip()
+            fcharset = tmp[1].split('=')[1].strip()
+        except Exception:
+            logger.warning("Unknown type for '%s'" % abs_file)
+
+        ########################
+        # ## Final response
 
         # Default redirect is to 302 state, which makes client
         # think that response was unauthorized....
         # see http://dotnet.dzone.com/articles/getting-know-cross-origin
-        return "Uploaded", hcodes.HTTP_OK_BASIC
+
+        return self.response({
+                'filename': filename,
+                'meta': {'type': ftype, 'charset': fcharset}
+            }, code=hcodes.HTTP_OK_BASIC)
 
     def delete(self, filename):
         """ Remove the file if requested """
@@ -95,20 +198,26 @@ class Uploader(ExtendedApiResource):
         # Check file existence
         if not os.path.exists(abs_file):
             logger.critical("File '%s' not found" % abs_file)
-            return "File requested does not exists", hcodes.HTTP_BAD_NOTFOUND
+            return self.response(
+                "File requested does not exists",
+                fail=True, code=hcodes.HTTP_BAD_NOTFOUND)
 
-#         # Remove zoomified directory
-#         filebase, fileext = os.path.splitext(abs_file)
-#         if os.path.exists(filebase):
-#             shutil.rmtree(filebase)
-#             logger.warn("Removed dir '%s' " % \
-#    filebase +" [extension '"+fileext+"']")
+#TOFIX
+        # Remove zoomified directory
+        filebase, fileext = os.path.splitext(abs_file)
+        if os.path.exists(filebase):
+            shutil.rmtree(filebase)
+            logger.warn("Removed dir '%s' " %
+                        filebase +" [extension '"+fileext+"']")
 
         # Remove the real file
         try:
             os.remove(abs_file)
         except Exception:
-            return "Failed to save file", hcodes.HTTP_DEFAULT_SERVICE_FAIL
+            return self.response(
+                "Failed to save file",
+                code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
         logger.warn("Removed '%s' " % abs_file)
 
-        return "Deleted", hcodes.HTTP_OK_NORESPONSE
+        return self.response(
+            "Deleted", code=hcodes.HTTP_OK_NORESPONSE)

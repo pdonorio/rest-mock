@@ -148,7 +148,7 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
     if enable_security:
         from .admin import admin, UserView, RoleView
         from .models import User, Role
-        from flask_admin import helpers as admin_helpers
+        from flask.ext.admin import helpers as admin_helpers
 
         admin.init_app(microservice)
         admin.add_view(UserView(User, db.session))

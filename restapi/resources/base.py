@@ -23,6 +23,8 @@ class ExtendedApiResource(Resource):
     hcode = hcodes.HTTP_OK_BASIC
     # How to have a standard response
     resource_fields = {
+        # html code embedded for semplicity
+        'status': fields.Integer,
         # Hashtype, Vector, String, Int/Float, and so on
         'data_type': fields.String,
         # Count
@@ -53,6 +55,7 @@ class ExtendedApiResource(Resource):
     def parse(self):
         """ Parameters may be necessary at any method """
         self._args = self._parser.parse_args()
+        logger.debug("Received parameters: %s" % self._args)
 
     def set_endpoint(self):
         if self.endpoint is None:
@@ -61,6 +64,10 @@ class ExtendedApiResource(Resource):
 
     def get_endpoint(self):
         return (self.endpoint, self.endtype)
+
+    def get_input(self, forcing=True):
+        """ Get JSON. The power of having a real object in our hand. """
+        return request.get_json(force=forcing)
 
     def add_parameter(self, name, mytype=str, default=None, required=False):
         """ Save a parameter inside the class """
@@ -108,34 +115,51 @@ class ExtendedApiResource(Resource):
         return request.get_json(force=True)
 
     def response(self, obj=None,
-                 fail=False, elements=0, data_type='dict',
-                 code=hcodes.HTTP_OK_BASIC):
+                 elements=0, data_type='dict',
+                 fail=False, code=hcodes.HTTP_OK_BASIC):
         """ Handle a standard response following some criteria """
+        # Do not apply if the object has already been used
+        # as a 'standard response' from a parent call
+        if 'data_type' in obj and 'status' in obj:
+            response = obj
+        # Compute the elements
+        else:
 
-        data_type = str(type(obj))
-        if elements < 1:
-            try:
-                elements = len(obj)
-            except:
-                elements = 1
+            data_type = str(type(obj))
+            if elements < 1:
+                if isinstance(obj, str):
+                    elements = 1
+                else:
+                    elements = len(obj)
 
-        response = {
+            response = {
                 'data': obj,
                 'elements': elements,
-                'data_type': data_type
+                'data_type': data_type,
+                'status': code
             }
 
-# // TO FIX:
-# Specify status?
-# Can i recover it inside the decorator code???
+        # ## In case we want to handle the failure at this level
+        # # I want to use the same marshal also if i say "fail"
+        # if fail:
+        #     code = hcodes.HTTP_BAD_REQUEST
+        #     if STACKTRACE:
+        #         # I could raise my exception if i need again stacktrace
+        #         raise RESTError(obj, status_code=code)
+        #     else:
+        #         # Normal abort
+        #         abort(code, **response)
+        # ## But it's probably a better idea to do it inside the decorators
 
-        # I want to use the same marshal also if i say "fail"
+        if code > hcodes.HTTP_OK_NORESPONSE:
+            fail = True
+
+        # Announced failure
         if fail:
-            code = hcodes.HTTP_BAD_REQUEST
-            if STACKTRACE:
-                # I could raise my exception if i need again stacktrace
-                raise RESTError(obj, status_code=code)
-            else:
-                # Normal abort
-                abort(code, **response)
-        return response
+            if not isinstance(obj, list):
+                obj = [obj]
+            obj = {'errors': obj}
+            if code < hcodes.HTTP_BAD_REQUEST:
+                code = hcodes.HTTP_BAD_REQUEST
+
+        return response, code

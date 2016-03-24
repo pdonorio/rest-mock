@@ -77,4 +77,27 @@ class User(db.Model, UserMixin):
     def get_id(self):
         return str(self.id)
 
+
+####################################
+#// TO FIX
+# Tokenizing...
+class Tokenizer(db.Model, UserMixin):
+
+    __tablename__ = "tokens"
+
+    id = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(255), unique=True, index=True)
+    user_id = db.Column(db.Integer)
+    authenticated_at = db.Column(db.DateTime)
+
+    # def __init__(self, token, user_id):
+    #     self.token = token
+    #     self.user_id = user_id
+    #     self.authenticated_at = datetime.utcnow()
+
+    # def __repr__(self):
+    #     return '<Tok for user[%r]> %s' % (self.user_id, self.token)
+
+
+####################################
 logger.info("Loaded models")

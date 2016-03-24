@@ -20,7 +20,7 @@ different solutions.
 from __future__ import division, absolute_import
 from .. import myself, lic, get_logger
 
-from flask_restful import marshal
+from flask.ext.restful import marshal
 from flask.wrappers import Response
 from .. import htmlcodes as hcodes
 from ..meta import Meta
@@ -42,17 +42,6 @@ def enable_endpoint_identifier(name='myid', idtype='string'):
     Enable identifier and let you choose name and type.
     """
     def class_rebuilder(cls):   # decorator
-
-# # // TO FIX
-# # This class has to change name everytime :/
-#         class NewClass(cls):    # decorated
-#             # Rewrite init
-#             def __init__(self):
-#                 logger.info("[%s] Applying ID to endopoint:%s of type '%s'"
-#                             % (self.__class__.__name__, name, idtype))
-#                 self.set_method_id(name, idtype)
-#                 # logger.debug("New init %s %s" % (name, idtype))
-#                 super(cls, self).__init__()
 
         def init(self):
             logger.info("[%s] Applying ID to endopoint:%s of type '%s'"
@@ -94,9 +83,9 @@ class add_endpoint_parameter(object):
 
     def __call__(self, fn, *args, **kwargs):
 
-#def add_parameter(self, name, mytype=str, default=None, required=False):
         params = {
             'name': self.name,
+# Check list type? for filters
             'mytype': self.ptype,
             'default': self.default,
             'required': self.required,
@@ -163,26 +152,32 @@ def apimethod(func):
         # DO NOT INTERCEPT 404 or status from other plugins (e.g. security)
         if isinstance(out, Response):
             return out
+
+        # BASE STATUS?
+        status = hcodes.HTTP_OK_BASIC
+
+        # VERY IMPORTANT
+        # DO NOT INTERFERE when
+        # at some level we already provided the couple out/response
+        if isinstance(out, tuple) and len(out) == 2:
+            subout, status = out
+            out = subout
+
         # Set standards for my response as specified in base.py
-        return marshal(out, self.resource_fields)
+        #return marshal(out, self.resource_fields), status
+        return out, status
 
     return wrapper
 
 
 ##############################
-# Since my previous decorator would be necessary
-# for any typical method inside a rest resource
-# such as GET, POST, PUT, DELETE (and more?)
-# i looked for a solution online
-# Source:
-# http://stackoverflow.com/a/6307868/2114395
+# A decorator for the whole class
 
 def all_rest_methods(decorator):
     """ Decorate all the api methods inside one class """
 
-# // TO FIX
-# ADD OTHER METHODS IF THERE WILL BE OTHERS
-    api_methods = ['get', 'post', 'put', 'delete']
+# ADD OTHER METHODS HERE, IF SOME ARE MISSING
+    api_methods = ['get', 'post', 'put', 'patch', 'delete']
 
     def decorate(cls):
         # there's propably a better way to do this
