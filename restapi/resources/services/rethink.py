@@ -332,6 +332,8 @@ class BaseRethinkResource(ExtendedApiResource, RDBquery):
     def check_valid(self, json_data):
         """ Verify if the json data follows the schema """
         # Check if dictionary and not empty
+        if self.schema is None:
+            return True
         if not isinstance(json_data, dict) or len(json_data) < 1:
             return False
         # Check template
