@@ -322,11 +322,8 @@ class BaseRethinkResource(ExtendedApiResource, RDBquery):
         Filter with predefined queries.
         """
 
-        # Check arguments
-        limit = self._args['perpage']
-# // TO FIX: use it!
-        current_page = self._args['currentpage']
-
+# TO FIX: use CURRENTPAGE
+        current_page, limit = self.get_paging()
         return self.get_content(data_key, limit)
 
     def check_valid(self, json_data):
