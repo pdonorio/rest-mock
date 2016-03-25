@@ -67,34 +67,34 @@ def enable_endpoint_identifier(name='myid', idtype='string'):
 
 # http://scottlobdell.me/2015/04/decorators-arguments-python/
 
-class add_endpoint_parameter(object):
+def add_endpoint_parameter(name, ptype=str, default=None, required=False):
+    """ 
+    Add a new parameter to the whole endpoint class.
+    Parameters are the ones passed encoded in the url, e.g.
+
+    GET /api/myendpoint?param1=string&param2=42
+
+    Note: it could become specific to the method with using subarrays
+    Another note: you could/should use JSON instead...
     """
-    A class as DECORATOR seems to fit
-    even the most strange situations
-    """
+    def decorator(func):
+        def wrapper(self, *args, **kwargs):
+            # Debug
+            class_name = self.__class__.__name__
+            logger.debug("[Class: %s] Decorated to add parameter '%s'"
+                         % (class_name, name))
 
-    def __init__(self, name, ptype=str, default=None, required=False):
-        self.name = name
-        self.ptype = ptype
-        self.default = default
-        self.required = required
-        if required and default is not None:
-            logger.warning("Warning, using default a required parameter")
-
-    def __call__(self, fn, *args, **kwargs):
-
-        params = {
-            'name': self.name,
-# Check list type? for filters
-            'mytype': self.ptype,
-            'default': self.default,
-            'required': self.required,
-        }
-
-        def new_func(self, *args, **kwargs):
+            params = {
+                'name': name,
+                # Check list type? for filters
+                'mytype': ptype,
+                'default': default,
+                'required': required,
+            }
             self.add_parameter(**params)
-            return fn(self, *args, **kwargs)
-        return new_func
+            return func(self, *args, **kwargs)
+        return wrapper
+    return decorator
 
 
 ##############################
@@ -123,12 +123,8 @@ def apimethod(func):
         # Debug
         class_name = self.__class__.__name__
         method_name = func.__name__.upper()
-
-        # // TO DO
-        #   HOW TO LOG WITH RESTFUL?
-        #   endpoint? #   address? #   response code?
-
         logger.info("[Class: %s] %s request" % (class_name, method_name))
+
         # Call the parse method
         self.apply_parameters()
         self.parse()
