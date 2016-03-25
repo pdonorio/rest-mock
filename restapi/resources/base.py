@@ -122,6 +122,20 @@ class ExtendedApiResource(Resource):
         # Compute the elements
         else:
 
+            #######################
+            # Case of failure
+            if code > hcodes.HTTP_OK_NORESPONSE:
+                fail = True
+
+            if fail:
+                if not isinstance(obj, list):
+                    if not isinstance(obj, dict):
+                        obj = {'Generic error': obj}
+                    obj = [obj]
+                obj = {'errors': obj}
+                if code < hcodes.HTTP_BAD_REQUEST:
+                    code = hcodes.HTTP_BAD_REQUEST
+
             data_type = str(type(obj))
             if elements < 1:
                 if isinstance(obj, str):
@@ -147,16 +161,5 @@ class ExtendedApiResource(Resource):
         #         # Normal abort
         #         abort(code, **response)
         # ## But it's probably a better idea to do it inside the decorators
-
-        if code > hcodes.HTTP_OK_NORESPONSE:
-            fail = True
-
-        # Announced failure
-        if fail:
-            if not isinstance(obj, list):
-                obj = [obj]
-            obj = {'errors': obj}
-            if code < hcodes.HTTP_BAD_REQUEST:
-                code = hcodes.HTTP_BAD_REQUEST
 
         return response, code

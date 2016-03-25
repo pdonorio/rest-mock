@@ -143,13 +143,13 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
             myfile.save(abs_file)
         except Exception:
             return self.response(
-                "Failed to save file",
+                "Failed to write uploaded file",
                 fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
         # Check exists
         if not os.path.exists(abs_file):
             return self.response(
-                "Server error: failed to save the uploaded file",
+                {"Server file system": "Unable to recover the uploaded file"},
                 fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
         ########################
@@ -160,12 +160,12 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
             if self.process_zoom(abs_file):
                 logger.info("Zoomified the image")
             else:
-                os.unlink(abs_file)     # Remove the file!
+                #os.unlink(abs_file)     # Remove the file!
                 return self.response(
-                    "Failed to zoomify as requested",
+                    {"Image operation": "Image pre-scaling for zoom failed"},
                     fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
-        # Extra info
+        # Extra info
         ftype = None
         fcharset = None
         try:
