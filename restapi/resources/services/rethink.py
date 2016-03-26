@@ -381,5 +381,6 @@ class BaseRethinkResource(ExtendedApiResource, RDBquery):
         if out['deleted']:
             logger.debug("Removed record '%s'" % id)
         else:
+            logger.critical("Failed '%s'" % out)
             return id, hcodes.HTTP_SERVICE_UNAVAILABLE
         return True
