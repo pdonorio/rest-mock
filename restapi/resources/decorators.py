@@ -172,7 +172,7 @@ def all_rest_methods(decorator):
     """ Decorate all the api methods inside one class """
 
 # ADD OTHER METHODS HERE, IF SOME ARE MISSING
-    api_methods = ['get', 'post', 'put', 'patch', 'delete']
+    api_methods = ['get', 'post', 'put', 'patch', 'delete']  # , 'search']
 
     def decorate(cls):
         # there's propably a better way to do this
