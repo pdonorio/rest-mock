@@ -31,7 +31,7 @@ ES_HOST = {"host": "el", "port": 9200}
 EL_INDEX = "autocomplete"
 STEPS = {}
 TESTING = False
-#TESTING = True
+# TESTING = True
 
 # Tables
 t1 = "stepstemplate"
@@ -41,7 +41,7 @@ t4 = "docs"
 tin = "datakeys"
 t2in = "datavalues"
 t3in = "datadocs"
-t4in = "datapending"
+t4in = 'datadmins'
 
 # Connection
 RethinkConnection()
@@ -59,8 +59,6 @@ if args.rm:
         query.get_query().table_drop(t2in).run()
     if t3in in tables:
         query.get_query().table_drop(t3in).run()
-    # if t4in in tables:
-    #     query.get_query().table_drop(t4in).run()
 
 
 #################################
@@ -86,7 +84,6 @@ def convert_schema():
     if t3in not in tables:
         convert_docs()
     # remove pending files...
-    ##if t4in not in tables:
     convert_pending_images()
 
     # check_indexes(t2in)
@@ -128,9 +125,6 @@ def convert_pending_images():
     # for image in images:
     #     os.unlink(image)
     #     logger.debug("Removed unused image '%s'" % image)
-
-    # q = query.get_table_query(t4in)
-    # q = query.get_table_query(t5in)
     # REMOVE
 
 
@@ -359,23 +353,14 @@ def convert_submission():
 def test_query():
     """ test queries on rdb """
 
-    q = query.get_table_query(t3in)
-
-    cursor = q. \
-        filter({'record': '0a98cdbf-4db6-4042-812b-033ca9dda009'})['images'] \
-        .run()
-    print(next(cursor))
-
-    print("DEBUG")
-    exit(1)
-
-    # cursor = q \
-    #     .concat_map(
-    #         lambda doc:
-    #             doc['images'].has_fields({'transcriptions': True}).concat_map(
-    #                 lambda image: image['transcriptions_split'])) \
-    #     .distinct() \
-    #     .run()
+    q = query.get_table_query(t4in)
+    cursor = q \
+        .filter({'type': 'welcome'}).without('type') \
+        .eq_join("id", r.table(t3in), index="record") \
+        .zip() \
+        .filter({'type': 'welcome'})
+    print(list(cursor.run()))
+    print("DEBUG"); exit(1)
 
     cursor = q \
         .concat_map(
@@ -412,20 +397,6 @@ def test_query():
     #     print("TEST", obj)
     #     exit(1)
 
-# #TEST1
-#     cursor = q \
-#         .concat_map(
-#             lambda x: x['steps']['data'].map(
-#                 lambda item: item['value'])
-#         ) \
-#         .run()
-#     for obj in cursor:
-#         print("TEST", obj)
-#         exit(1)
-#     print(list(cursor))
-#     exit(1)
-
-#WORKING FOR RECOVERING DATA
     cursor = q \
         .concat_map(r.row['steps']) \
         .filter(
