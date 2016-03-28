@@ -358,13 +358,13 @@ class BaseRethinkResource(ExtendedApiResource, RDBquery):
         return myid
         #####################
 
-    def put(self, id, index='id'):
+    def put(self, id, index='id', validation=False):
 
         json_data = self.get_input()
         if 'id' in json_data:
             json_data.pop('id')
 
-        if not self.check_valid(json_data):
+        if validation and not self.check_valid(json_data):
             logger.warning("Not a valid template")
             return self.template, hcodes.HTTP_BAD_REQUEST
 
