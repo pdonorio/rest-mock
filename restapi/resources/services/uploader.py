@@ -130,8 +130,14 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
         abs_file = self.absolute_upload_file(filename, subfolder)
         logger.info("File request for [%s](%s)" % (myfile, abs_file))
 
+        # ## IMPORTANT note:
+        # If you are going to receive chunks here there could be problems.
+        # In fact a chunk will truncate the connection
+        # and make a second request.
+        # You will end up with having already the file
+        # But corrupted...
         if os.path.exists(abs_file):
-            # os.remove(abs_file) # ??
+            # os.remove(abs_file)  # an option to force removal?
             logger.warn("Already exists")
             return self.response(
                 "File '" + filename + "' already exists. Please " +
