@@ -36,24 +36,30 @@ class ICommands(BashCommands):
     """irods icommands in a class"""
 
     _init_data = {}
+    _current_environment = None
     _base_dir = ''
 
     first_resource = 'demoResc'
     second_resource = 'replicaResc'
 
-    def __init__(self, irodsenv=IRODS_ENV):
+    def __init__(self, user=None, irodsenv=IRODS_ENV):
 
         # Recover plumbum shell enviroment
         super(ICommands, self).__init__()
 
-# How to add a new user
-#iadmin mkuser guest rodsuser
+        # How to add a new user
+        # $ iadmin mkuser guest rodsuser
 
+        ## TO CHECK?
         self.irodsenv = irodsenv
-        self.become_admin()
-        logger.debug("iRODS environment found\n%s" % self._init_data)
 
-        self._base_dir = self.get_base_dir()
+        if user is None:
+            # In case i am the admin
+            self.become_admin()
+            self._base_dir = self.get_base_dir()
+            logger.debug("iRODS environment found\n%s" % self._init_data)
+        else:
+            self.change_user(user)
 
     #######################
     # ABOUT CONFIGURATION
@@ -105,16 +111,56 @@ class ICommands(BashCommands):
             'home',
             user)
 
+    def prepare_irods_environment(self, user, schema='gsi'):
+        """
+        Prepare the OS variables environment
+        which allows to become another user using the GSI protocol.
+
+        It requires that user to be recognized inside the iRODS server,
+        e.g. the certificate is available on the server side.
+        """
+
+        irods_env = os.environ.copy()
+
+# @Mattia
+# Do not run iRODS server container
+# to avoid the existence of this env variables
+# and/or set them as you want
+
+        zone = os.environ['IRODS_ZONE']
+
+        irods_env['IRODS_USER_NAME'] = user
+        irods_env['IRODS_HOME'] = '/' + zone + '/home/' + user
+        irods_env['IRODS_AUTHENTICATION_SCHEME'] = schema
+        irods_env['IRODS_HOST'] = os.environ['ICAT_1_ENV_IRODS_HOST']
+        irods_env['IRODS_PORT'] = \
+            int(os.environ['ICAT_1_PORT'].split(':')[::-1][0])
+        irods_env['IRODS_ZONE'] = zone
+
+        self._current_environment = irods_env
+        return irods_env
+
     def change_user(self, user=None):
         """ Impersonification of another user because you're an admin """
 
+# Where to change with:
+# https://github.com/EUDAT-B2STAGE/http-api/issues/1#issuecomment-196729596
+        self._current_environment = None
+
         if user is None:
+            # Do not change user, go with the main admin
             user = self._init_data['irods_user_name']
         else:
+            ## OLD
             # Use an environment variable to reach the goal
-            os.environ[IRODS_USER_ALIAS] = user
+            # os.environ[IRODS_USER_ALIAS] = user
+            ## NEW
+            self.prepare_irods_environment(user)
+
         logger.info("Switched to user '%s'" % user)
-        return self.list(self.get_user_home(user))
+
+        #return self.list(self.get_user_home(user))
+        return True
 
     ###################
     # ICOMs
@@ -208,7 +254,8 @@ class ICommands(BashCommands):
             return out
 
         # Normal command
-        stdout = self.execute_command(com, args)
+        stdout = self.execute_command(
+            com, parameters=args, env=self._current_environment)
         lines = stdout.splitlines()
         replicas = []
         for line in lines:
@@ -551,7 +598,7 @@ class ICommands(BashCommands):
 
 #######################################
 # Creating the iRODS main instance
-icom = ICommands()
+test_irods = ICommands()
 # Note: this will be changed in the near future
 # We should create the instance before every request
 # (see Flask before_request decorator)

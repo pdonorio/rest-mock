@@ -3,6 +3,9 @@
 """
 iRODS connection via Official API.
 Python 3 is NOT supported at the moment.
+
+UNSUSED AT THE MOMENT!
+
 """
 
 import os
@@ -59,4 +62,4 @@ class MyRods(object):
 
         return self
 
-mirods = MyRods()
+#mirods = MyRods()

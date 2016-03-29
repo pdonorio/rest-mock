@@ -28,9 +28,13 @@ class BashCommands(object):
         super(BashCommands, self).__init__()
         logger.debug("Internal shell initialized")
 
-    def execute_command(self, command, parameters=[]):
+    def execute_command(self, command, parameters=[], env=None):
         """ Pattern in plumbum library for executing a shell command """
-        return self._shell[command](parameters)
+        command = self._shell[command]
+        # Specify different environment variables
+        if env is not None:
+            command = command.with_env(**env)
+        return command(parameters)
 
     def execute_command_advanced(self, command, parameters=[], retcodes=()):
         """ Pattern in plumbum library for executing a shell command """
