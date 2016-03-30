@@ -14,11 +14,12 @@ we based this wrapper on plumbum package handling shell commands.
 import os
 import inspect
 import re
-# import random
+from collections import OrderedDict
 from ..basher import BashCommands
+from confs.config import IRODS_ENV
+
 # from ..templating import Templa
 # from . import string_generator, appconfig
-from confs.config import IRODS_ENV
 
 from restapi import get_logger
 logger = get_logger(__name__)
@@ -50,20 +51,19 @@ class ICommands(BashCommands):
         # How to add a new user
         # $ iadmin mkuser guest rodsuser
 
-        ## TO CHECK?
-        self.irodsenv = irodsenv
-
+        # In case i am the admin
         if user is None:
-            # In case i am the admin
+            # Use the physical file for the irods environment
+            self.irodsenv = irodsenv
             self.become_admin()
             self._base_dir = self.get_base_dir()
-            logger.debug("iRODS environment found\n%s" % self._init_data)
+            logger.debug("iRODS admin environment found\n%s" % self._init_data)
+        # A much common use case: a request from another user
         else:
             self.change_user(user)
 
     #######################
     # ABOUT CONFIGURATION
-
     def become_admin(self):
         """
         Try to check if you're on Docker and have variables set
@@ -73,7 +73,6 @@ class ICommands(BashCommands):
         environment variables.
         """
 
-        from collections import OrderedDict
         self._init_data = OrderedDict({
             "irods_host": os.environ['ICAT_1_ENV_IRODS_HOST'],
             "irods_port":
@@ -91,7 +90,8 @@ class ICommands(BashCommands):
 
     def set_password(self, tmpfile='/tmp/temppw'):
         """
-        Interact with iinit to set the password
+        Interact with iinit to set the password.
+        This is the case i am not using certificates.
         """
 
         from plumbum.cmd import iinit
@@ -101,9 +101,6 @@ class ICommands(BashCommands):
         com()
         os.remove(tmpfile)
         logger.debug("Pushed credentials")
-
-    def get_init(self):
-        return self._init_data
 
     def get_user_home(self, user):
         return os.path.join(
@@ -151,23 +148,65 @@ class ICommands(BashCommands):
             # Do not change user, go with the main admin
             user = self._init_data['irods_user_name']
         else:
-            ## OLD
+            #########
+            # # OLD: impersonification because i am an admin
             # Use an environment variable to reach the goal
             # os.environ[IRODS_USER_ALIAS] = user
-            ## NEW
+
+            #########
+            # # NEW: use the certificate
             self.prepare_irods_environment(user)
 
         logger.info("Switched to user '%s'" % user)
 
-        #return self.list(self.get_user_home(user))
+        # If i want to check
+        # return self.list(self.get_user_home(user))
         return True
 
     ###################
-    # ICOMs
+    # Basic command with the GSI plugin
+    def basic_icom(self, com, args=[]):
+        """
+        Use the current environment variables to be another irods user
+        """
+        return self.execute_command(
+            com,
+            parameters=args,
+            env=self._current_environment)
 
+    ###################
+    # ICOMs !!!
     def get_base_dir(self):
         com = "ipwd"
-        return self.execute_command(com).strip()
+        return self.basic_icom(com).strip()
+
+    def list(self, path=None, detailed=False):
+        """ List the files inside an iRODS path/collection """
+
+        # Prepare the command
+        com = "ils"
+        if path is None:
+            path = self.get_base_dir()
+        print("TEST", path)
+        args = [path]
+        if detailed:
+            args.append("-l")
+        # Do it
+        stdout = self.basic_icom(com, args)
+        # Parse output
+        lines = stdout.splitlines()
+        replicas = []
+        for line in lines:
+            replicas.append(re.split("\s+", line.strip()))
+        return replicas
+
+################################################
+################################################
+
+###### WE NEED TO CHECK ALL THIS ICOMMANDS BELOW
+
+################################################
+################################################
 
     def get_resource_from_dataobject(self, ifile):
         """ The attribute of resource from a data object """
@@ -238,29 +277,6 @@ class ICommands(BashCommands):
         (status, stdin, stdout) = self.list(path, False, retcodes)
         logger.debug("Check %s with %s " % (path, status))
         return status == 0
-
-    def list(self, path=None, detailed=False, retcodes=None):
-        """ List the files inside an iRODS path/collection """
-
-        com = "ils"
-        if path is None:
-            path = self.get_base_dir()
-        args = [path]
-        if detailed:
-            args.append("-l")
-        if retcodes is not None:
-            out = self.execute_command_advanced(
-                com, args, retcodes=retcodes)
-            return out
-
-        # Normal command
-        stdout = self.execute_command(
-            com, parameters=args, env=self._current_environment)
-        lines = stdout.splitlines()
-        replicas = []
-        for line in lines:
-            replicas.append(re.split("\s+", line.strip()))
-        return replicas
 
     def search(self, path, like=True):
         com = "ilocate"
