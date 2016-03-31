@@ -133,12 +133,14 @@ def apimethod(func):
             out = func(self, *args, **kwargs)
         except KeyError as e:
             error = str(e).strip("'")
+            logger.critical("Key error: %s" % error)
             if error == "security":
                 return {'message': "FAIL: problems with auth check"}, \
                     hcodes.HTTP_BAD_NOTFOUND
             raise e
         except TypeError as e:
             error = str(e).strip("'")
+            logger.critical("Type error: %s" % error)
             if "required positional argument" in error:
                 return {'message': "FAIL: missing argument"}, \
                     hcodes.HTTP_BAD_REQUEST

@@ -3,12 +3,11 @@
 """ Upload data to APIs """
 
 import os
-# import shutil
+import shutil
 # import subprocess as shell
-from flask import request  # , send_from_directory
+from flask import request, send_from_directory
 from werkzeug import secure_filename
 from ... import htmlcodes as hcodes
-from ..base import ExtendedApiResource
 from ... import get_logger
 from confs.config import UPLOAD_FOLDER, PY2_INTERPRETER
 
@@ -68,7 +67,7 @@ class ZoomEnabling(object):
 
 ######################################
 # Save files http://API/upload
-class Uploader(ExtendedApiResource, ZoomEnabling):
+class Uploader(ZoomEnabling):
 
     ZOOMIFY_ENABLE = False
     allowed_exts = []
@@ -81,36 +80,42 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
             and filename.rsplit('.', 1)[1].lower() in self.allowed_exts
 
     @staticmethod
-    def absolute_upload_file(filename, subfolder):
-        if subfolder:
+    def absolute_upload_file(filename, subfolder=None, onlydir=False):
+        if subfolder is not None:
             filename = os.path.join(subfolder, filename)
             dir = os.path.join(UPLOAD_FOLDER, subfolder)
             if not os.path.exists(dir):
                 os.mkdir(dir)
-        return os.path.join(UPLOAD_FOLDER, filename)  # filename.lower())
+        abs_file = os.path.join(UPLOAD_FOLDER, filename)  # filename.lower())
+        if onlydir:
+            return os.path.dirname(abs_file)
+        return abs_file
 
-    def get(self, filename=None):
+    def download(self, filename=None, subfolder=None, get=False):
 
-        if filename is not None:
-            abs_file = self.absolute_upload_file(filename)
-            logger.info("Provide '%s' " % abs_file)
-            # return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+        if not get:
             return self.response(
-                "File Request! Not implemented yet",
-                code=hcodes.HTTP_OK_NORESPONSE)
+                "No flow chunks for now", code=hcodes.HTTP_OK_ACCEPTED)
 
-        return self.response(
-            "No flow chunks for now", code=hcodes.HTTP_OK_NORESPONSE)
+        if filename is None:
+            return self.response(
+                "No filename specified to download", fail=True)
 
-    def post(self, subfolder=None):
+        path = self.absolute_upload_file(
+            filename, subfolder=subfolder, onlydir=True)
+        logger.info("Provide '%s' from '%s' " % (filename, path))
+
+        return send_from_directory(path, filename)
+
+    def upload(self, subfolder=None):
 
         if 'file' not in request.files:
-            return "No files specified"
+            return self.response("No files specified", fail=True)
 
         myfile = request.files['file']
 
         # ## IN CASE WE WANT TO CHUNK
-        ###parser = reqparse.RequestParser()
+        # ##parser = reqparse.RequestParser()
         # &flowChunkNumber=1
         # &flowChunkSize=1048576&flowCurrentChunkSize=1367129
         # &flowTotalSize=1367129
@@ -122,8 +127,7 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
         # Check file extension?
         if not self.allowed_file(myfile.filename):
             return self.response(
-                "File extension not allowed",
-                fail=True, code=hcodes.HTTP_BAD_REQUEST)
+                "File extension not allowed", fail=True)
 
         # Check file name
         filename = secure_filename(myfile.filename)
@@ -159,8 +163,8 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
                 fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
         ########################
-        # TO FIX:
         # Let the user decide about zoomify inside the JSON configuration
+        # This variable can be modified in the child endpoint
 
         if self.ZOOMIFY_ENABLE:
             if self.process_zoom(abs_file):
@@ -196,7 +200,7 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
                 'meta': {'type': ftype, 'charset': fcharset}
             }, code=hcodes.HTTP_OK_BASIC)
 
-    def delete(self, filename):
+    def remove(self, filename):
         """ Remove the file if requested """
 
         abs_file = self.absolute_upload_file(filename)
@@ -208,13 +212,17 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
                 "File requested does not exists",
                 fail=True, code=hcodes.HTTP_BAD_NOTFOUND)
 
-#TOFIX
+# // TOFIX
+# // THIS MAY NOT WORK AT THE MOMENT
         # Remove zoomified directory
         filebase, fileext = os.path.splitext(abs_file)
-        if os.path.exists(filebase):
-            shutil.rmtree(filebase)
-            logger.warn("Removed dir '%s' " %
-                        filebase +" [extension '"+fileext+"']")
+        if self.ZOOMIFY_ENABLE and os.path.exists(filebase):
+            try:
+                shutil.rmtree(filebase)
+                logger.warn("Removed dir '%s' " %
+                            filebase + " [extension '" + fileext + "']")
+            except Exception as e:
+                logger.critical("Cannot remove zoomified:\n '%s'" % str(e))
 
         # Remove the real file
         try:
