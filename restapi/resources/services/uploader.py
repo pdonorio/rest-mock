@@ -14,6 +14,8 @@ from confs.config import UPLOAD_FOLDER, PY2_INTERPRETER
 
 logger = get_logger(__name__)
 
+# // TO FIX: remove me
+UPLOAD_FOLDER = '/tmp/uploads'
 
 ######################################
 # Create images part for zoomification
@@ -147,6 +149,7 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
         # Save the file
         try:
             myfile.save(abs_file)
+            logger.debug("Absolute file path should be '%s'" % abs_file)
         except Exception:
             return self.response(
                 "Failed to write uploaded file",
