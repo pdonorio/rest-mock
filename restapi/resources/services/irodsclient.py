@@ -2,7 +2,7 @@
 
 """
 
- -    iRODS abstraction for FS virtualization with resources    -
+### iRODS abstraction for FS virtualization with resources ###
 
 My irods client class wrapper.
 
@@ -25,7 +25,7 @@ from restapi import get_logger
 logger = get_logger(__name__)
 
 IRODS_USER_ALIAS = 'clientUserName'
-
+CERTIFICATES_DIR = '/opt/certificates'
 
 # ######################################
 #
@@ -133,6 +133,14 @@ class ICommands(BashCommands):
         irods_env['IRODS_PORT'] = \
             int(os.environ['ICAT_1_PORT'].split(':')[::-1][0])
         irods_env['IRODS_ZONE'] = zone
+        # ## X509 certificates variables
+        # CA Authority
+        irods_env['X509_CERT_DIR'] = CERTIFICATES_DIR + '/caauth'
+        # ## USER PEMs: Private (key) and Public (Cert)
+        irods_env['X509_USER_CERT'] = \
+            CERTIFICATES_DIR + '/' + user + '/usercert.pem'
+        irods_env['X509_USER_KEY'] = \
+            CERTIFICATES_DIR + '/' + user + '/userkey.pem'
 
         self._current_environment = irods_env
         return irods_env
