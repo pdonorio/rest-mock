@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 class ZoomEnabling(object):
 
     _zbin = UPLOAD_FOLDER + '/pyimgs/processor/ZoomifyFileProcessor.py'
-    _images_exts = ['png', 'jpg', 'jpeg', 'tiff']
+    _images_exts = ['png', 'jpg', 'jpeg', 'tiff', 'tif']
 
     def split_dir_and_extension(self, filepath):
         filebase, fileext = os.path.splitext(filepath)
@@ -166,7 +166,7 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
             if self.process_zoom(abs_file):
                 logger.info("Zoomified the image")
             else:
-                #os.unlink(abs_file)     # Remove the file!
+                os.unlink(abs_file)     # Remove the file!
                 return self.response(
                     {"Image operation": "Image pre-scaling for zoom failed"},
                     fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
