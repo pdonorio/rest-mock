@@ -15,20 +15,32 @@ REMOVE_DATA_AT_INIT_TIME = False
 USER = 'user@nomail.org'
 PWD = 'test'
 
+
 #############################
 # Command line arguments
-arg = argparse.ArgumentParser(description='REST API server based on Flask')
-arg.add_argument("--no-security", action="store_false", dest='security',
-                 help='force removal of login authentication on resources')
-arg.add_argument("--debug", action="store_true", dest='debug',
-                 help='enable debugging mode')
-arg.add_argument(
-    "--remove-old", action="store_true", dest='rm',
-    help='force removal of previous new tables')
-arg.set_defaults(security=True, debug=False)
-args = arg.parse_args()
 
-DEBUG = os.environ.get('API_DEBUG', args.debug)
+def my_cli_arguments():
+    arg = argparse.ArgumentParser(description='REST API server based on Flask')
+    arg.add_argument("--no-security", action="store_false", dest='security',
+                     help='force removal of login authentication on resources')
+    arg.add_argument("--debug", action="store_true", dest='debug',
+                     help='enable debugging mode')
+    arg.add_argument(
+        "--remove-old", action="store_true", dest='rm',
+        help='force removal of previous new tables')
+    arg.set_defaults(security=True, debug=False)
+    return arg.parse_args()
+
+args = None
+default_debug = False
+is_gunicorn = "gunicorn" in os.environ.get("SERVER_SOFTWARE", "")
+
+if not is_gunicorn:
+    args = my_cli_arguments()
+    default_debug = args.debug
+
+DEBUG = os.environ.get('API_DEBUG', default_debug)
+#DEBUG = True
 
 ###################################################
 ###################################################

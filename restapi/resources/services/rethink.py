@@ -215,7 +215,7 @@ class RDBquery(RDBdefaults):
     def list_tables(self):
         return list(self.get_query().table_list().run())
 
-    def execute_query(self, query, limit):
+    def execute_query(self, query, limit=0):
         count = 0
         data = {}
 
@@ -321,11 +321,8 @@ class BaseRethinkResource(ExtendedApiResource, RDBquery):
         Filter with predefined queries.
         """
 
-        # Check arguments
-        limit = self._args['perpage']
-# // TO FIX: use it!
-        current_page = self._args['currentpage']
-
+# TO FIX: use CURRENTPAGE
+        current_page, limit = self.get_paging()
         return self.get_content(data_key, limit)
 
     def check_valid(self, json_data):
@@ -360,13 +357,13 @@ class BaseRethinkResource(ExtendedApiResource, RDBquery):
         return myid
         #####################
 
-    def put(self, id, index='id'):
+    def put(self, id, index='id', validation=False):
 
         json_data = self.get_input()
         if 'id' in json_data:
             json_data.pop('id')
 
-        if not self.check_valid(json_data):
+        if validation and not self.check_valid(json_data):
             logger.warning("Not a valid template")
             return self.template, hcodes.HTTP_BAD_REQUEST
 
@@ -383,5 +380,6 @@ class BaseRethinkResource(ExtendedApiResource, RDBquery):
         if out['deleted']:
             logger.debug("Removed record '%s'" % id)
         else:
+            logger.critical("Failed '%s'" % out)
             return id, hcodes.HTTP_SERVICE_UNAVAILABLE
         return True

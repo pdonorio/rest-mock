@@ -3,12 +3,17 @@
 """ Basic Resource """
 
 from .. import htmlcodes as hcodes
-from confs.config import STACKTRACE
+# from confs.config import STACKTRACE
+from ..jsonify import output_json  # , RESTError
+from flask.ext.restful import request, Resource, reqparse, fields  # , abort
 from .. import get_logger
-from ..jsonify import output_json, RESTError
-from flask.ext.restful import Resource, reqparse, fields, abort, request
 
 logger = get_logger(__name__)
+
+CURRENTPAGE_KEY = 'currentpage'
+DEFAULT_CURRENTPAGE = 1
+PERPAGE_KEY = 'perpage'
+DEFAULT_PERPAGE = 10
 
 
 # Extending the concept of rest generic resource
@@ -69,12 +74,25 @@ class ExtendedApiResource(Resource):
         """ Get JSON. The power of having a real object in our hand. """
         return request.get_json(force=forcing)
 
+    def myname(self):
+        return self.__class__.__name__
+
     def add_parameter(self, name, mytype=str, default=None, required=False):
         """ Save a parameter inside the class """
-        self._params[name] = [mytype, default, required]
+        # Class name as a key
+        key = self.myname()
+        if key not in self._params:
+            self._params[key] = {}
+        # Avoid if already exists?
+        if name not in self._params[key]:
+            self._params[key][name] = [mytype, default, required]
 
     def apply_parameters(self):
         """ Use parameters received via decoration """
+
+        key = self.myname()
+        if key not in self._params:
+            return False
 
         ##############################
         # Basic options
@@ -84,11 +102,13 @@ class ExtendedApiResource(Resource):
         loc = ['headers', 'values']  # multiple locations
         trim = True
 
-        self._params['perpage'] = (int, 10, False)
-        self._params['currentpage'] = (int, 1, False)
+# // TO FIX?
+        self._params[key][PERPAGE_KEY] = (int, DEFAULT_PERPAGE, False)
+        self._params[key][CURRENTPAGE_KEY] = (int, DEFAULT_CURRENTPAGE, False)
 
-        for param, (param_type, param_default, param_required) \
-          in self._params.items():
+        for param, \
+            (param_type, param_default, param_required) in \
+                self._params[key].items():
 
             # Decide what is left for this parameter
             if param_type is None:
@@ -104,15 +124,18 @@ class ExtendedApiResource(Resource):
                 param, type=param_type,
                 default=param_default, required=param_required,
                 trim=trim, action=act, location=loc)
-            logger.debug("Accept param '%s', type %s" % (param, param_type))
+            logger.info("Accept param '%s', type %s" % (param, param_type))
+
+        return True
 
     def set_method_id(self, name='myid', idtype='string'):
         """ How to have api/method/:id route possible"""
         self.endtype = idtype + ':' + name
 
-    def get_input(self):
-        """ Get JSON. The power of having a real object in our hand. """
-        return request.get_json(force=True)
+    def get_paging(self):
+        limit = self._args.get(PERPAGE_KEY, DEFAULT_PERPAGE)
+        current_page = self._args.get(CURRENTPAGE_KEY, DEFAULT_CURRENTPAGE)
+        return (current_page, limit)
 
     def response(self, obj=None,
                  elements=0, data_type='dict',
@@ -124,6 +147,20 @@ class ExtendedApiResource(Resource):
             response = obj
         # Compute the elements
         else:
+
+            #######################
+            # Case of failure
+            if code > hcodes.HTTP_OK_NORESPONSE:
+                fail = True
+
+            if fail:
+                if not isinstance(obj, list):
+                    if not isinstance(obj, dict):
+                        obj = {'Generic error': obj}
+                    obj = [obj]
+                obj = {'errors': obj}
+                if code < hcodes.HTTP_BAD_REQUEST:
+                    code = hcodes.HTTP_BAD_REQUEST
 
             data_type = str(type(obj))
             if elements < 1:
@@ -150,16 +187,5 @@ class ExtendedApiResource(Resource):
         #         # Normal abort
         #         abort(code, **response)
         # ## But it's probably a better idea to do it inside the decorators
-
-        if code > hcodes.HTTP_OK_NORESPONSE:
-            fail = True
-
-        # Announced failure
-        if fail:
-            if not isinstance(obj, list):
-                obj = [obj]
-            obj = {'errors': obj}
-            if code < hcodes.HTTP_BAD_REQUEST:
-                code = hcodes.HTTP_BAD_REQUEST
 
         return response, code

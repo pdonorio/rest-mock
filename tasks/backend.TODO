@@ -28,7 +28,8 @@ BUGS:
 ✔ adding id argument in more than one rest class  @done (16-02-01 15:00)
 ✔ wait for rethinkdb connection at startup if container link exists @done (16-02-09 11:08)
 ✔ returning template not working @done (16-03-04 15:36)
-  ☐ check the decorator to avoid marshal if htmlcode is higher than 250?
+  ✔ check the decorator to avoid marshal if htmlcode is higher than 250? @done (16-03-25 12:28)
+✔ fix decorator for parameters? @done (16-03-25 15:29)
 ☐ Rethinkdb or other db connection before request...?
   ☐ Limit a before request to a certain endpoint, not to all??
   ☐ take off 'server.py'

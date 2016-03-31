@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 class ZoomEnabling(object):
 
     _zbin = UPLOAD_FOLDER + '/pyimgs/processor/ZoomifyFileProcessor.py'
-    _images_exts = ['png', 'jpg', 'jpeg', 'tiff']
+    _images_exts = ['png', 'jpg', 'jpeg', 'tiff', 'tif']
 
     def split_dir_and_extension(self, filepath):
         filebase, fileext = os.path.splitext(filepath)
@@ -130,8 +130,14 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
         abs_file = self.absolute_upload_file(filename, subfolder)
         logger.info("File request for [%s](%s)" % (myfile, abs_file))
 
+        # ## IMPORTANT note:
+        # If you are going to receive chunks here there could be problems.
+        # In fact a chunk will truncate the connection
+        # and make a second request.
+        # You will end up with having already the file
+        # But corrupted...
         if os.path.exists(abs_file):
-            # os.remove(abs_file) # ??
+            # os.remove(abs_file)  # an option to force removal?
             logger.warn("Already exists")
             return self.response(
                 "File '" + filename + "' already exists. Please " +
@@ -143,13 +149,13 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
             myfile.save(abs_file)
         except Exception:
             return self.response(
-                "Failed to save file",
+                "Failed to write uploaded file",
                 fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
         # Check exists
         if not os.path.exists(abs_file):
             return self.response(
-                "Server error: failed to save the uploaded file",
+                {"Server file system": "Unable to recover the uploaded file"},
                 fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
         ########################
@@ -162,10 +168,10 @@ class Uploader(ExtendedApiResource, ZoomEnabling):
             else:
                 os.unlink(abs_file)     # Remove the file!
                 return self.response(
-                    "Failed to zoomify as requested",
+                    {"Image operation": "Image pre-scaling for zoom failed"},
                     fail=True, code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
 
-        # Extra info
+        # Extra info
         ftype = None
         fcharset = None
         try:

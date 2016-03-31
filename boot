@@ -1,7 +1,11 @@
 #!/bin/bash
 
+########################################
 main_command="./run.py"
+gworkers="2"
+gserver="gunicorn -w $gworkers --bind 0.0.0.0:5000 run:app"
 
+########################################
 # Init variables
 if [ "$1" == "devel" ]; then
     APP_MODE='development'
@@ -15,8 +19,8 @@ if [ "$APP_MODE" == "debug" ]; then
     sleep infinity
 elif [ "$APP_MODE" == "production" ]; then
     echo "Production !"
-## GUNICORN?
-    $main_command
+    # GUNICORN
+    $gserver
 else
     echo "Development"
     # API_DEBUG="true" $main_command
