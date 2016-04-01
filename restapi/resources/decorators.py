@@ -138,6 +138,7 @@ def apimethod(func):
                     hcodes.HTTP_BAD_NOTFOUND
             raise e
         except TypeError as e:
+            logger.warning(e)
             error = str(e).strip("'")
             if "required positional argument" in error:
                 return {'message': "FAIL: missing argument"}, \

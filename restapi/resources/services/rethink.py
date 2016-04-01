@@ -11,7 +11,6 @@ import commentjson as json
 from rethinkdb import r, RqlDriverError
 
 from flask import g  # , url_for, redirect
-from flask.ext.restful import request  # , fields, marshal
 from .connections import Connection
 from ..base import ExtendedApiResource
 from ... import htmlcodes as hcodes
