@@ -14,8 +14,6 @@ from confs.config import UPLOAD_FOLDER, PY2_INTERPRETER
 
 logger = get_logger(__name__)
 
-# // TO FIX: remove me
-UPLOAD_FOLDER = '/tmp/uploads'
 
 ######################################
 # Create images part for zoomification

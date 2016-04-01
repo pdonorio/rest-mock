@@ -27,6 +27,7 @@ logger = get_logger(__name__)
 IRODS_USER_ALIAS = 'clientUserName'
 CERTIFICATES_DIR = '/opt/certificates'
 
+
 # ######################################
 #
 # # Basic iRODS client commands
@@ -208,6 +209,14 @@ class ICommands(BashCommands):
             replicas.append(re.split("\s+", line.strip()))
         return replicas
 
+    def save(self, path, destination=None):
+        com = 'iput'
+        args = [path]
+        if destination is not None:
+            args.append(destination)
+        # Execute
+        return self.basic_icom(com, args)
+
 ################################################
 ################################################
 
@@ -269,14 +278,6 @@ class ICommands(BashCommands):
         self.execute_command(com, args)
         # Debug
         logger.debug("Removed irods object: %s" % path)
-
-    def save(self, path, destination=None):
-        com = 'iput'
-        args = [path]
-        if destination is not None:
-            args.append(destination)
-        # Execute
-        self.execute_command(com, args)
 
     def check(self, path, retcodes=(0, 4)):
         """
