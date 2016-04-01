@@ -141,7 +141,6 @@ class ExtendedApiResource(Resource):
                  elements=0, data_type='dict',
                  fail=False, code=hcodes.HTTP_OK_BASIC):
         """ Handle a standard response following some criteria """
-
         # Do not apply if the object has already been used
         # as a 'standard response' from a parent call
         if 'data_type' in obj and 'status' in obj:

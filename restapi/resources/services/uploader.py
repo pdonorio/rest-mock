@@ -151,6 +151,7 @@ class Uploader(ZoomEnabling):
         # Save the file
         try:
             myfile.save(abs_file)
+            logger.debug("Absolute file path should be '%s'" % abs_file)
         except Exception:
             return self.response(
                 "Failed to write uploaded file",

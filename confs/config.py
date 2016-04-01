@@ -65,6 +65,7 @@ ROLE_USER = 'justauser'
 # I am inside the conf dir.
 # The base dir is one level up from here
 BASE_DIR = re.sub(__package__, '', os.path.abspath(os.path.dirname(__file__)))
+USER_HOME = os.environ['HOME']
 
 ###################
 # Uploads
@@ -110,3 +111,10 @@ SECURITY_SEND_REGISTER_EMAIL = False
 # ENDPOINTS
 ALL_API_URL = '/api'
 SECURITY_URL_PREFIX = ALL_API_URL
+
+# IRODS 4
+IRODS_HOME = os.path.join(USER_HOME, ".irods")
+if not os.path.exists(IRODS_HOME):
+    os.mkdir(IRODS_HOME)
+IRODS_ENV = os.path.join(IRODS_HOME, "irods_environment.json")
+# IRODS_ENV = USER_HOME + "/.irods/.irodsEnv"
