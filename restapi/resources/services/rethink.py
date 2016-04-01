@@ -10,7 +10,7 @@ import commentjson as json
 # This Rethinkdb reference is already connected at app init
 from rethinkdb import r, RqlDriverError
 
-from flask import g  # , url_for, redirect
+from flask import g, request  # , url_for, redirect
 from .connections import Connection
 from ..base import ExtendedApiResource
 from ... import htmlcodes as hcodes
