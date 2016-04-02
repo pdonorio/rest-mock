@@ -68,6 +68,7 @@ class ZoomEnabling(object):
 ######################################
 # Save files http://API/upload
 class Uploader(ZoomEnabling):
+#class Uploader(ZoomEnabling, EXTENDEDAPI!):
 
     ZOOMIFY_ENABLE = False
     allowed_exts = []
@@ -201,10 +202,10 @@ class Uploader(ZoomEnabling):
                 'meta': {'type': ftype, 'charset': fcharset}
             }, code=hcodes.HTTP_OK_BASIC)
 
-    def remove(self, filename):
+    def remove(self, filename, subfolder=None):
         """ Remove the file if requested """
 
-        abs_file = self.absolute_upload_file(filename)
+        abs_file = self.absolute_upload_file(filename, subfolder)
 
         # Check file existence
         if not os.path.exists(abs_file):
@@ -213,8 +214,6 @@ class Uploader(ZoomEnabling):
                 "File requested does not exists",
                 fail=True, code=hcodes.HTTP_BAD_NOTFOUND)
 
-# // TOFIX
-# // THIS MAY NOT WORK AT THE MOMENT
         # Remove zoomified directory
         filebase, fileext = os.path.splitext(abs_file)
         if self.ZOOMIFY_ENABLE and os.path.exists(filebase):
@@ -229,10 +228,11 @@ class Uploader(ZoomEnabling):
         try:
             os.remove(abs_file)
         except Exception:
+            logger.critical("Cannot remove local file %s" % abs_file)
             return self.response(
-                "Failed to save file",
+                "Failed to remove file",
                 code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
         logger.warn("Removed '%s' " % abs_file)
 
         return self.response(
-            "Deleted", code=hcodes.HTTP_OK_NORESPONSE)
+            "Deleted", code=hcodes.HTTP_OK_BASIC)
