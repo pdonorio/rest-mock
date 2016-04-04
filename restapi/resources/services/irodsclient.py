@@ -82,6 +82,12 @@ class ICommands(BashCommands):
             "irods_zone_name": os.environ['IRODS_ZONE'],
             # "irods_password": os.environ['ICAT_1_ENV_IRODS_PASS']
         })
+
+        # Set external auth scheme if requested
+        val = os.environ.get('IRODS_AUTHSCHEME', None)
+        if val is not None:
+            self._init_data["irods_authentication_scheme"] = val
+
         with open(self.irodsenv, 'w') as fw:
             import json
             json.dump(self._init_data, fw)
