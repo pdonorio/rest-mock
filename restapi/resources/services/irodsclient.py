@@ -64,7 +64,7 @@ class ICommands(BashCommands):
 
     #######################
     # ABOUT CONFIGURATION
-    def become_admin(self, authscheme='credentials'):
+    def become_admin(self):
         """
         Try to check if you're on Docker and have variables set
         to become iRODS administrator.
@@ -74,6 +74,9 @@ class ICommands(BashCommands):
 
         Possible schemes: 'credentials', 'GSI', 'PAM'
         """
+        authscheme = os.environ.get('IRODS_AUTHSCHEME', None)
+        if authscheme is None:
+            authscheme = 'credentials'
 
         user = os.environ.get('IRODS_USER', None)
         if user is None:
@@ -92,6 +95,10 @@ class ICommands(BashCommands):
                 "irods_zone_name": os.environ['IRODS_ZONE'],
                 # "irods_password": os.environ['ICAT_1_ENV_IRODS_PASS']
             })
+
+            # Set external auth scheme if requested
+            if authscheme is not None:
+                self._init_data["irods_authentication_scheme"] = authscheme
 
             with open(self.irodsenv, 'w') as fw:
                 import json
