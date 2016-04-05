@@ -58,36 +58,51 @@ class ICommands(BashCommands):
             self.irodsenv = irodsenv
             self.become_admin()
             self._base_dir = self.get_base_dir()
-            logger.debug("iRODS admin environment found\n%s" % self._init_data)
         # A much common use case: a request from another user
         else:
             self.change_user(user)
 
     #######################
     # ABOUT CONFIGURATION
-    def become_admin(self):
+    def become_admin(self, authscheme='credentials'):
         """
         Try to check if you're on Docker and have variables set
         to become iRODS administrator.
 
         It can also be used without docker by setting the same
         environment variables.
+
+        Possible schemes: 'credentials', 'GSI', 'PAM'
         """
 
-        self._init_data = OrderedDict({
-            "irods_host": os.environ['ICAT_1_ENV_IRODS_HOST'],
-            "irods_port":
-                int(os.environ['ICAT_1_PORT'].split(':')[::-1][0]),
-            "irods_user_name": os.environ['IRODS_USER'],
-            "irods_zone_name": os.environ['IRODS_ZONE'],
-            # "irods_password": os.environ['ICAT_1_ENV_IRODS_PASS']
-        })
-        with open(self.irodsenv, 'w') as fw:
-            import json
-            json.dump(self._init_data, fw)
+        user = os.environ.get('IRODS_USER', None)
+        if user is None:
+            raise BaseException(
+                "Cannot become admin without env var 'IRODS_USER' set!")
 
-        self.set_password()
-        logger.info("Saved irods admin credentials")
+        if authscheme == 'credentials' or authscheme == 'PAM':
+
+# // TO FIX: use the method prepare_irods_environment...
+
+            self._init_data = OrderedDict({
+                "irods_host": os.environ['ICAT_1_ENV_IRODS_HOST'],
+                "irods_port":
+                    int(os.environ['ICAT_1_PORT'].split(':')[::-1][0]),
+                "irods_user_name": user,
+                "irods_zone_name": os.environ['IRODS_ZONE'],
+                # "irods_password": os.environ['ICAT_1_ENV_IRODS_PASS']
+            })
+
+            with open(self.irodsenv, 'w') as fw:
+                import json
+                json.dump(self._init_data, fw)
+
+            self.set_password()
+            logger.info("Saved irods admin credentials")
+            logger.debug("iRODS admin environment found\n%s" % self._init_data)
+
+        elif authscheme == 'GSI':
+            self.prepare_irods_environment(user, authscheme)
 
     def set_password(self, tmpfile='/tmp/temppw'):
         """
@@ -95,9 +110,14 @@ class ICommands(BashCommands):
         This is the case i am not using certificates.
         """
 
+        passw = os.environ.get('ICAT_1_ENV_IRODS_PASS', None)
+        if passw is None:
+            raise BaseException(
+                "Missing password: Use env var 'ICAT_1_ENV_IRODS_PASS'")
+
         from plumbum.cmd import iinit
         with open(tmpfile, 'w') as fw:
-            fw.write(os.environ['ICAT_1_ENV_IRODS_PASS'])
+            fw.write(passw)
         com = iinit < tmpfile
         com()
         os.remove(tmpfile)
@@ -109,7 +129,7 @@ class ICommands(BashCommands):
             'home',
             user)
 
-    def prepare_irods_environment(self, user, schema='gsi'):
+    def prepare_irods_environment(self, user, schema='GSI'):
         """
         Prepare the OS variables environment
         which allows to become another user using the GSI protocol.
@@ -120,28 +140,37 @@ class ICommands(BashCommands):
 
         irods_env = os.environ.copy()
 
-# @Mattia
-# Do not run iRODS server container
-# to avoid the existence of this env variables
-# and/or set them as you want
-
-        zone = os.environ['IRODS_ZONE']
+        zone = os.environ.get('IRODS_ZONE', None)
+        if zone is None:
+            raise BaseException(
+                "Missing zone: Use env var 'IRODS_ZONE'")
+        home = os.environ.get('IRODS_CUSTOM_HOME', '/home')
 
         irods_env['IRODS_USER_NAME'] = user
-        irods_env['IRODS_HOME'] = '/' + zone + '/home/' + user
+        irods_env['IRODS_HOME'] = '/' + zone + home + '/' + user
         irods_env['IRODS_AUTHENTICATION_SCHEME'] = schema
         irods_env['IRODS_HOST'] = os.environ['ICAT_1_ENV_IRODS_HOST']
         irods_env['IRODS_PORT'] = \
             int(os.environ['ICAT_1_PORT'].split(':')[::-1][0])
         irods_env['IRODS_ZONE'] = zone
-        # ## X509 certificates variables
-        # CA Authority
-        irods_env['X509_CERT_DIR'] = CERTIFICATES_DIR + '/caauth'
-        # ## USER PEMs: Private (key) and Public (Cert)
-        irods_env['X509_USER_CERT'] = \
-            CERTIFICATES_DIR + '/' + user + '/usercert.pem'
-        irods_env['X509_USER_KEY'] = \
-            CERTIFICATES_DIR + '/' + user + '/userkey.pem'
+
+        if schema == 'GSI':
+            # ## X509 certificates variables
+            # CA Authority
+            irods_env['X509_CERT_DIR'] = CERTIFICATES_DIR + '/caauth'
+            # ## USER PEMs: Private (key) and Public (Cert)
+            irods_env['X509_USER_CERT'] = \
+                CERTIFICATES_DIR + '/' + user + '/usercert.pem'
+            irods_env['X509_USER_KEY'] = \
+                CERTIFICATES_DIR + '/' + user + '/userkey.pem'
+
+            # PROXY ?
+
+        if schema == 'PAM':
+            # irodsSSLCACertificateFile PATH/TO/chain.pem
+            # irodsSSLVerifyServer      cert
+            logger.critical("PAM not IMPLEMENTED yet")
+            return False
 
         self._current_environment = irods_env
         return irods_env
