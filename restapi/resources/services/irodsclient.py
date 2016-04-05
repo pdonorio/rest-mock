@@ -99,7 +99,7 @@ class ICommands(BashCommands):
             })
 
             # Set external auth scheme if requested
-            if authscheme is not None:
+            if authscheme is not 'credentials':
                 self._init_data["irods_authentication_scheme"] = authscheme
 
             with open(self.irodsenv, 'w') as fw:
