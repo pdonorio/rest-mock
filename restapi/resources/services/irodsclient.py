@@ -57,7 +57,9 @@ class ICommands(BashCommands):
             # Use the physical file for the irods environment
             self.irodsenv = irodsenv
             self.become_admin()
-            self._base_dir = self.get_base_dir()
+            # Verify if connected
+# // TO FIX: change it to ilsresc
+            self.list()
         # A much common use case: a request from another user
         else:
             self.change_user(user)
@@ -173,6 +175,11 @@ class ICommands(BashCommands):
 
             # PROXY ?
 
+        # # DEBUG
+        # for key, item in irods_env.items():
+        #     if 'irods' == key[0:5].lower() or 'x509_' == key[0:5].lower():
+        #         print("ITEM", key, item)
+
         if schema == 'PAM':
             # irodsSSLCACertificateFile PATH/TO/chain.pem
             # irodsSSLVerifyServer      cert
@@ -232,7 +239,6 @@ class ICommands(BashCommands):
         com = "ils"
         if path is None:
             path = self.get_base_dir()
-        print("TEST", path)
         args = [path]
         if detailed:
             args.append("-l")
