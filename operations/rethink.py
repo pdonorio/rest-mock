@@ -31,8 +31,8 @@ logger.setLevel(logging.DEBUG)
 ES_HOST = {"host": "el", "port": 9200}
 EL_INDEX = "autocomplete"
 STEPS = {}
-TESTING = False
-# TESTING = True
+# TESTING = False
+TESTING = True
 
 # Tables
 t1 = "stepstemplate"
@@ -328,6 +328,32 @@ def convert_submission():
 
 def test_query():
     """ test queries on rdb """
+
+    document = '5fc8d3f4-59ee-43ca-9543-6241bb820882'
+
+    extra = {
+        'data': [
+            {'value': 'Test', 'name': 'Personnages', 'position': 1, 'hash': '035ca5c7'},
+            {'value': 'From paolo', 'name': 'Artistes', 'position': 2, 'hash': '01b1020a'}
+        ],
+        'latest_db_info':
+            {'timestamp': 1458124102.565326, 'user_id': '1a33400a', 'ip': '109.89.122.137'},
+        'step': 4
+    }
+
+    q = query.get_table_query(t2in)
+    cursor = q.get(document).run()
+    cursor['steps'].append(extra)
+    print(cursor, type(cursor))
+
+    changes = q.get(document).replace(cursor).run()
+    #     .update(lambda row: row['steps'].append(extra))
+    print(changes)
+    # print(cursor.run())
+    # print(list(cursor.run()))
+    print("DEBUG"); exit(1)
+
+    ##################################
 
     q = query.get_table_query(t4in)
     cursor = q \
