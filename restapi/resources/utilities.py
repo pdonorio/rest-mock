@@ -2,6 +2,8 @@
 
 """ Common utilities """
 
+WORD_MIN_LENGTH = 4
+
 
 def split_and_html_strip(string):
     """ Compute words from transcriptions """
@@ -11,6 +13,8 @@ def split_and_html_strip(string):
     skip = False
     word = ""
     for char in string:
+
+        # HTML tags/attributes: skip
         if char == START:
             skip = True
             continue
@@ -19,13 +23,16 @@ def split_and_html_strip(string):
             continue
         if skip:
             continue
+
+        # Real words (without symbols and numbers)
         if char.isalpha():
             word += char
-        elif word != "" and len(word) > 3:
+        elif word != "" and len(word) >= WORD_MIN_LENGTH:
             words.append(word)  # word.lower())
             word = ""
 
-    if not skip:
+    # Do not skip last word
+    if not skip and len(word) >= WORD_MIN_LENGTH:
         words.append(word)
 
     return set(words)
