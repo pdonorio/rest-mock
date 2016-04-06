@@ -21,10 +21,16 @@ logger = get_logger(__name__)
 # ####################################
 # Allow cross-domain requests
 # e.g. for JS and Upload
+
 cors = CORS(
-    headers=['Content-Type'],
-    methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'])
-logger.debug("Flask: creating CORS")
+    # resources={r"/api/*": {"origins": "*"}},
+    headers=['Content-Type', 'Authorization'],
+    methods=['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],  # , 'OPTIONS'],
+    )
+
+# You may want to read more:
+# http://stackoverflow.com/q/26980713/2114395
+logger.warning("Creating CORS")
 
 # # WARNING: in case 'cors' write too much, you could fix it like this
 # import logging

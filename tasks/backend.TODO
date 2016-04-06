@@ -96,6 +96,7 @@ r.db('test').table('taskQueue').get("eb533cd0-fef1-48bf-9fb8-b66261c9171b").upda
  http://www.wiredmonk.me/customizing-flask-restful.html
  ☐ Restful interesting
    ☐ cors decorator
+   http://flask.pocoo.org/snippets/56/
    ☐ crypto
    ☐ paging
 ✔ Configuration @done (15-11-24 12:00)
