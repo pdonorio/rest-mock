@@ -15,6 +15,7 @@ from __future__ import absolute_import
 import os
 import glob
 from restapi.resources.services.rethink import RethinkConnection, RDBquery
+from restapi.resources.utilities import split_and_html_strip
 from restapi.resources.custom.docs import image_destination
 from restapi import get_logger
 from rethinkdb import r
@@ -126,31 +127,6 @@ def convert_pending_images():
     #     os.unlink(image)
     #     logger.debug("Removed unused image '%s'" % image)
     # REMOVE
-
-
-def split_and_html_strip(string):
-    """ Compute words from transcriptions """
-    words = []
-    START = '<'
-    END = '>'
-    skip = False
-    word = ""
-    for char in string:
-        if char == START:
-            skip = True
-            continue
-        elif char == END:
-            skip = False
-            continue
-        if skip:
-            continue
-        if char.isalpha():
-            word += char
-        elif word != "" and len(word) > 3:
-            words.append(word)  # word.lower())
-            word = ""
-
-    return set(words)
 
 
 def convert_docs():
