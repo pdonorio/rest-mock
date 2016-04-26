@@ -336,21 +336,28 @@ def test_query():
     index = "title"
     search = "Limoges_33"
 
+    # test = q.concat_map(
+    #     lambda doc: doc['steps'].concat_map(
+    #         lambda step: step['data']['value'])) \
+    #     .run()
+    # print("TEST", test)
+    # exit(1)
+
     if index in q.index_list().run():
         print("Dropping")
         q.index_drop(index).run()
     print("Creating")
-    q.index_create(index, lambda doc: doc['steps'].map(
-        lambda step: step['data'].map(lambda data: data['value'])),
+    q.index_create(index, lambda doc: doc['steps'].concat_map(
+        lambda step: step['data']['value']),
         multi=True) \
         .run()
     print("Waiting")
     q.index_wait(index).run()
     print("Done")
 
-    # print("Status", q.index_status().run())
+    print("Status", q.index_status().run())
     cursor = q.get_all(search, index=index).run()
-    print("TEST", list(cursor))
+    print("Test key:\n", list(cursor))
     exit(1)
 
     ###################################################
