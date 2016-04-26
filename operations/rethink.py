@@ -329,8 +329,32 @@ def convert_submission():
 def test_query():
     """ test queries on rdb """
 
-    document = '5fc8d3f4-59ee-43ca-9543-6241bb820882'
+    ###################################################
+    # Try optimization with seconday index
+    q = query.get_table_query(t2in)
 
+    index = "title"
+    search = "Limoges_33"
+
+    if index in q.index_list().run():
+        print("Dropping")
+        q.index_drop(index).run()
+    print("Creating")
+    q.index_create(index, lambda doc: doc['steps'].map(
+        lambda step: step['data'].map(lambda data: data['value'])),
+        multi=True) \
+        .run()
+    print("Waiting")
+    q.index_wait(index).run()
+    print("Done")
+
+    # print("Status", q.index_status().run())
+    cursor = q.get_all(search, index=index).run()
+    print("TEST", list(cursor))
+    exit(1)
+
+    ###################################################
+    document = '5fc8d3f4-59ee-43ca-9543-6241bb820882'
     extra = {
         'data': [
             {'value': 'Test', 'name': 'Personnages', 'position': 1, 'hash': '035ca5c7'},
