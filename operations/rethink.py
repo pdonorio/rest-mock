@@ -331,7 +331,37 @@ def test_query():
 
     ###################################################
     # Try optimization with seconday index
+
+    # q = query.get_table_query(t3in)
+    # cursor = q \
+    #     .concat_map(lambda obj: obj['images']['transcriptions_split']) \
+    #     .limit(2) \
+    #     .run()
+
+    # print("TEST", list(cursor))
+    # exit(1)
+
     q = query.get_table_query(t2in)
+
+    cursor = q \
+        .concat_map(lambda obj: obj['steps']
+            .concat_map(lambda steps: steps['data']
+                .filter(lambda row:
+                    (row['position'] == 1)
+                    & (r.expr(["", None]).contains(row['value']).not_())
+                )
+                .map(lambda data:
+                    {
+                        'step': steps['step'],
+                        'position': data['position'],
+                        'value': data['value'],
+                    }))
+            .without('position')
+            .filter(lambda row: row['value'].match('(?i)^c')) \
+        ) \
+        .limit(7).run()
+    print("TEST", list(cursor))
+    exit(1)
 
     index = "title"
     search = "Limoges_33"
