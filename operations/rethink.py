@@ -383,7 +383,8 @@ def test_query():
     q.index_create(index,
         lambda doc: doc['steps'].concat_map(
         lambda step: step['data']['value']),
-        multi=True) \
+        multi=True
+        ) \
         .run()
     print("Waiting")
     q.index_wait(index).run()

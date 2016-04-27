@@ -197,6 +197,7 @@ class RDBquery(RDBdefaults):
     schema = None
     template = None
     table_index = 'id'
+    sort_index = None
 
     def get_query(self):
         return r.db(self.db)
@@ -236,9 +237,11 @@ class RDBquery(RDBdefaults):
         if self.table_index is not None:
             index = self.table_index
 
-        # If need one element
+        # If i need only one element
         if myid is not None:
             query = query.get_all(myid, index=index)
+        # elif self.sort_index is not None:
+        #     query = query.order_by(index=self.sort_index)
 
         # Process
         return self.execute_query(query, limit)
