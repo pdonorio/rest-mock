@@ -332,6 +332,7 @@ def test_query():
     ###################################################
     # Try optimization with seconday index
 
+"""
     # q = query.get_table_query(t3in)
     # cursor = q \
     #     .concat_map(lambda obj: obj['images']['transcriptions_split']) \
@@ -362,6 +363,7 @@ def test_query():
         .limit(7).run()
     print("TEST", list(cursor))
     exit(1)
+"""
 
     index = "title"
     search = "Limoges_33"
