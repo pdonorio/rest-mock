@@ -31,4 +31,5 @@ class FastSearch(object):
             return self._api.get(**args)
         else:
             out = self._api.search(**args)
-            return out['hits']['hits']
+            # print(out)
+            return out['hits']['hits'], out['hits']['total']
