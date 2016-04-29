@@ -56,6 +56,7 @@ def make():
     # print(es.info())
 
     # MAIN CYCLE on single document
+    count = 0
     for doc in cursor:
         # print(doc)
         record = doc['record']
@@ -68,7 +69,11 @@ def make():
             for element in step['data']:
                 if element['position'] == 1:
                     value = element['value']
-                    break
+                    # break
+                elif step['step'] == 3 and element['position'] == 4:
+                    elobj['date'] = element['value']
+                elif step['step'] == 3 and element['position'] == 5:
+                    elobj['place'] = element['value']
 
             if step['step'] == 1:
                 key = 'extrait'
@@ -82,6 +87,8 @@ def make():
         # print("object", record, elobj)
 
         es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
+        print("Index count", count)
+        count += 1
 
 # NORMAL UPDATE
 
