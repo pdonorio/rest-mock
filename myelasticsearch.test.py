@@ -40,3 +40,8 @@ es.search(index=index)
 
 # Limit output
 es.search(index=index, size=1)
+
+# More tests
+from elasticsearch import Elasticsearch
+es = Elasticsearch(host='el')
+es.search(index='autocomplete', body={'query': {"match": {"_all": {"query": "agen _1"}}}}, sort=["extrait:asc"])

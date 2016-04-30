@@ -5,6 +5,7 @@ from __future__ import absolute_import
 from restapi.resources.services.rethink import RethinkConnection, RDBquery
 # from restapi.resources.custom.docs import image_destination
 # from rethinkdb import r
+from restapi.resources.services.elastic import BASE_SETTINGS
 from elasticsearch import Elasticsearch
 
 from restapi import get_logger
@@ -17,6 +18,45 @@ EL_INDEX1 = "autocomplete"
 EL_TYPE1 = 'data'
 RDB_TABLE1 = "datavalues"
 RDB_TABLE2 = "datadocs"
+
+fields = ['extrait', 'source', 'fete', 'transcription', 'date', 'place']
+
+INDEX_BODY = {
+    'settings': BASE_SETTINGS,
+    'mappings': {
+        EL_INDEX1: {
+            '_all': {
+                "analyzer": "nGram_analyzer",
+                "search_analyzer": "whitespace_analyzer"
+            },
+            # index specifications
+            'properties': {
+                "extrait": {
+                    "type": "string",
+                    # "index": "not_analyzed"
+                },
+                "source": {"type": "string"},
+                "fete": {"type": "string"},
+                "transcription": {"type": "string"},
+                "thumbnail": {
+                    "type": "string",
+                    "index": "no",
+                    "include_in_all": False
+                },
+                "date": {
+                    "type": "string",
+                    "index": "no",
+                    "include_in_all": False
+                },
+                "place": {
+                    "type": "string",
+                    "index": "no",
+                    "include_in_all": False
+                },
+            }
+        }
+    }
+}
 
 # Connection
 RethinkConnection()
@@ -50,7 +90,7 @@ def make():
 
     if es.indices.exists(index=EL_INDEX1):
         es.indices.delete(index=EL_INDEX1)
-    es.indices.create(index=EL_INDEX1)
+    es.indices.create(index=EL_INDEX1, body=INDEX_BODY)
 
     # print(es.indices.stats(index=EL_INDEX1))
     # print(es.info())
