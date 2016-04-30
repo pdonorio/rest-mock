@@ -21,21 +21,7 @@ RDB_TABLE2 = "datadocs"
 
 fields = ['extrait', 'source', 'fete', 'transcription', 'date', 'place']
 
-SUGGEST_MAPPINGS = {
-    'properties': {
-        "label": {
-            "type": "string",
-            "index": "not_analyzed"
-        },
-        "key_suggest": {
-            "type": "completion",
-            "analyzer": "simple",
-            "search_analyzer": "simple",
-        },
-    }
-}
-
-INDEX_BODY = {
+INDEX_BODY1 = {
     'settings': BASE_SETTINGS,
     'mappings': {
         EL_INDEX1: {
@@ -80,6 +66,25 @@ INDEX_BODY = {
     }
 }
 
+INDEX_BODY2 = {
+    'settings': BASE_SETTINGS,
+    'mappings': {
+        EL_INDEX2: {
+            'properties': {
+                "suggest": {
+                    "type": "string",
+                    "analyzer": "nGram_analyzer"
+                },
+                "label": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                }
+            }
+        }
+    }
+}
+
+
 # Connection
 RethinkConnection()
 # Query main object
@@ -112,14 +117,14 @@ def make():
     # MULTI INDEX FILTERING
     if es.indices.exists(index=EL_INDEX1):
         es.indices.delete(index=EL_INDEX1)
-    es.indices.create(index=EL_INDEX1, body=INDEX_BODY)
+    es.indices.create(index=EL_INDEX1, body=INDEX_BODY1)
 
     # SUGGESTIONS
     if es.indices.exists(index=EL_INDEX2):
         es.indices.delete(index=EL_INDEX2)
-    es.indices.create(index=EL_INDEX2)
-    es.indices.put_mapping(
-        index=EL_INDEX2, doc_type=EL_TYPE2, body=SUGGEST_MAPPINGS)
+    es.indices.create(index=EL_INDEX2, body=INDEX_BODY2)
+    # es.indices.put_mapping(
+    #     index=EL_INDEX2, doc_type=EL_TYPE2, body=SUGGEST_MAPPINGS)
     # print(es.indices.stats(index=EL_INDEX2))
     # exit(1)
 
@@ -167,18 +172,24 @@ def make():
                         g = ('Z', '_99999_')
                     elobj['sort_string'] = g[0]
                     elobj['sort_number'] = int(g[1].replace('_', ''))
+                    # suggest
+                    es.index(index=EL_INDEX2, doc_type=EL_TYPE2,
+                             body={'label': key, 'suggest': value,
+                                   'prob': 1 / elobj['sort_number']})
                 except Exception as e:
                     print("VALUES WAS", value, step)
                     raise e
 
-                # suggest
-                content = {'label': key, 'key_suggest': {'input': [value]}}
-                es.index(index=EL_INDEX2, doc_type=EL_TYPE2, body=content)
-
             elif step['step'] == 2:
                 key = 'source'
+                # suggest
+                es.index(index=EL_INDEX2, doc_type=EL_TYPE2,
+                         body={'label': key, 'suggest': value, 'prob': 1})
             elif step['step'] == 3:
                 key = 'fete'
+                # suggest
+                es.index(index=EL_INDEX2, doc_type=EL_TYPE2,
+                         body={'label': key, 'suggest': value, 'prob': 1})
 
             if key is not None and value is not None:
                 elobj[key] = value
@@ -204,6 +215,9 @@ def make():
 
             if "transcriptions" in image and len(image["transcriptions"]) > 0:
                 elobj['transcription'] = image["transcriptions"].pop(0)
+                # # suggest
+                # es.index(index=EL_INDEX2, doc_type=EL_TYPE2,
+                #          body={'label': key, 'suggest': value})
 
             f = image['filename']
             elobj['thumbnail'] = '/static/uploads/' + \
