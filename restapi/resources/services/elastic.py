@@ -7,9 +7,12 @@ from ... import get_logger
 
 logger = get_logger(__name__)
 
-SERVER = 'el'
-EL_INDEX1 = 'autocomplete'
+ES_SERVER = 'el'
+ES_SERVICE = {"host": ES_SERVER, "port": 9200}
+EL_INDEX1 = "catalogue"
+EL_INDEX2 = "suggestions"
 EL_TYPE1 = 'data'
+EL_TYPE2 = 'words'
 
 #################################
 # Elastic search base settings
@@ -19,7 +22,7 @@ BASE_SETTINGS = {
         "filter": {
             "nGram_filter": {
                 "type": "nGram",
-                "min_gram": 2,
+                "min_gram": 1,
                 "max_gram": 20,
                 "token_chars": [
                     "letter",
@@ -76,11 +79,12 @@ BASE_SETTINGS = {
 class FastSearch(object):
 
     def get_instance(self):
-        self._api = Elasticsearch(host=SERVER)
+        self._api = Elasticsearch(**ES_SERVICE)
         logger.info("Connected to Elasticsearch")
         return self
 
     def fast_get(self, keyword):  # , fields=[]):
+
         args = {'index': EL_INDEX1, 'doc_type': EL_TYPE1}
 
         # if id is not None:

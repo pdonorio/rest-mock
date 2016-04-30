@@ -5,7 +5,9 @@ from __future__ import absolute_import
 from restapi.resources.services.rethink import RethinkConnection, RDBquery
 # from restapi.resources.custom.docs import image_destination
 # from rethinkdb import r
-from restapi.resources.services.elastic import BASE_SETTINGS
+from restapi.resources.services.elastic import \
+    BASE_SETTINGS, ES_SERVICE, \
+    EL_INDEX1, EL_INDEX2, EL_TYPE1, EL_TYPE2
 from elasticsearch import Elasticsearch
 
 from restapi import get_logger
@@ -14,13 +16,24 @@ import logging
 logger = get_logger(__name__)
 logger.setLevel(logging.DEBUG)
 
-ES_HOST = {"host": "el", "port": 9200}
-EL_INDEX1 = "autocomplete"
-EL_TYPE1 = 'data'
 RDB_TABLE1 = "datavalues"
 RDB_TABLE2 = "datadocs"
 
 fields = ['extrait', 'source', 'fete', 'transcription', 'date', 'place']
+
+SUGGEST_MAPPINGS = {
+    'properties': {
+        "label": {
+            "type": "string",
+            "index": "not_analyzed"
+        },
+        "key_suggest": {
+            "type": "completion",
+            "analyzer": "simple",
+            "search_analyzer": "simple",
+        },
+    }
+}
 
 INDEX_BODY = {
     'settings': BASE_SETTINGS,
@@ -72,7 +85,7 @@ RethinkConnection()
 # Query main object
 query = RDBquery()
 # Elasticsearch object
-es = Elasticsearch(**ES_HOST)
+es = Elasticsearch(**ES_SERVICE)
 
 
 #################################
@@ -96,9 +109,19 @@ def make():
     cursor = query.get_table_query(RDB_TABLE1).run()
     # print("SOME", cursor)
 
+    # MULTI INDEX FILTERING
     if es.indices.exists(index=EL_INDEX1):
         es.indices.delete(index=EL_INDEX1)
     es.indices.create(index=EL_INDEX1, body=INDEX_BODY)
+
+    # SUGGESTIONS
+    if es.indices.exists(index=EL_INDEX2):
+        es.indices.delete(index=EL_INDEX2)
+    es.indices.create(index=EL_INDEX2)
+    es.indices.put_mapping(
+        index=EL_INDEX2, doc_type=EL_TYPE2, body=SUGGEST_MAPPINGS)
+    # print(es.indices.stats(index=EL_INDEX2))
+    # exit(1)
 
     # print(es.indices.stats(index=EL_INDEX1))
     # print(es.info())
@@ -147,6 +170,11 @@ def make():
                 except Exception as e:
                     print("VALUES WAS", value, step)
                     raise e
+
+                # suggest
+                content = {'label': key, 'key_suggest': {'input': [value]}}
+                es.index(index=EL_INDEX2, doc_type=EL_TYPE2, body=content)
+
             elif step['step'] == 2:
                 key = 'source'
             elif step['step'] == 3:
