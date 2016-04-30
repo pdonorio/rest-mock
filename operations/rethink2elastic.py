@@ -9,6 +9,7 @@ from restapi.resources.services.elastic import BASE_SETTINGS
 from elasticsearch import Elasticsearch
 
 from restapi import get_logger
+import re
 import logging
 logger = get_logger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -38,6 +39,14 @@ INDEX_BODY = {
                 "source": {"type": "string"},
                 "fete": {"type": "string"},
                 "transcription": {"type": "string"},
+                "sort_string": {
+                    "type": "string",
+                    "include_in_all": False
+                },
+                "sort_number": {
+                    "type": "integer",
+                    "include_in_all": False
+                },
                 "thumbnail": {
                     "type": "string",
                     "index": "no",
@@ -84,8 +93,7 @@ def make():
 
     """
 
-    cursor = query.get_table_query(RDB_TABLE1) \
-        .limit(500).run()
+    cursor = query.get_table_query(RDB_TABLE1).run()
     # print("SOME", cursor)
 
     if es.indices.exists(index=EL_INDEX1):
@@ -103,9 +111,14 @@ def make():
 
 # NORMAL INSERT
         elobj = {}
+        not_valid = False
 
         for step in doc['steps']:
+
+            if not_valid:
+                break
             value = None
+            key = None
             for element in step['data']:
                 if element['position'] == 1:
                     value = element['value']
@@ -116,15 +129,34 @@ def make():
                     elobj['place'] = element['value']
 
             if step['step'] == 1:
+                if value is None:
+                    logger.warn("Element is not valid")
+                    not_valid = True
+                    break
+
                 key = 'extrait'
+                try:
+                    pattern = re.compile(r'^([^0-9]+)([\_0-9]+)([^\_]*)')
+                    m = pattern.match(value)
+                    if m:
+                        g = m.groups()
+                    else:
+                        g = ('Z', '_99999_')
+                    elobj['sort_string'] = g[0]
+                    elobj['sort_number'] = int(g[1].replace('_', ''))
+                except Exception as e:
+                    print("VALUES WAS", value, step)
+                    raise e
             elif step['step'] == 2:
                 key = 'source'
             elif step['step'] == 3:
                 key = 'fete'
 
-            elobj[key] = value
+            if key is not None and value is not None:
+                elobj[key] = value
 
         # print("object", record, elobj)
+        # exit(1)
 
         es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
         print("Index count", count)

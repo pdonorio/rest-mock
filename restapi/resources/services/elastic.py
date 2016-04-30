@@ -93,7 +93,7 @@ class FastSearch(object):
                 'query': {"match": {"_all": {"query": keyword}}}
             }
 
-        args['sort'] = ["extrait:asc"]
+        args['sort'] = ["sort_string:asc", "sort_number:asc"]
 
         out = self._api.search(**args)
         # print(out)
