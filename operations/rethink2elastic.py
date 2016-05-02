@@ -6,8 +6,8 @@ from restapi.resources.services.rethink import RethinkConnection, RDBquery
 # from restapi.resources.custom.docs import image_destination
 # from rethinkdb import r
 from restapi.resources.services.elastic import \
-    BASE_SETTINGS, ES_SERVICE, \
-    EL_INDEX1, EL_INDEX2, EL_TYPE1, EL_TYPE2
+    BASE_SETTINGS, ES_SERVICE, HTML_ANALYZER, \
+    EL_INDEX0, EL_INDEX1, EL_INDEX2, EL_TYPE1, EL_TYPE2
 from elasticsearch import Elasticsearch
 
 from restapi import get_logger
@@ -114,6 +114,11 @@ def make():
     cursor = query.get_table_query(RDB_TABLE1).run()
     # print("SOME", cursor)
 
+    # HTML STRIPPER
+    if es.indices.exists(index=EL_INDEX0):
+        es.indices.delete(index=EL_INDEX0)
+    es.indices.create(index=EL_INDEX0, body=HTML_ANALYZER)
+
     # MULTI INDEX FILTERING
     if es.indices.exists(index=EL_INDEX1):
         es.indices.delete(index=EL_INDEX1)
@@ -164,18 +169,27 @@ def make():
 
                 key = 'extrait'
                 try:
+
+                    # Divide the value
                     pattern = re.compile(r'^([^0-9]+)([\_0-9]+)([^\_]*)')
                     m = pattern.match(value)
                     if m:
                         g = m.groups()
                     else:
                         g = ('Z', '_99999_')
+
                     elobj['sort_string'] = g[0]
-                    elobj['sort_number'] = int(g[1].replace('_', ''))
+
+                    num = int(g[1].replace('_', ''))
+                    if num < 2:
+                        prob = 2.5
+                    else:
+                        prob = .5 - (num / 250)
+
                     # suggest
-                    es.index(index=EL_INDEX2, doc_type=EL_TYPE2,
-                             body={'label': key, 'suggest': value,
-                                   'prob': 1 / elobj['sort_number']})
+                    es.index(index=EL_INDEX2, doc_type=EL_TYPE2, body={
+                        'label': key, 'suggest': value, 'prob': prob})
+                    elobj['sort_number'] = num
                 except Exception as e:
                     print("VALUES WAS", value, step)
                     raise e
@@ -183,13 +197,26 @@ def make():
             elif step['step'] == 2:
                 key = 'source'
                 # suggest
-                es.index(index=EL_INDEX2, doc_type=EL_TYPE2,
-                         body={'label': key, 'suggest': value, 'prob': 1})
+                if value is not None:
+                    out = es.search(
+                        index=EL_INDEX2,
+                        body={'query': {'match': {'suggest': value}}})
+                    if out['hits']['total'] < 1:
+                        es.index(
+                            index=EL_INDEX2, doc_type=EL_TYPE2,
+                            body={'label': key, 'suggest': value, 'prob': .9})
+
             elif step['step'] == 3:
                 key = 'fete'
                 # suggest
-                es.index(index=EL_INDEX2, doc_type=EL_TYPE2,
-                         body={'label': key, 'suggest': value, 'prob': 1})
+                if value is not None:
+                    out = es.search(
+                        index=EL_INDEX2,
+                        body={'query': {'match': {'suggest': value}}})
+                    if out['hits']['total'] < 1:
+                        es.index(
+                            index=EL_INDEX2, doc_type=EL_TYPE2,
+                            body={'label': key, 'suggest': value, 'prob': .7})
 
             if key is not None and value is not None:
                 elobj[key] = value
@@ -214,10 +241,23 @@ def make():
             image = data['images'].pop(0)
 
             if "transcriptions" in image and len(image["transcriptions"]) > 0:
-                elobj['transcription'] = image["transcriptions"].pop(0)
-                # # suggest
-                # es.index(index=EL_INDEX2, doc_type=EL_TYPE2,
-                #          body={'label': key, 'suggest': value})
+
+                key = 'transcription'
+                trans = image["transcriptions"].pop(0)
+
+                words = es.indices.analyze(
+                    index=EL_INDEX0, analyzer='my_html_analyzer', body=trans)
+                for token in words['tokens']:
+                    word = token['token']
+                    if len(word) > 3:
+                        out = es.search(
+                            index=EL_INDEX2,
+                            body={'query': {'match': {'suggest': word}}})
+                        if out['hits']['total'] < 1:
+                            es.index(index=EL_INDEX2, doc_type=EL_TYPE2,
+                                     body={'label': key, 'suggest': word,
+                                           'prob': .25, 'extra': token})
+                elobj[key] = trans
 
             f = image['filename']
             elobj['thumbnail'] = '/static/uploads/' + \

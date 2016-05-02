@@ -9,6 +9,7 @@ logger = get_logger(__name__)
 
 ES_SERVER = 'el'
 ES_SERVICE = {"host": ES_SERVER, "port": 9200}
+EL_INDEX0 = "split_html"
 EL_INDEX1 = "catalogue"
 EL_INDEX2 = "suggestions"
 EL_TYPE1 = 'data'
@@ -54,21 +55,18 @@ BASE_SETTINGS = {
     }
 }
 
-"""
-"mappings": {
-      INDEX: {
-         "_all": {
-            "index_analyzer": "nGram_analyzer",
-            "search_analyzer": "whitespace_analyzer"
-         },
-         "properties": {
-            NAME: {
-               "type": "string",
-               "index": "no",
-               "include_in_all": False
-               "index": "not_analyzed"
+HTML_ANALYZER = {
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "my_html_analyzer": {
+                    "tokenizer": "standard",
+                    "char_filter": ["html_strip"]
+                }
             }
-"""
+        }
+    }
+}
 
 
 # ######################################
@@ -102,3 +100,25 @@ class FastSearch(object):
         out = self._api.search(**args)
         # print(out)
         return out['hits']['hits'], out['hits']['total']
+
+    def fast_suggest(self, text):
+
+        if text is None or text.strip() == '':
+            return []
+
+        obj = {"query": {
+            "function_score": {
+                "query": {
+                    "filtered": {
+                        "query": {'match': {'suggest': text}}
+                    }
+                },
+                "min_score": 30,
+                "functions": [
+                    {"script_score": {"script": "_score * doc['prob'].value"}}
+                ]
+            }}}
+        args = {'index': EL_INDEX2, 'body': obj}
+        out = self._api.search(**args)
+        # print("TEST", out)
+        return out['hits']['hits']
