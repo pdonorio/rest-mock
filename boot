@@ -2,7 +2,7 @@
 
 ########################################
 main_command="./run.py"
-gworkers="2"
+gworkers="4"
 gserver="gunicorn -w $gworkers --bind 0.0.0.0:5000 run:app"
 
 ########################################
