@@ -216,7 +216,7 @@ class RDBquery(RDBdefaults):
     def list_tables(self):
         return list(self.get_query().table_list().run())
 
-    def execute_query(self, query, limit=0):
+    def execute_query(self, query, limit=0, timestamp=False):
         count = 0
         data = {}
 
@@ -226,7 +226,10 @@ class RDBquery(RDBdefaults):
                 query = query.limit(limit)
             # Note: fix time as i has to be converted if available
             # in original rethinkdb format
-            data = query.run(time_format='raw')
+            if timestamp:
+                data = query.run(time_format='raw')
+            else:
+                data = query.run()
 
         return count, list(data)
 
@@ -234,17 +237,19 @@ class RDBquery(RDBdefaults):
         """ For GET method, very simple """
 
         query = self.get_table_query()
+        timestamp = False
         if self.table_index is not None:
             index = self.table_index
 
         # If i need only one element
         if myid is not None:
             query = query.get_all(myid, index=index)
+            timestamp = True
         # elif self.sort_index is not None:
         #     query = query.order_by(index=self.sort_index)
 
         # Process
-        return self.execute_query(query, limit)
+        return self.execute_query(query, limit, timestamp)
 
     def insert(self, data, table=None):
         # Prepare the query
