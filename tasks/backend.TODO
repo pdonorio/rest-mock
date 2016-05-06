@@ -1,5 +1,13 @@
 
 --- ✄ -----------------------
+SERVICES:
+ - Uploader
+ - Neo4j graphdb
+ - Irods virtual resources
+ - Rethinkdb: nosql json + joins + changefeed
+ - Elasticsearch
+
+--- ✄ -----------------------
 GUIDELINES:
 - python 3.5
 - configuration via INI file
@@ -15,36 +23,12 @@ http://nbviewer.ipython.org/github/donnemartin/data-science-ipython-notebooks/bl
 https://www.youtube.com/watch?v=8kTlzR4HhWo
 
 --- ✄ -----------------------
-SERVICES:
- - Uploader @inprogress
- - Neo4j graphdb @inprogress
- - Irods virtual resources @todo
- - Rethinkdb: nosql json + joins + changefeed @inprogress
- - Elasticsearch @justadraft
-
-
---- ✄ -----------------------
 BUGS:
-✔ adding id argument in more than one rest class  @done (16-02-01 15:00)
-✔ wait for rethinkdb connection at startup if container link exists @done (16-02-09 11:08)
-✔ returning template not working @done (16-03-04 15:36)
-  ✔ check the decorator to avoid marshal if htmlcode is higher than 250? @done (16-03-25 12:28)
-✔ fix decorator for parameters? @done (16-03-25 15:29)
 ☐ Rethinkdb or other db connection before request...?
   ☐ Limit a before request to a certain endpoint, not to all??
   ☐ take off 'server.py'
 
 --- ✄ -----------------------
-UPLOAD:
-  http --form POST 192.168.64.7:8081/api/upload file@~
-  ✔ copy skeleton @done (16-02-08 16:02)
-  ✔ make it restful @done (16-02-08 16:29)
-  ✔ delete method @done (16-02-09 08:17)
-  ☐ find missing files in rethinkdb schema
-    ✔ remove pending @done (16-02-20 13:43)
-    ☐ remove others
-  ☐ test with js
-
 Token:
  ☐ PyJWT
    ☐ working snippet
