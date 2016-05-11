@@ -92,7 +92,8 @@ class ExtendedApiResource(Resource):
 
         key = self.myname()
         if key not in self._params:
-            return False
+            self._params[key] = {}
+            # return False
 
         ##############################
         # Basic options

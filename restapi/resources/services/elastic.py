@@ -81,21 +81,17 @@ class FastSearch(object):
         logger.info("Connected to Elasticsearch")
         return self
 
-    def fast_get(self, keyword):  # , fields=[]):
+    def fast_get(self, keyword, current=1, size=10):
 
         args = {'index': EL_INDEX1, 'doc_type': EL_TYPE1}
-
-        # if id is not None:
-        #     args['id'] = id
-        #     return self._api.get(**args)
-        # else:
+        args['sort'] = ["sort_string:asc", "sort_number:asc"]
+        args['from_'] = current - 1
+        args['size'] = size
 
         if keyword is not None:
             args['body'] = {
                 'query': {"match": {"_all": {"query": keyword}}}
             }
-
-        args['sort'] = ["sort_string:asc", "sort_number:asc"]
 
         out = self._api.search(**args)
         # print(out)
