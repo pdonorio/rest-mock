@@ -6,6 +6,10 @@ Load xlxs file (2010)
 
 from openpyxl import load_workbook
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 
 class ExReader(object):
     """
@@ -14,26 +18,22 @@ class ExReader(object):
     def __init__(self, filename=None):
 
         super(ExReader, self).__init__()
-
         if filename is None:
             filename = "/Users/paulie/Downloads/test_baroque.xlsx"
+        self._wb = load_workbook(filename=filename)  # , read_only=True)
 
-        wb = load_workbook(filename=filename, read_only=True)
-        # print(wb)
-        # print(wb.worksheets)
-        """
-[<ReadOnlyWorksheet "Plan">, <ReadOnlyWorksheet "fête">, <ReadOnlyWorksheet "dispositif">, <ReadOnlyWorksheet "perfomance">, <ReadOnlyWorksheet "expérience">, <ReadOnlyWorksheet "Fins">, <ReadOnlyWorksheet "a classer">, <ReadOnlyWorksheet "exclus">]
-        """
-
-        ## ALL
-## Note: keep track of sheets order
-        # for ws in wb.worksheets:
-        #     self.get_sheet_data(ws)
-
-        ## SINGLE
-        self.get_sheet_data(wb['dispositif'])
-        self.get_sheet_data(wb['perfomance'])
-        self.get_sheet_data(wb['Fins'])
+    def get_data(self):
+        newset = []
+        counter = 0
+        for ws in self._wb.worksheets:
+            counter += 1
+            logger.debug("Sheet %s" % ws.title)
+            newset.append({
+                'name': ws.title,
+                'position': counter,  # Note: keep track of sheets order
+                'data': self.get_sheet_data(ws),
+            })
+        print(newset)
 
     def read_block(self, data, emit_error=False):
 
@@ -62,6 +62,7 @@ class ExReader(object):
 
         row_num = 0
         languages = []
+        # A list
         terms = []
         latest_macro = latest_micro = "-undefined-"
 
@@ -111,6 +112,8 @@ class ExReader(object):
 # Warning: we need to know how many languages are expected!
                     if cell_num > 6 and last_element is None:
                         break
+                else:
+                    element.value = element.value[:].strip()
 
                 # First row (header) tells you which languages
                 # Store languages names from cell 4 on
@@ -129,17 +132,21 @@ class ExReader(object):
             # Add last row/term
             if row_num > 1:
                 # print("TERM", term)
-                terms.append(list(term.values()))
+                terms.append(dict(term))
+                # terms.append(list(term.values()))
 
-            if row_num > 15:
+            ## JUST FOR DEBUG
+            # if row_num > 15:
+            if False:
                 from tabulate import tabulate
                 table = tabulate(
-                    terms,
-                    # headers=term.keys(),
+                    terms,  # headers=term.keys(),
                     tablefmt="fancy_grid")
                 print(table)
-                # print(terms)
                 break
 
+        return terms
+
 if __name__ == '__main__':
-    ExReader()
+    xls = ExReader()
+    print(xls.get_data())
