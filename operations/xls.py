@@ -26,12 +26,14 @@ class ExReader(object):
         """
 
         ## ALL
+## Note: keep track of sheets order
         # for ws in wb.worksheets:
         #     self.get_sheet_data(ws)
 
         ## SINGLE
-        # self.get_sheet_data(wb['perfomance'])
         self.get_sheet_data(wb['dispositif'])
+        self.get_sheet_data(wb['perfomance'])
+        self.get_sheet_data(wb['Fins'])
 
     def read_block(self, data, emit_error=False):
 
@@ -63,6 +65,8 @@ class ExReader(object):
         terms = []
         latest_macro = latest_micro = "-undefined-"
 
+## WS TITLE = Macro of macro
+
         for row in ws.rows:
             data = list(row)
             row_num += 1
@@ -80,8 +84,10 @@ class ExReader(object):
             macro, micro, convention = block
 
             if row_num > 1:
+# Error if latest_macro is None
                 if macro is not None and macro.strip() != '':
                     latest_macro = macro
+# micro = macro if None
                 if micro is not None and micro.strip() != '':
                     latest_micro = micro
 
@@ -89,6 +95,7 @@ class ExReader(object):
 
             from collections import OrderedDict
             term = OrderedDict({
+## Note: convention should not be shown
                 'term': convention,
                 'macro': latest_macro,
                 'micro': latest_micro,
@@ -121,7 +128,7 @@ class ExReader(object):
 
             # Add last row/term
             if row_num > 1:
-                print("TERM", term)
+                # print("TERM", term)
                 terms.append(list(term.values()))
 
             if row_num > 15:
