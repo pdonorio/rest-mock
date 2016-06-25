@@ -116,7 +116,7 @@ To let only logged user which provide a valid token, access your endpoint,
 you need the `auth_token_required` decorator:
 
 ```python
-from flask.ext.security import auth_token_required
+from flask_security import auth_token_required
 
 @decorate.apimethod
 @auth_token_required
@@ -128,7 +128,7 @@ To specify which roles are needed (one or more), there is another decorator call
 `roles_required`:
 
 ```python
-from flask.ext.security import roles_required, auth_token_required
+from flask_security import roles_required, auth_token_required
 from confs import config
 
 @decorate.apimethod

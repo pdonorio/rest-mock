@@ -9,7 +9,7 @@ from __future__ import division, absolute_import
 from .. import myself, lic, get_logger
 from .base import ExtendedApiResource
 from . import decorators as decorate
-from flask.ext.security import roles_required, auth_token_required
+from flask_security import roles_required, auth_token_required
 from confs import config
 
 __author__ = myself

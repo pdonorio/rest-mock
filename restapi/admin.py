@@ -9,10 +9,10 @@ from __future__ import division, absolute_import
 from . import myself, lic, get_logger
 
 from flask import redirect
-from flask.ext.admin import Admin
-from flask.ext.admin.contrib import sqla
-from flask.ext.security import current_user
-from flask.ext.restful import request, url_for, abort
+from flask_admin import Admin
+from flask_admin.contrib import sqla
+from flask_security import current_user
+from flask_restful import request, url_for, abort
 from confs import config
 from . import htmlcodes as hcodes
 

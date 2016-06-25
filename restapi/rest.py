@@ -7,7 +7,7 @@ App specifications
 from __future__ import division, absolute_import
 from . import myself, lic, get_logger
 
-from flask.ext.restful import Api, Resource
+from flask_restful import Api, Resource
 from .resources.endpoints import Endpoints
 from .config import MyConfigs
 

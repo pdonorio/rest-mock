@@ -9,7 +9,7 @@ from __future__ import division, absolute_import
 from . import myself, lic, get_logger
 
 # Handle cors...
-from flask.ext.cors import CORS
+from flask_cors import CORS
 
 __author__ = myself
 __copyright__ = myself

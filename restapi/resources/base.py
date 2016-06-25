@@ -5,7 +5,7 @@
 from .. import htmlcodes as hcodes
 # from confs.config import STACKTRACE
 from ..jsonify import output_json  # , RESTError
-from flask.ext.restful import request, Resource, reqparse, fields  # , abort
+from flask_restful import request, Resource, reqparse, fields  # , abort
 from .. import get_logger
 
 logger = get_logger(__name__)

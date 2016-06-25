@@ -7,7 +7,7 @@ or set Responses objects
 based on JSON formats
 """
 
-from flask.ext.restful import fields
+from flask_restful import fields
 
 
 ##########################################

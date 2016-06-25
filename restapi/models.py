@@ -3,8 +3,8 @@
 """ Models for the relational database """
 
 from datetime import datetime
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.security import UserMixin, RoleMixin
+from flask_sqlalchemy import SQLAlchemy
+from flask_security import UserMixin, RoleMixin
 
 try:
     from . import get_logger

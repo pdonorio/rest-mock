@@ -8,7 +8,7 @@ We create all the components here!
 from __future__ import division, absolute_import
 from . import myself, lic, get_logger
 
-from flask.ext.security import SQLAlchemyUserDatastore  # , Security
+from flask_security import SQLAlchemyUserDatastore  # , Security
 from .models import db, User, Role
 from confs import config
 
@@ -41,7 +41,7 @@ def db_auth():
     if missing_user:
         import datetime
         now = datetime.datetime.utcnow()
-        from flask.ext.security.utils import encrypt_password
+        from flask_security.utils import encrypt_password
         udstore.create_user(first_name='TheOnlyUser', last_name='IAm',
                             email=config.USER, confirmed_at=now,
                             password=encrypt_password(config.PWD))

@@ -10,7 +10,7 @@ from .. import get_logger
 from .base import ExtendedApiResource
 from . import decorators as decorate
 from confs import config
-from flask.ext.security import roles_required, auth_token_required
+from flask_security import roles_required, auth_token_required
 
 logger = get_logger(__name__)
 

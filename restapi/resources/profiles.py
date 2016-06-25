@@ -7,8 +7,8 @@ Profiles for internal users
 from __future__ import division, absolute_import
 from .. import myself, lic, get_logger
 
-from flask.ext.security import auth_token_required  # , roles_required
-from flask.ext.restful import request
+from flask_security import auth_token_required  # , roles_required
+from flask_restful import request
 from .base import ExtendedApiResource
 from ..models import db, User, Role, Tokenizer
 from . import decorators as deck
