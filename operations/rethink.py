@@ -89,8 +89,27 @@ def convert_schema():
 
     # check_indexes(t2in)
 
+
 #################################
 #################################
+
+def enable_translations():
+    q = query.get_table_query(t3in)
+    for record in q.run():
+        images = record.pop('images')
+        if len(images) < 1:
+            continue
+        image = images.pop()
+        key = 'transcriptions_split'
+        if key in image:
+            image.pop(key)
+        image['translation'] = False
+        image['language'] = '-'
+        record['images'] = [image]
+        changes = q.get(record['record']).replace(record).run()
+        logger.debug("Updated %s" % record['record'])
+        # print(record, changes)
+        # exit(1)
 
 
 def convert_pending_images():
