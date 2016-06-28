@@ -103,8 +103,8 @@ def enable_translations():
         key = 'transcriptions_split'
         if key in image:
             image.pop(key)
-        image['translation'] = False
-        image['language'] = '-'
+        # image['translation'] = False
+        # image['language'] = '-'
         record['images'] = [image]
         changes = q.get(record['record']).replace(record).run()
         logger.debug("Updated %s" % record['record'])
