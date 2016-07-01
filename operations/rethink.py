@@ -94,22 +94,39 @@ def convert_schema():
 #################################
 
 def enable_translations():
+
     q = query.get_table_query(t3in)
     for record in q.run():
+
+        if record['type'] != 'documents':
+            continue
+
+        q = query.get_table_query('datavalues')
+        print(record)
+        element = q.get(record['record']).run()
+        data = element['steps'][0]['data']
+        print(data[0]['value'])
+        exit(1)
+
         images = record.pop('images')
         if len(images) < 1:
             continue
         image = images.pop()
-        key = 'transcriptions_split'
-        if key in image:
-            image.pop(key)
-        # image['translation'] = False
-        # image['language'] = '-'
-        record['images'] = [image]
-        changes = q.get(record['record']).replace(record).run()
-        logger.debug("Updated %s" % record['record'])
-        # print(record, changes)
-        # exit(1)
+
+        # print(record, image); exit(1)
+        path = os.path.join('/uploads', image['filename'])
+        if not os.path.exists(path):
+            print(path)
+
+        # # Update
+        # key = 'transcriptions_split'
+        # if key in image:
+        #     image.pop(key)
+        # # image['translation'] = False
+        # # image['language'] = '-'
+        # record['images'] = [image]
+        # changes = q.get(record['record']).replace(record).run()
+        # logger.debug("Updated %s" % record['record'])
 
 
 def convert_pending_images():
