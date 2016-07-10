@@ -5,6 +5,14 @@ main_command="./run.py"
 gworkers="4"
 gserver="gunicorn -w $gworkers --bind 0.0.0.0:5000 run:app"
 
+backup_path="backup/serious"
+if [ "$1" == "restore" ]; then
+    latest=`ls -1t $backup_path | head -1`
+    echo "$backup_path/$latest"
+    rethinkdb-restore -c rdb $backup_path/$latest
+    exit 0
+fi
+
 ########################################
 # Init variables
 if [ "$1" == "devel" ]; then

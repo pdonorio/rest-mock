@@ -11,11 +11,10 @@ from operations import rethink2elastic as r2e
 # from restapi import get_logger
 # logger = get_logger(__name__)
 
-#########################
-# Add translations?
-from operations import rethink
-rethink.enable_translations()
-print("DEBUG EXIT"); exit(1)
+# #########################
+# # Add translations?
+# from operations import rethink
+# rethink.enable_translations()
 
 #########################
 # RETHINKDB 2 ELASTICSEARCH
