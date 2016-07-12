@@ -202,7 +202,7 @@ class Uploader(ZoomEnabling):
                 'meta': {'type': ftype, 'charset': fcharset}
             }, code=hcodes.HTTP_OK_BASIC)
 
-    def remove(self, filename, subfolder=None):
+    def remove(self, filename, subfolder=None, skip_response=False):
         """ Remove the file if requested """
 
         abs_file = self.absolute_upload_file(filename, subfolder)
@@ -233,6 +233,9 @@ class Uploader(ZoomEnabling):
                 "Failed to remove file",
                 code=hcodes.HTTP_DEFAULT_SERVICE_FAIL)
         logger.warn("Removed '%s' " % abs_file)
+
+        if skip_response:
+            return
 
         return self.response(
             "Deleted", code=hcodes.HTTP_OK_BASIC)
