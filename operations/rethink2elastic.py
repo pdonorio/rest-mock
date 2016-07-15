@@ -245,19 +245,20 @@ def make():
                 key = 'transcription'
                 trans = image["transcriptions"].pop(0)
 
-                words = es.indices.analyze(
-                    index=EL_INDEX0, analyzer='my_html_analyzer', body=trans)
-                for token in words['tokens']:
-                    word = token['token']
-                    if len(word) > 3:
-                        # out = es.search(
-                        #     index=EL_INDEX2,
-                        #     body={'query': {'match': {'suggest': word}}})
-                        # if out['hits']['total'] < 1:
-                        es.index(index=EL_INDEX2, doc_type=EL_TYPE2,
-                                 body={'label': key, 'suggest': word,
-                                       'prob': .25, 'extra': token})
-                elobj[key] = trans
+                if trans.strip() != '':
+                    words = es.indices.analyze(
+                        index=EL_INDEX0, analyzer='my_html_analyzer', body=trans)
+                    for token in words['tokens']:
+                        word = token['token']
+                        if len(word) > 3:
+                            # out = es.search(
+                            #     index=EL_INDEX2,
+                            #     body={'query': {'match': {'suggest': word}}})
+                            # if out['hits']['total'] < 1:
+                            es.index(index=EL_INDEX2, doc_type=EL_TYPE2,
+                                     body={'label': key, 'suggest': word,
+                                           'prob': .25, 'extra': token})
+                    elobj[key] = trans
 
             f = image['filename']
             elobj['thumbnail'] = '/static/uploads/' + \
