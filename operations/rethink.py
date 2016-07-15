@@ -101,24 +101,34 @@ def enable_translations():
         if record['type'] != 'documents':
             continue
 
-        q = query.get_table_query('datavalues')
-        print(record)
-        element = q.get(record['record']).run()
-        data = element['steps'][0]['data']
-        print(data[0]['value'])
-        exit(1)
+        # q = query.get_table_query('datavalues')
+        # print(record)
+        # data = element['steps'][0]['data']
+        # print("\n\nTEST", data[0]['value'])
+        # exit(1)
 
         images = record.pop('images')
         if len(images) < 1:
             continue
         image = images.pop()
 
-        # print(record, image); exit(1)
+        if not image['filename'][-4:] == '.tif':
+            continue
+
         path = os.path.join('/uploads', image['filename'])
         if not os.path.exists(path):
-            print(path)
+            raise BaseException("Cannot find registered path %s" % path)
 
-        # # Update
+        newpath = path.replace('.tif', '.jpg')
+
+        # Convert tif to jpg
+        from plumbum.cmd import convert
+        convert([path, newpath])
+        logger.info("Converted TIF to %s" % newpath)
+
+        # Update
+        image['filename'] = image['filename'].replace('.tif', '.jpg')
+
         # key = 'transcriptions_split'
         # if key in image:
         #     image.pop(key)
@@ -126,7 +136,14 @@ def enable_translations():
         # # image['language'] = '-'
         # record['images'] = [image]
         # changes = q.get(record['record']).replace(record).run()
-        # logger.debug("Updated %s" % record['record'])
+
+        record['images'] = [image]
+        changes = q.get(record['record']).replace(record).run()
+        print("Changes", changes)
+        logger.debug("Updated %s" % record['record'])
+
+        # import time
+        # time.sleep(5);
 
 
 def convert_pending_images():
