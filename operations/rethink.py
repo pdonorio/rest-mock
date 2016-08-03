@@ -13,8 +13,10 @@ a = v.table('datadocs').update({"type":'documents'}).run()
 
 from __future__ import absolute_import
 import os
+import shutil
 import glob
 from restapi.resources.services.rethink import RethinkConnection, RDBquery
+from restapi.resources.services.uploader import ZoomEnabling
 from restapi.resources.utilities import split_and_html_strip
 from restapi.resources.custom.docs import image_destination
 from restapi import get_logger
@@ -93,7 +95,11 @@ def convert_schema():
 #################################
 #################################
 
-def enable_translations():
+def convert_tiff():
+
+    import re
+    pattern = re.compile("^[0-9]+$")
+    zoomer = ZoomEnabling()
 
     q = query.get_table_query(t3in)
     for record in q.run():
@@ -112,38 +118,62 @@ def enable_translations():
             continue
         image = images.pop()
 
-        if not image['filename'][-4:] == '.tif':
+        ##################
+        # FIX ZOOM for files like [0-9]+.jpg
+
+        # print("TEST", image)
+        match = pattern.match(image['code'])
+        if match is None:
             continue
+        abs_file = os.path.join(UPLOAD_FOLDER, image['filename'])
 
-        path = os.path.join('/uploads', image['filename'])
-        if not os.path.exists(path):
-            raise BaseException("Cannot find registered path %s" % path)
+        # Remove zoomified directory
+        filebase, fileext = os.path.splitext(abs_file)
+        if os.path.exists(filebase):
+            try:
+                shutil.rmtree(filebase)
+                logger.debug("Removed dir '%s' " % filebase)
+            except Exception as e:
+                logger.critical("Cannot remove zoomified:\n '%s'" % str(e))
 
-        newpath = path.replace('.tif', '.jpg')
+        if not zoomer.process_zoom(abs_file):
+            raise BaseException("Failed to zoom file '%s'" % image['filename'])
+        logger.info("Zoomed image '%s'" % image['filename'])
 
-        # Convert tif to jpg
-        from plumbum.cmd import convert
-        convert([path, newpath])
-        logger.info("Converted TIF to %s" % newpath)
+        # ##################
+        # # FIX TIFF
+        # if not image['filename'][-4:] == '.tif':
+        #     continue
 
-        # Update
-        image['filename'] = image['filename'].replace('.tif', '.jpg')
+        # path = os.path.join('/uploads', image['filename'])
+        # if not os.path.exists(path):
+        #     raise BaseException("Cannot find registered path %s" % path)
 
-        # key = 'transcriptions_split'
-        # if key in image:
-        #     image.pop(key)
-        # # image['translation'] = False
-        # # image['language'] = '-'
+        # newpath = path.replace('.tif', '.jpg')
+
+        # # Convert tif to jpg
+        # from plumbum.cmd import convert
+        # convert([path, newpath])
+        # logger.info("Converted TIF to %s" % newpath)
+
+        # # Update
+        # image['filename'] = image['filename'].replace('.tif', '.jpg')
+
+        # # key = 'transcriptions_split'
+        # # if key in image:
+        # #     image.pop(key)
+        # # # image['translation'] = False
+        # # # image['language'] = '-'
+        # # record['images'] = [image]
+        # # changes = q.get(record['record']).replace(record).run()
+
         # record['images'] = [image]
         # changes = q.get(record['record']).replace(record).run()
+        # print("Changes", changes)
+        # logger.debug("Updated %s" % record['record'])
 
-        record['images'] = [image]
-        changes = q.get(record['record']).replace(record).run()
-        print("Changes", changes)
-        logger.debug("Updated %s" % record['record'])
-
-        # import time
-        # time.sleep(5);
+        # # import time
+        # # time.sleep(5);
 
 
 def convert_pending_images():

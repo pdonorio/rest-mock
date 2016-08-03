@@ -12,9 +12,10 @@ from operations import rethink2elastic as r2e
 # logger = get_logger(__name__)
 
 #########################
-# Add translations?
+# Tiff conversion
 from operations import rethink
-rethink.enable_translations()
+rethink.convert_tiff()
+# print("DEBUG EXIT"); exit(1)
 
 #########################
 # RETHINKDB 2 ELASTICSEARCH

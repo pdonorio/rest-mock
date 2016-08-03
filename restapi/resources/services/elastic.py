@@ -79,6 +79,11 @@ class FastSearch(object):
     def get_instance(self):
         self._api = Elasticsearch(**ES_SERVICE)
         logger.info("Connected to Elasticsearch")
+        try:
+            self._api.ping()
+        except Exception as e:
+            logger.critical("Elasticsearch connection failed:\n'%s'" % e)
+            return False
         return self
 
     def fast_get(self, keyword, current=1, size=10):
@@ -93,7 +98,11 @@ class FastSearch(object):
                 'query': {"match": {"_all": {"query": keyword}}}
             }
 
-        out = self._api.search(**args)
+        try:
+            out = self._api.search(**args)
+        except Exception as e:
+            logger.error("Failed to execute fast get query\n%s" % e)
+            return None, False
         # print(out)
         return out['hits']['hits'], out['hits']['total']
 

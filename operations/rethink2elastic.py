@@ -21,6 +21,8 @@ RDB_TABLE2 = "datadocs"
 
 fields = ['extrait', 'source', 'fete', 'transcription', 'date', 'place']
 
+# INDEX 1 is NORMAL SEARCH FILTER
+
 INDEX_BODY1 = {
     'settings': BASE_SETTINGS,
     'mappings': {
@@ -66,6 +68,8 @@ INDEX_BODY1 = {
     }
 }
 
+# INDEX 2 is SUGGESTIONs
+
 INDEX_BODY2 = {
     'settings': BASE_SETTINGS,
     'mappings': {
@@ -107,6 +111,9 @@ def make():
     fete
     transcription @update
     image_thumbnail_path @update
+
+## TO FIX: add vocabulary?
+
   }
 
     """
