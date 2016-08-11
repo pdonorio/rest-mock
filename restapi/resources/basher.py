@@ -42,7 +42,7 @@ class BashCommands(object):
 # TO FIX: does not work if parameters is bigger than one element
         comout = \
             self._shell[command][parameters].run(retcode=retcodes)
-        # # NOTE: comout is equal to (status, stdin, stdout)
+        # comout is equal to (status, stdin, stdout)
         return comout
 
     ###################

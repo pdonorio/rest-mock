@@ -40,7 +40,7 @@ class ExtendedApiResource(Resource):
 
     def __init__(self):
         super(ExtendedApiResource, self).__init__()
-# NOTE: you can add as many representation as you want!
+# you can add as many representation as you want!
         self.representations = {
             # Be sure of handling JSON
             'application/json': output_json,

@@ -52,11 +52,10 @@ class FooTwo(ExtendedApiResource):
     # GET /api/another/path
     # GET /api/another/path/:identifier
 
-# NOTE: this endpoint will crash if you DISABLE SECURITY on this app
+# IMPORTANT! this endpoint will crash if you DISABLE SECURITY on this app
     @decorate.apimethod
     @auth_token_required
     @roles_required(config.ROLE_ADMIN)
-# NOTE: this endpoint will crash if you DISABLE SECURITY on this app
     def post(self, identifier=None):
         """ I do nothing """
         pass
