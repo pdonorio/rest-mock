@@ -114,35 +114,36 @@ def expo_operations():
 
     }
 
-    q1 = query.get_table_query('expo')
+    # q1 = query.get_table_query('expo')
     q2 = query.get_table_query('datadocs')
-    for section in q1.run():
-        for theme, elements in section['themes'].items():
-            if len(elements) < 1:
-                continue
-            for element in elements:
-                print(section['section'], theme, element)
-                single = q2.get(element).run()
-                # print(single['details'])
-                new = {}
-                for key, value in single['details'].items():
-                    # print(key, value)
-                    if key in convert:
-                        new[convert[key]] = value
 
-                index = 'date et lieu de réalisation'
-                if 'date' in single['details'] or 'place' in single['details']:
-                    new[index] = ""
-                if 'date' in single['details']:
-                    new[index] += single['details']['date']
-                if 'place' in single['details']:
-                    if new[index].strip() != '':
-                        new[index] += ", "
-                    new[index] += single['details']['place']
+    for single in q2.run():
+        if 'details' not in single or len(single['details']) < 2:
+            continue
+        logger.debug("Updating %s" % single['record'])
+        # print(single['details'])
+        new = {}
+        for key, value in single['details'].items():
+            # print(key, value)
+            if key in convert:
+                new[convert[key]] = value
 
-                # print("\n\n", new)
-                single['details'] = new
-                q2.get(element).replace(single).run()
+        index = 'date et lieu de réalisation'
+        if 'date' in single['details'] or 'place' in single['details']:
+            new[index] = ""
+        if 'date' in single['details']:
+            new[index] += single['details']['date']
+        if 'place' in single['details']:
+            if new[index].strip() != '':
+                new[index] += ", "
+            new[index] += single['details']['place']
+
+        # print("\n\n", new)
+        single['details'] = new
+        # print("\n\n", single)
+        q2.get(single['record']).replace(single).run()
+        # import time
+        # time.sleep(3)
     exit(1)
 
 
