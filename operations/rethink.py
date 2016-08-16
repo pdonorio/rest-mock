@@ -101,12 +101,11 @@ def expo_operations():
 
         'position': 'position',
         'title': 'titre',
-        'name': 'nom',
+        # 'name': 'nom',
         'author': 'auteur(s)',
 
-# mix them as 'date et lieu de réalisation'
         # 'date': 'date',
-        # 'place': 'lieu',
+        # 'place': 'lieu', # mix them as 'date et lieu de réalisation'
 
         'book': 'source',
         'material': 'matériaux',
