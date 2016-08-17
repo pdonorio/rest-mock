@@ -11,11 +11,11 @@ from operations import rethink2elastic as r2e
 # from restapi import get_logger
 # logger = get_logger(__name__)
 
-#########################
-from operations import rethink
-rethink.expo_operations()
-# rethink.convert_tiff()
-exit(1)
+# #########################
+# from operations import rethink
+# rethink.expo_operations()
+# # rethink.convert_tiff()
+# exit(1)
 
 #########################
 # RETHINKDB 2 ELASTICSEARCH
