@@ -12,9 +12,10 @@ from operations import rethink2elastic as r2e
 # logger = get_logger(__name__)
 
 # #########################
-# from operations import rethink
+from operations import rethink
+# rethink.check_translations()
 # rethink.expo_operations()
-# # rethink.convert_tiff()
+# rethink.convert_tiff()
 # exit(1)
 
 #########################

@@ -94,6 +94,34 @@ def convert_schema():
 
 #################################
 #################################
+def check_translations():
+
+    q2 = query.get_table_query('datadocs')
+    for record in q2.run():
+
+        if record['type'] != 'documents':
+            continue
+
+        # q = query.get_table_query('datavalues')
+        # print(record)
+        # data = element['steps'][0]['data']
+        # print("\n\nTEST", data[0]['value'])
+        # exit(1)
+
+        images = record.pop('images')
+        if len(images) < 1:
+            continue
+        image = images.pop()
+        if 'translations' in image:
+            x = query.get_table_query('datavalues').get(record['record']).run()
+            for step in x['steps']:
+                if step['step'] == 1:
+                    for y in step['data']:
+                        if y['position'] == 1:
+                            print(y['value'])
+                            break
+                    break
+
 
 def expo_operations():
 
@@ -150,7 +178,8 @@ def expo_operations():
 #################################
 #################################
 
-def convert_tiff():
+def rebuild_zoom():
+# def convert_tiff():
 
     import re
     pattern = re.compile("^[0-9]+$")
@@ -176,10 +205,13 @@ def convert_tiff():
         ##################
         # FIX ZOOM for files like [0-9]+.jpg
 
+        # LIMIT?
         # print("TEST", image)
-        match = pattern.match(image['code'])
-        if match is None:
-            continue
+        # match = pattern.match(image['code'])
+        # if match is None:
+        #     continue
+
+        ##################
         abs_file = os.path.join(UPLOAD_FOLDER, image['filename'])
 
         # Remove zoomified directory
@@ -191,6 +223,7 @@ def convert_tiff():
             except Exception as e:
                 logger.critical("Cannot remove zoomified:\n '%s'" % str(e))
 
+        logger.debug("Converting %s" % abs_file)
         if not zoomer.process_zoom(abs_file):
             raise BaseException("Failed to zoom file '%s'" % image['filename'])
         logger.info("Zoomed image '%s'" % image['filename'])
