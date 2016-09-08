@@ -17,7 +17,6 @@ from operations import rethink
 rethink.check_doubles()
 # rethink.expo_operations()
 # rethink.convert_tiff()
-exit(1)
 
 #########################
 # RETHINKDB 2 ELASTICSEARCH
