@@ -93,8 +93,29 @@ def convert_schema():
 
 
 def check_doubles():
-    q = query.get_table_query('datavalues')
-    for record in q.run():
+
+    qfix = query.get_table_query('datadocs')
+    qdouble = query.get_table_query('datavalues')
+
+    ####################
+    # Fix PONT_1
+    old = 'c9378811-d84a-437d-9bcd-70e0591ea409'
+    new = '3caee5bc-e569-432e-9da9-db9baaf52252'
+
+    tmp = qfix.get(old).run()
+    check = qfix.get(new).run()
+    if check is None:
+        tmp['record'] = new
+        qfix.insert(tmp).run()
+        logger.debug("Duplicated into new %s" % new)
+    else:
+        qfix.get(old).delete().run()
+        qdouble.get(old).delete().run()
+        logger.debug("Removed old %s" % old)
+
+    ####################
+    # Fix Doubles
+    for record in qdouble.run():
         steps = {}
 
         wrong = 0
@@ -121,7 +142,7 @@ def check_doubles():
             final = len(record['steps'])
             logger.debug("From %s to %s" % (original, final))
 
-            q.get(record['record']).replace(record).run()
+            qdouble.get(record['record']).replace(record).run()
 
 
 #################################
