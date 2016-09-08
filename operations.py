@@ -14,9 +14,10 @@ from operations import rethink2elastic as r2e
 # #########################
 from operations import rethink
 # rethink.check_translations()
+rethink.check_doubles()
 # rethink.expo_operations()
 # rethink.convert_tiff()
-# exit(1)
+exit(1)
 
 #########################
 # RETHINKDB 2 ELASTICSEARCH

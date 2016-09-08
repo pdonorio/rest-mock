@@ -92,6 +92,38 @@ def convert_schema():
     # check_indexes(t2in)
 
 
+def check_doubles():
+    q = query.get_table_query('datavalues')
+    for record in q.run():
+        steps = {}
+
+        wrong = 0
+        for step in record['steps']:
+            key = step['step']
+            if key not in steps:
+                steps[key] = []
+            steps[key].append(step['data'])
+
+            if len(steps[key]) > 1:
+                wrong = key
+
+        if wrong > 0:
+            logger.info("Wrong is %s in %s" % (wrong, record['record']))
+            index = 0
+            to_be_removed = []
+            original = len(record['steps'])
+            for step in record['steps']:
+                if step['step'] == wrong:
+                    to_be_removed.append(index)
+                index = index + 1
+            for element in to_be_removed[::-1]:
+                del record['steps'][element]
+            final = len(record['steps'])
+            logger.debug("From %s to %s" % (original, final))
+
+            q.get(record['record']).replace(record).run()
+
+
 #################################
 #################################
 def check_translations():
