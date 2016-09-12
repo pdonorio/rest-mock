@@ -102,17 +102,34 @@ class FastSearch(object):
             return False
         return self
 
-    def fast_get(self, keyword, current=1, size=10):
+    def fast_get(self, keyword, current=1, size=10, filters={}):
 
         args = {'index': EL_INDEX1, 'doc_type': EL_TYPE1}
         args['sort'] = ["sort_string:asc", "sort_number:asc"]
         args['from_'] = current - 1
         args['size'] = size
 
-        if keyword is not None:
+        if keyword is not None or len(filters) > 0:
             args['body'] = {
-                'query': {"match": {"_all": {"query": keyword}}}
+                # 'query': {"match": {"_all": {"query": keyword}}}
+
+                # http://stackoverflow.com/a/15528305/2114395
+                'query': {
+                    'filtered': {
+                    }
+                }
             }
+
+            if keyword is not None:
+                args['body']['query']['filtered']['query'] = {
+                    "query_string": {
+                        "query": keyword
+                    }
+                }
+            if len(filters) > 0:
+                args['body']['query']['filtered']['filter'] = {
+                    "term": filters
+                }
 
         try:
             out = self._api.search(**args)
