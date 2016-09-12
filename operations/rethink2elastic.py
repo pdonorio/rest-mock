@@ -239,15 +239,15 @@ def make():
                 # suggest
                 print("FETE", value)
 
-# UHM...
-                if value is not None:
-                    out = es.search(
-                        index=EL_INDEX2,
-                        body={'query': {'match': {'suggest': value}}})
-                    if out['hits']['total'] < 1:
-                        es.index(
-                            index=EL_INDEX2, doc_type=EL_TYPE2,
-                            body={'label': key, 'suggest': value, 'prob': .7})
+# # UHM...
+#                 if value is not None:
+#                     out = es.search(
+#                         index=EL_INDEX2,
+#                         body={'query': {'match': {'suggest': value}}})
+#                     if out['hits']['total'] < 1:
+#                         es.index(
+#                             index=EL_INDEX2, doc_type=EL_TYPE2,
+#                             body={'label': key, 'suggest': value, 'prob': .7})
 
             if key is not None and value is not None:
                 elobj[key] = value
