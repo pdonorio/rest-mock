@@ -1,6 +1,21 @@
 # -*- coding: utf-8 -*-
 
-""" Being fast at searching """
+"""
+Being fast at searching
+
+distinct = aggregations
+
+conn = connections.Elasticsearch(host='el')
+# a = A('terms', field='fete')
+a = A('terms', field='fete.raw', size=0)
+s = Search(using=conn, index='catalogue')
+s.aggs.bucket('fete_terms', a)
+response = s.execute()
+response.aggregations.fete_terms.to_dict()
+
+http://elasticsearch-dsl.readthedocs.io/en/latest/search_dsl.html?highlight=aggregation
+
+"""
 
 from elasticsearch import Elasticsearch
 from ... import get_logger
@@ -12,6 +27,7 @@ ES_SERVICE = {"host": ES_SERVER, "port": 9200}
 EL_INDEX0 = "split_html"
 EL_INDEX1 = "catalogue"
 EL_INDEX2 = "suggestions"
+EL_INDEX2 = "distinct"
 EL_TYPE1 = 'data'
 EL_TYPE2 = 'words'
 

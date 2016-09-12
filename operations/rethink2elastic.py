@@ -38,7 +38,22 @@ INDEX_BODY1 = {
                     # "index": "not_analyzed"
                 },
                 "source": {"type": "string"},
-                "fete": {"type": "string"},
+                "fete": {
+                    "type": "string",
+                # UHM
+                    "index": "not_analyzed"
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/multi-fields.html
+                    # Multi analyzer for this field
+                    # "fields": {
+                    #     "prova": {
+                    #         "type": "string",
+                    #         "index": "not_analyzed"
+                    #     },
+                    #     "test": {
+                    #         "type": "string",
+                    #     }
+                    # }
+                },
                 "transcription": {"type": "string"},
                 "sort_string": {
                     "type": "string",
@@ -118,7 +133,8 @@ def make():
 
     """
 
-    cursor = query.get_table_query(RDB_TABLE1).run()
+    q = query.get_table_query(RDB_TABLE1)
+    cursor = q.run()
     # print("SOME", cursor)
 
     # HTML STRIPPER
@@ -155,6 +171,7 @@ def make():
 
         for step in doc['steps']:
 
+            current_step = int(step['step'])
             if not_valid:
                 break
             value = None
@@ -163,14 +180,16 @@ def make():
                 if element['position'] == 1:
                     value = element['value']
                     # break
-                elif step['step'] == 3 and element['position'] == 4:
+                elif current_step == 3 and element['position'] == 4:
                     elobj['date'] = element['value']
-                elif step['step'] == 3 and element['position'] == 5:
+                elif current_step == 3 and element['position'] == 5:
                     elobj['place'] = element['value']
 
-            if step['step'] == 1:
+            if current_step == 1:
                 if value is None:
-                    logger.warn("Element is not valid")
+                    # print("ID", record, step)
+                    q.get(record).delete().run()
+                    logger.warn("Element '%s' invalid... Removed")
                     not_valid = True
                     break
 
@@ -201,9 +220,11 @@ def make():
                     print("VALUES WAS", value, step)
                     raise e
 
-            elif step['step'] == 2:
+            elif current_step == 2:
                 key = 'source'
                 # suggest
+# UHM...
+# Should make a function out of this big IF?
                 if value is not None:
                     out = es.search(
                         index=EL_INDEX2,
@@ -213,9 +234,12 @@ def make():
                             index=EL_INDEX2, doc_type=EL_TYPE2,
                             body={'label': key, 'suggest': value, 'prob': .9})
 
-            elif step['step'] == 3:
+            elif current_step == 3:
                 key = 'fete'
                 # suggest
+                print("FETE", value)
+
+# UHM...
                 if value is not None:
                     out = es.search(
                         index=EL_INDEX2,
@@ -233,10 +257,18 @@ def make():
 
         es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
         print("Index count", count)
+
+        # CHECK
+        key = 'transcription'
+        if key in elobj:
+            elobj.pop(key)
+        if not not_valid and 'fete' not in elobj:
+            print("OBJ", elobj)
+            exit(1)
+
         count += 1
 
-# NORMAL UPDATE
-
+        # NORMAL UPDATE
         exist = query.get_table_query(RDB_TABLE2) \
             .get_all(record).count().run()
 
