@@ -255,16 +255,17 @@ def make():
         # print("object", record, elobj)
         # exit(1)
 
-        es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
-        print("Index count", count)
-
         # CHECK
         key = 'transcription'
         if key in elobj:
             elobj.pop(key)
         if not not_valid and 'fete' not in elobj:
             print("OBJ", elobj)
-            exit(1)
+            continue
+            # exit(1)
+
+        es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
+        print("Index count", count)
 
         count += 1
 
