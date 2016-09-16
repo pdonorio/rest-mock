@@ -13,13 +13,18 @@ from elasticsearch import Elasticsearch
 from restapi import get_logger
 import re
 import logging
+
 logger = get_logger(__name__)
 logger.setLevel(logging.DEBUG)
 
 RDB_TABLE1 = "datavalues"
 RDB_TABLE2 = "datadocs"
 
-fields = ['extrait', 'source', 'fete', 'transcription', 'date', 'place']
+fields = [
+    'extrait', 'source', 'fete',
+    'transcription', 'traduction',
+    'date', 'lieu', 'manuscrit'
+]
 
 # INDEX 1 is NORMAL SEARCH FILTER
 
@@ -54,7 +59,7 @@ INDEX_BODY1 = {
                     #     }
                     # }
                 },
-                "transcription": {"type": "string"},
+
                 "sort_string": {
                     "type": "string",
                     "include_in_all": False
@@ -63,17 +68,21 @@ INDEX_BODY1 = {
                     "type": "integer",
                     "include_in_all": False
                 },
+
+                "transcription": {"type": "string"},
+                "traduction": {"type": "string"},
                 "thumbnail": {
                     "type": "string",
                     "index": "no",
                     "include_in_all": False
                 },
+
                 "date": {
                     "type": "string",
                     "index": "no",
                     "include_in_all": False
                 },
-                "place": {
+                "lieu": {
                     "type": "string",
                     "index": "no",
                     "include_in_all": False
@@ -103,6 +112,7 @@ INDEX_BODY2 = {
     }
 }
 
+SUGGEST = 'suggest'
 
 # Connection
 RethinkConnection()
@@ -110,6 +120,41 @@ RethinkConnection()
 query = RDBquery()
 # Elasticsearch object
 es = Elasticsearch(**ES_SERVICE)
+
+_cache = {}
+
+
+def add_suggestion(key, value, probability=1, extra=None):
+    """
+    Add to suggestion only if not available already
+    """
+    if value is None:
+        return False
+
+    if key not in _cache:
+        _cache[key] = {}
+
+    # Check if suggestion is already there
+    # if extra is None:
+    #     out = es.search(
+    #         index=EL_INDEX2, body={'query': {'match': {SUGGEST: value}}})
+    #     # If no hits, add this
+    #     if out['hits']['total'] > 0:
+    #         return False
+    if value in _cache[key]:
+        # print("Skipping")
+        return False
+
+    body = {'label': key, SUGGEST: value, 'prob': probability}
+    if extra is not None:
+        body['extra'] = extra
+
+    # ADD
+    es.index(index=EL_INDEX2, doc_type=EL_TYPE2, body=body)
+    _cache[key][value] = True
+
+    # print("Suggest adding", key, value, probability)
+    return True
 
 
 #################################
@@ -176,15 +221,30 @@ def make():
                 break
             value = None
             key = None
+
+            #############################
+            # Add extra search elements
             for element in step['data']:
-                if element['position'] == 1:
+                pos = element['position']
+                extrakey = None
+                # print("Current step", current_step, pos)
+                if pos == 1:
                     value = element['value']
                     # break
-                elif current_step == 3 and element['position'] == 4:
-                    elobj['date'] = element['value']
-                elif current_step == 3 and element['position'] == 5:
-                    elobj['place'] = element['value']
+                elif current_step == 2:
+                    if pos == 2:
+                        extrakey = 'manuscrit'
+                elif current_step == 3:
+                    if pos == 4:
+                        extrakey = 'date'
+                    elif pos == 5:
+                        extrakey = 'lieu'
 
+                if extrakey is not None and element['value'].strip() != '':
+                    # print("TEST", extrakey, "*" + element['value'] + "*")
+                    elobj[extrakey] = element['value']
+
+            #############################
             if current_step == 1:
                 if value is None:
                     # print("ID", record, step)
@@ -213,8 +273,7 @@ def make():
                         prob = .5 - (num / 250)
 
                     # suggest
-                    es.index(index=EL_INDEX2, doc_type=EL_TYPE2, body={
-                        'label': key, 'suggest': value, 'prob': prob})
+                    add_suggestion(key, value, prob)
                     elobj['sort_number'] = num
                 except Exception as e:
                     print("VALUES WAS", value, step)
@@ -222,32 +281,12 @@ def make():
 
             elif current_step == 2:
                 key = 'source'
-                # suggest
-# UHM...
-# Should make a function out of this big IF?
-                if value is not None:
-                    out = es.search(
-                        index=EL_INDEX2,
-                        body={'query': {'match': {'suggest': value}}})
-                    if out['hits']['total'] < 1:
-                        es.index(
-                            index=EL_INDEX2, doc_type=EL_TYPE2,
-                            body={'label': key, 'suggest': value, 'prob': .9})
+                # add_suggestion(key, value, .9)
 
             elif current_step == 3:
                 key = 'fete'
-                # suggest
-                print("FETE", value)
-
-# # UHM...
-#                 if value is not None:
-#                     out = es.search(
-#                         index=EL_INDEX2,
-#                         body={'query': {'match': {'suggest': value}}})
-#                     if out['hits']['total'] < 1:
-#                         es.index(
-#                             index=EL_INDEX2, doc_type=EL_TYPE2,
-#                             body={'label': key, 'suggest': value, 'prob': .7})
+                # add_suggestion(key, value, .7)
+                logger.debug(value)
 
             if key is not None and value is not None:
                 elobj[key] = value
@@ -259,8 +298,9 @@ def make():
         key = 'transcription'
         if key in elobj:
             elobj.pop(key)
+
         if not not_valid and 'fete' not in elobj:
-            print("OBJ", elobj)
+            logger.warning("Invalid object", elobj)
             continue
             # exit(1)
 
@@ -279,26 +319,42 @@ def make():
                 .get_all(record).run()
             data = list(doc_cursor).pop(0)
             image = data['images'].pop(0)
+            # print(image)
 
             if "transcriptions" in image and len(image["transcriptions"]) > 0:
 
+                logger.debug("Found transcription")
                 key = 'transcription'
                 trans = image["transcriptions"].pop(0)
 
                 if trans.strip() != '':
                     words = es.indices.analyze(
-                        index=EL_INDEX0, analyzer='my_html_analyzer', body=trans)
+                        index=EL_INDEX0, analyzer='my_html_analyzer',
+                        body=trans)
                     for token in words['tokens']:
                         word = token['token']
                         if len(word) > 3:
-                            # out = es.search(
-                            #     index=EL_INDEX2,
-                            #     body={'query': {'match': {'suggest': word}}})
-                            # if out['hits']['total'] < 1:
-                            es.index(index=EL_INDEX2, doc_type=EL_TYPE2,
-                                     body={'label': key, 'suggest': word,
-                                           'prob': .25, 'extra': token})
+                            add_suggestion(key, word, .25, extra=token)
+
                     elobj[key] = trans
+
+            if "translations" in image and len(image["translations"]) > 0:
+
+                for language, trans in image["translations"].items():
+                    key = 'translation_' + language.lower()
+                    logger.debug("Found translations: %s" % language)
+
+                    if trans.strip() != '':
+                        words = es.indices.analyze(
+                            index=EL_INDEX0, analyzer='my_html_analyzer',
+                            body=trans)
+                        # print("Translate", words);import time; time.sleep(2)
+                        for token in words['tokens']:
+                            word = token['token']
+                            if len(word) > 3:
+                                add_suggestion(key, word, .25, extra=token)
+
+                        elobj[key] = trans
 
             f = image['filename']
             elobj['thumbnail'] = '/static/uploads/' + \
