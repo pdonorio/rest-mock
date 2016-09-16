@@ -45,19 +45,7 @@ INDEX_BODY1 = {
                 "source": {"type": "string"},
                 "fete": {
                     "type": "string",
-                # UHM
                     "index": "not_analyzed"
-# https://www.elastic.co/guide/en/elasticsearch/reference/current/multi-fields.html
-                    # Multi analyzer for this field
-                    # "fields": {
-                    #     "prova": {
-                    #         "type": "string",
-                    #         "index": "not_analyzed"
-                    #     },
-                    #     "test": {
-                    #         "type": "string",
-                    #     }
-                    # }
                 },
 
                 "sort_string": {
@@ -141,6 +129,10 @@ def add_suggestion(key, value, probability=1, extra=None):
     #     # If no hits, add this
     #     if out['hits']['total'] > 0:
     #         return False
+
+    if extra is None:
+        extra = {'cleanlabel': key}
+
     if value in _cache[key]:
         # print("Skipping")
         return False
@@ -154,6 +146,21 @@ def add_suggestion(key, value, probability=1, extra=None):
     _cache[key][value] = True
 
     # print("Suggest adding", key, value, probability)
+    return True
+
+
+def suggest_transcription(transcription, key, probability=0.5):
+    if transcription.strip() == '':
+        return False
+
+    words = es.indices.analyze(
+        index=EL_INDEX0, analyzer='my_html_analyzer', body=transcription)
+
+    for token in words['tokens']:
+        word = token['token']
+        token['cleanlabel'] = key.split('_')[0]
+        if len(word) > 3:
+            add_suggestion(key, word, probability, extra=token)
     return True
 
 
@@ -321,40 +328,25 @@ def make():
             image = data['images'].pop(0)
             # print(image)
 
+            # TRANSCRIPT
             if "transcriptions" in image and len(image["transcriptions"]) > 0:
-
                 logger.debug("Found transcription")
                 key = 'transcription'
-                trans = image["transcriptions"].pop(0)
+                if 'language' in image:
+                    key += '_' + image['language'].lower()
 
-                if trans.strip() != '':
-                    words = es.indices.analyze(
-                        index=EL_INDEX0, analyzer='my_html_analyzer',
-                        body=trans)
-                    for token in words['tokens']:
-                        word = token['token']
-                        if len(word) > 3:
-                            add_suggestion(key, word, .25, extra=token)
+                transcription = image["transcriptions"].pop(0)
+                suggest_transcription(transcription, key, .25)
+                elobj[key] = transcription
 
-                    elobj[key] = trans
-
+            # TRANSLATE
             if "translations" in image and len(image["translations"]) > 0:
 
-                for language, trans in image["translations"].items():
-                    key = 'translation_' + language.lower()
+                for language, translation in image["translations"].items():
+                    key = 'traduction_' + language.lower()
                     logger.debug("Found translations: %s" % language)
-
-                    if trans.strip() != '':
-                        words = es.indices.analyze(
-                            index=EL_INDEX0, analyzer='my_html_analyzer',
-                            body=trans)
-                        # print("Translate", words);import time; time.sleep(2)
-                        for token in words['tokens']:
-                            word = token['token']
-                            if len(word) > 3:
-                                add_suggestion(key, word, .25, extra=token)
-
-                        elobj[key] = trans
+                    suggest_transcription(transcription, key, .20)
+                    elobj[key] = translation
 
             f = image['filename']
             elobj['thumbnail'] = '/static/uploads/' + \
