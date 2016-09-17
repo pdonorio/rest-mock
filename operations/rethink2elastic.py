@@ -11,6 +11,7 @@ from restapi.resources.services.elastic import \
 from elasticsearch import Elasticsearch
 
 from restapi import get_logger
+from beeprint import pp
 import re
 import logging
 
@@ -23,7 +24,8 @@ RDB_TABLE2 = "datadocs"
 fields = [
     'extrait', 'source', 'fete',
     'transcription', 'traduction',
-    'date', 'lieu', 'manuscrit'
+    'date', 'lieu', 'manuscrit',
+    'temps', 'actions', 'apparato',
 ]
 
 # INDEX 1 is NORMAL SEARCH FILTER
@@ -62,6 +64,21 @@ INDEX_BODY1 = {
                     "include_in_all": False
                 },
                 "manuscrit": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "include_in_all": False
+                },
+                "temps": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "include_in_all": False
+                },
+                "actions": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "include_in_all": False
+                },
+                "apparato": {
                     "type": "string",
                     "index": "not_analyzed",
                     "include_in_all": False
@@ -223,10 +240,10 @@ def make():
     # MAIN CYCLE on single document
     count = 0
     for doc in cursor:
-        # print(doc)
-        record = doc['record']
 
-# NORMAL INSERT
+        # print(doc)
+## TO MOVE SOMEWHERE ELSE and use it when a new record is created!
+        record = doc['record']
         elobj = {}
         not_valid = False
 
@@ -255,10 +272,18 @@ def make():
                         extrakey = 'date'
                     elif pos == 5:
                         extrakey = 'lieu'
+                elif current_step == 4:
+                    if pos == 6:
+                        extrakey = 'apparato'
+                    elif pos == 4:
+                        extrakey = 'actions'
+                    elif pos == 3:
+                        extrakey = 'temps'
 
-                if extrakey is not None and element['value'].strip() != '':
+                if extrakey is not None:
                     # print("TEST", extrakey, "*" + element['value'] + "*")
-                    elobj[extrakey] = element['value']
+                    if 'value' in element and len(element['value']) > 0:
+                        elobj[extrakey] = element['value']
 
             #############################
             if current_step == 1:
@@ -307,8 +332,13 @@ def make():
             if key is not None and value is not None:
                 elobj[key] = value
 
-        # print("object", record, elobj)
-        # exit(1)
+        ###############################
+        # # print("object", record, elobj)
+        # # exit(1)
+        # if 'apparato' in elobj:
+        #     import time
+        #     pp(elobj)
+        #     time.sleep(3)
 
         # CHECK
         key = 'transcription'
@@ -318,25 +348,20 @@ def make():
         if not not_valid and 'fete' not in elobj:
             logger.warning("Invalid object", elobj)
             continue
-        else:
-            logger.info("[Count %s]\t%s" % (count, elobj['extrait']))
 
-        es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
-        count += 1
-
-        # NORMAL UPDATE
+        # Update with data from the images and translations + transcriptions
         exist = query.get_table_query(RDB_TABLE2) \
             .get_all(record).count().run()
 
         if exist:
-            elobj = {}
+            docobj = {}
             doc_cursor = query.get_table_query(RDB_TABLE2) \
                 .get_all(record).run()
             data = list(doc_cursor).pop(0)
             image = data['images'].pop(0)
             # print(image)
 
-            # TRANSCRIPT
+            # TRANSCRIPT
             if "transcriptions" in image and len(image["transcriptions"]) > 0:
                 logger.debug("Found transcription")
                 key = 'transcription'
@@ -345,7 +370,7 @@ def make():
 
                 transcription = image["transcriptions"].pop(0)
                 suggest_transcription(transcription, key, .25)
-                elobj[key] = transcription
+                docobj[key] = transcription
 
             # TRANSLATE
             if "translations" in image and len(image["translations"]) > 0:
@@ -354,18 +379,29 @@ def make():
                     key = 'traduction_' + language.lower()
                     logger.debug("Found translations: %s" % language)
                     suggest_transcription(transcription, key, .20)
-                    elobj[key] = translation
+                    docobj[key] = translation
 
             f = image['filename']
-            elobj['thumbnail'] = '/static/uploads/' + \
+            docobj['thumbnail'] = '/static/uploads/' + \
                 f[:f.index('.', len(f) - 5)] + \
                 '/TileGroup0/0-0-0.jpg'
-            # print(elobj)
+            # print(docobj)
+            elobj['doc'] = docobj
 
-            es.update(
-                index=EL_INDEX1, id=record,
-                body={"doc": elobj}, doc_type=EL_TYPE1)
+            # es.update(
+            #     index=EL_INDEX1, id=record,
+            #     body={"doc": docobj}, doc_type=EL_TYPE1)
+        else:
+            logger.warning("NO IMAGES HERE??")
+            pp(elobj)
+            import time
+            time.sleep(3)
+
+        # Insert the elasticsearch document!
+        count += 1
+        logger.info("[Count %s]\t%s" % (count, elobj['extrait']))
+        es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
+        print("")
 
     # print("TOTAL", es.search(index=EL_INDEX1))
-
     print("Completed")
