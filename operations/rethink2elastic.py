@@ -40,13 +40,33 @@ INDEX_BODY1 = {
             'properties': {
                 "extrait": {
                     "type": "string",
-                    # "index": "not_analyzed"
                 },
-                "source": {"type": "string"},
+
+                ####################
+                "source": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
                 "fete": {
                     "type": "string",
                     "index": "not_analyzed"
                 },
+                "date": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "include_in_all": False
+                },
+                "lieu": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "include_in_all": False
+                },
+                "manuscrit": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "include_in_all": False
+                },
+                ####################
 
                 "sort_string": {
                     "type": "string",
@@ -60,17 +80,6 @@ INDEX_BODY1 = {
                 "transcription": {"type": "string"},
                 "traduction": {"type": "string"},
                 "thumbnail": {
-                    "type": "string",
-                    "index": "no",
-                    "include_in_all": False
-                },
-
-                "date": {
-                    "type": "string",
-                    "index": "no",
-                    "include_in_all": False
-                },
-                "lieu": {
                     "type": "string",
                     "index": "no",
                     "include_in_all": False
@@ -299,6 +308,7 @@ def make():
                 elobj[key] = value
 
         # print("object", record, elobj)
+        logger.info("OBJ: %s" % elobj['extrait'])
         # exit(1)
 
         # CHECK

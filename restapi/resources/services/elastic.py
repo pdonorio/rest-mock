@@ -127,9 +127,17 @@ class FastSearch(object):
                     }
                 }
             if len(filters) > 0:
+                musts = []
+                for key, value in filters.items():
+                    musts.append({'term': {key: value}})
                 args['body']['query']['filtered']['filter'] = {
-                    "term": filters
+                    "bool": {
+                        "must": musts
+                    }
                 }
+
+        # from beeprint import pp
+        # pp(args)
 
         try:
             out = self._api.search(**args)
