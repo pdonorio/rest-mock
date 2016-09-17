@@ -308,7 +308,6 @@ def make():
                 elobj[key] = value
 
         # print("object", record, elobj)
-        logger.info("OBJ: %s" % elobj['extrait'])
         # exit(1)
 
         # CHECK
@@ -319,11 +318,10 @@ def make():
         if not not_valid and 'fete' not in elobj:
             logger.warning("Invalid object", elobj)
             continue
-            # exit(1)
+        else:
+            logger.info("[Count %s]\t%s" % (count, elobj['extrait']))
 
         es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
-        print("Index count", count)
-
         count += 1
 
         # NORMAL UPDATE
