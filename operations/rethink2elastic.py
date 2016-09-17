@@ -13,6 +13,7 @@ from elasticsearch import Elasticsearch
 from restapi import get_logger
 from beeprint import pp
 import re
+import time
 import logging
 
 logger = get_logger(__name__)
@@ -239,6 +240,7 @@ def make():
 
     # MAIN CYCLE on single document
     count = 0
+    noimages = {}
     for doc in cursor:
 
         # print(doc)
@@ -345,8 +347,8 @@ def make():
         if key in elobj:
             elobj.pop(key)
 
-        if not not_valid and 'fete' not in elobj:
-            logger.warning("Invalid object", elobj)
+        if not not_valid and ('fete' not in elobj or 'extrait' not in elobj):
+            logger.warning("Invalid object %s" % elobj)
             continue
 
         # Update with data from the images and translations + transcriptions
@@ -391,17 +393,19 @@ def make():
             # es.update(
             #     index=EL_INDEX1, id=record,
             #     body={"doc": docobj}, doc_type=EL_TYPE1)
+
         else:
-            logger.warning("NO IMAGES HERE??")
-            pp(elobj)
-            import time
-            time.sleep(3)
+            noimages[elobj['extrait']] = elobj
 
         # Insert the elasticsearch document!
         count += 1
         logger.info("[Count %s]\t%s" % (count, elobj['extrait']))
+        # pp(elobj)
+        # time.sleep(5)
+
         es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
         print("")
 
     # print("TOTAL", es.search(index=EL_INDEX1))
     print("Completed")
+    pp(noimages.keys())

@@ -14,7 +14,8 @@ from operations import rethink2elastic as r2e
 # #########################
 from operations import rethink
 # rethink.check_translations()
-rethink.check_doubles()
+# rethink.check_doubles()
+rethink.some_operation()
 # rethink.expo_operations()
 # rethink.convert_tiff()
 

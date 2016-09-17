@@ -92,26 +92,30 @@ def convert_schema():
     # check_indexes(t2in)
 
 
+def some_operation():
+    pass
+
+
 def check_doubles():
 
     qdouble = query.get_table_query('datavalues')
-    qfix = query.get_table_query('datadocs')
+    # qfix = query.get_table_query('datadocs')
 
-    ####################
-    # Fix PONT_1
-    old = 'c9378811-d84a-437d-9bcd-70e0591ea409'
-    new = '3caee5bc-e569-432e-9da9-db9baaf52252'
+    # ####################
+    # # Fix PONT_1
+    # old = 'c9378811-d84a-437d-9bcd-70e0591ea409'
+    # new = '3caee5bc-e569-432e-9da9-db9baaf52252'
 
-    tmp = qfix.get(old).run()
-    check = qfix.get(new).run()
-    if check is None:
-        tmp['record'] = new
-        qfix.insert(tmp).run()
-        logger.debug("Duplicated into new %s" % new)
-    else:
-        qfix.get(old).delete().run()
-        qdouble.get(old).delete().run()
-        logger.debug("Removed old %s" % old)
+    # tmp = qfix.get(old).run()
+    # check = qfix.get(new).run()
+    # if check is None:
+    #     tmp['record'] = new
+    #     qfix.insert(tmp).run()
+    #     logger.debug("Duplicated into new %s" % new)
+    # else:
+    #     qfix.get(old).delete().run()
+    #     qdouble.get(old).delete().run()
+    #     logger.debug("Removed old %s" % old)
 
     ####################
     # Fix Doubles
