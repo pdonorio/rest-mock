@@ -11,7 +11,8 @@ from operations import rethink2elastic as r2e
 # from restapi import get_logger
 # logger = get_logger(__name__)
 
-# #########################
+#########################
+# RETHINKDB
 from operations import rethink
 # rethink.check_translations()
 # rethink.check_doubles()
@@ -24,8 +25,3 @@ rethink.some_operation()
 r2e.make()
 print("Conversion completed")
 exit(0)
-
-# #########################
-# # RETHINKDB
-# from operations import rethink
-# rethink.convert_schema()
