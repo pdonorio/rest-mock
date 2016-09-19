@@ -14,8 +14,11 @@ from operations import rethink2elastic as r2e
 #########################
 # RETHINKDB
 from operations import rethink
+
 rethink.some_operation()
 # rethink.rebuild_zoom()
+rethink.medium_expo_thumbnail(force=True)
+print("Skip the elastic index rebuilding"); exit(0)
 # rethink.expo_operations()
 # rethink.convert_tiff()
 

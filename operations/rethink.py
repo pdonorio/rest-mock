@@ -29,6 +29,7 @@ from confs.config import args, UPLOAD_FOLDER
 import logging
 logger = get_logger(__name__)
 logger.setLevel(logging.DEBUG)
+zoomer = ZoomEnabling()
 
 ES_HOST = {"host": "el", "port": 9200}
 EL_INDEX = "autocomplete"
@@ -235,24 +236,66 @@ def expo_operations():
 #################################
 #################################
 
-def rebuild_zoom():
-# def convert_tiff():
+def medium_expo_thumbnail(force=False):
 
-    import re
-    pattern = re.compile("^[0-9]+$")
-    zoomer = ZoomEnabling()
+    tag = 'expo'
+    qfix = query.get_table_query('datadocs')
 
-    q = query.get_table_query(t3in)
-    for record in q.run():
+    for element in qfix.filter({'type': tag}).run():
 
-        if record['type'] != 'documents':
+        images = element.pop('images', {})
+        if len(images) < 1:
             continue
 
-        # q = query.get_table_query('datavalues')
-        # print(record)
-        # data = element['steps'][0]['data']
-        # print("\n\nTEST", data[0]['value'])
-        # exit(1)
+        image = images.pop()
+        # from beeprint import pp
+        # pp(image)
+        x = image.get('code')
+        fname = image.get('filename')
+        absf = os.path.join(UPLOAD_FOLDER, tag, fname)
+
+        filebase, fileext = os.path.splitext(absf)
+        small = filebase + '.small.jpg'
+
+        if not os.path.exists(small):
+
+            ori = os.path.join(filebase, 'TileGroup0', '0-0-0.jpg')
+
+            # Zoom if not exists
+            if not os.path.exists(filebase) or not os.path.exists(ori):
+                if not zoomer.process_zoom(absf):
+                    raise BaseException("Failed to zoom file '%s'" % fname)
+                logger.info("Zoomed image '%s'" % filebase)
+
+            # Copy 0.0.0 as filename.small.jpg
+            from shutil import copyfile
+            copyfile(ori, small)
+            logger.debug("Created thumb %s" % small)
+
+            # Remove zoom dir
+            try:
+                shutil.rmtree(filebase)
+                logger.debug("Removed dir '%s' " % filebase)
+            except Exception as e:
+                logger.critical("Cannot remove zoomified:\n '%s'" % str(e))
+
+        # Build with 'convert' binary a filename.medium.jpg
+        medium = filebase + '.medium.jpg'
+        size = '25'
+        if force or not os.path.exists(medium):
+            from plumbum.cmd import convert
+            convert(['-resize', size + '%', absf, medium])
+            logger.info("Builded %s with %s %s dimension" % (medium, '%', size))
+
+
+# def convert_tiff():
+def rebuild_zoom():
+
+    import re
+    # pattern = re.compile("^[0-9]+$")
+
+    q = query.get_table_query(t3in)
+    for record in q.filter({'type': 'documents'}).run():
 
         images = record.pop('images')
         if len(images) < 1:
@@ -261,9 +304,6 @@ def rebuild_zoom():
 
         ##################
         # FIX ZOOM for files like [0-9]+.jpg
-
-        # LIMIT?
-        # print("TEST", image)
         # match = pattern.match(image['code'])
         # if match is None:
         #     continue
@@ -285,40 +325,28 @@ def rebuild_zoom():
             raise BaseException("Failed to zoom file '%s'" % image['filename'])
         logger.info("Zoomed image '%s'" % image['filename'])
 
-        # ##################
-        # # FIX TIFF
-        # if not image['filename'][-4:] == '.tif':
-        #     continue
+        ##################
+        # FIX TIFF
+        if not image['filename'][-4:] == '.tif':
+            continue
+        logger.warning("Converting current image as tiff")
 
-        # path = os.path.join('/uploads', image['filename'])
-        # if not os.path.exists(path):
-        #     raise BaseException("Cannot find registered path %s" % path)
+        path = os.path.join('/uploads', image['filename'])
+        if not os.path.exists(path):
+            raise BaseException("Cannot find registered path %s" % path)
+        newpath = path.replace('.tif', '.jpg')
 
-        # newpath = path.replace('.tif', '.jpg')
+        # Convert tif to jpg
+        from plumbum.cmd import convert
+        convert([path, newpath])
+        logger.info("Converted TIF to %s" % newpath)
 
-        # # Convert tif to jpg
-        # from plumbum.cmd import convert
-        # convert([path, newpath])
-        # logger.info("Converted TIF to %s" % newpath)
-
-        # # Update
-        # image['filename'] = image['filename'].replace('.tif', '.jpg')
-
-        # # key = 'transcriptions_split'
-        # # if key in image:
-        # #     image.pop(key)
-        # # # image['translation'] = False
-        # # # image['language'] = '-'
-        # # record['images'] = [image]
-        # # changes = q.get(record['record']).replace(record).run()
-
-        # record['images'] = [image]
-        # changes = q.get(record['record']).replace(record).run()
-        # print("Changes", changes)
-        # logger.debug("Updated %s" % record['record'])
-
-        # # import time
-        # # time.sleep(5);
+        # Update
+        image['filename'] = image['filename'].replace('.tif', '.jpg')
+        record['images'] = [image]
+        changes = q.get(record['record']).replace(record).run()
+        print("Changes", changes)
+        logger.debug("Updated %s" % record['record'])
 
 
 def convert_pending_images():
