@@ -1,26 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
-
 from restapi.resources.services.rethink import RethinkConnection, RDBquery
-# from restapi.resources.custom.docs import image_destination
-# from rethinkdb import r
-from restapi.resources.services.elastic import \
-    BASE_SETTINGS, ES_SERVICE, HTML_ANALYZER, \
-    EL_INDEX0, EL_INDEX1, EL_INDEX2, EL_TYPE1, EL_TYPE2
+from restapi.resources.services.elastic import BASE_SETTINGS, ES_SERVICE, \
+    HTML_ANALYZER, EL_INDEX0, EL_INDEX1, EL_INDEX2, EL_TYPE1, EL_TYPE2
 from elasticsearch import Elasticsearch
-
 from restapi import get_logger
 from beeprint import pp
-import re
 import time
+import re
 import logging
-
-logger = get_logger(__name__)
-logger.setLevel(logging.DEBUG)
 
 RDB_TABLE1 = "datavalues"
 RDB_TABLE2 = "datadocs"
+
+toberemoved = [
+    'd2d5fcb6-81cc-4654-9f65-a436f0780c67'  # prova
+]
 
 fields = [
     'extrait', 'source', 'fete',
@@ -128,6 +123,9 @@ INDEX_BODY2 = {
 }
 
 SUGGEST = 'suggest'
+
+logger = get_logger(__name__)
+logger.setLevel(logging.DEBUG)
 
 # Connection
 RethinkConnection()
@@ -242,10 +240,16 @@ def make():
     count = 0
     noimages = {}
     for doc in cursor:
+## SINGLE STEP
+## TO MOVE SOMEWHERE ELSE and use it when a new record is created!
 
         # print(doc)
-## TO MOVE SOMEWHERE ELSE and use it when a new record is created!
         record = doc['record']
+        if record in toberemoved:
+            q.get(record).delete().run()
+            logger.info("Removed useless %s" % record)
+            continue
+
         elobj = {}
         not_valid = False
 
@@ -329,6 +333,10 @@ def make():
             elif current_step == 3:
                 key = 'fete'
                 # add_suggestion(key, value, .7)
+                # if value == 'prova':
+                #     print("STOP!")
+                #     pp(record)
+                #     exit(1)
                 logger.debug(value)
 
             if key is not None and value is not None:
@@ -338,7 +346,6 @@ def make():
         # # print("object", record, elobj)
         # # exit(1)
         # if 'apparato' in elobj:
-        #     import time
         #     pp(elobj)
         #     time.sleep(3)
 
