@@ -236,7 +236,7 @@ def expo_operations():
 #################################
 #################################
 
-def medium_expo_thumbnail(force=False):
+def medium_expo_thumbnail(force=False, remove_zoom=False):
 
     tag = 'expo'
     qfix = query.get_table_query('datadocs')
@@ -250,10 +250,8 @@ def medium_expo_thumbnail(force=False):
         image = images.pop()
         # from beeprint import pp
         # pp(image)
-        x = image.get('code')
         fname = image.get('filename')
         absf = os.path.join(UPLOAD_FOLDER, tag, fname)
-
         filebase, fileext = os.path.splitext(absf)
         small = filebase + '.small.jpg'
 
@@ -268,16 +266,17 @@ def medium_expo_thumbnail(force=False):
                 logger.info("Zoomed image '%s'" % filebase)
 
             # Copy 0.0.0 as filename.small.jpg
-            from shutil import copyfile
-            copyfile(ori, small)
+            shutil.move(ori, small)
+            # shutil.copyfile(ori, small)
             logger.debug("Created thumb %s" % small)
 
             # Remove zoom dir
-            try:
-                shutil.rmtree(filebase)
-                logger.debug("Removed dir '%s' " % filebase)
-            except Exception as e:
-                logger.critical("Cannot remove zoomified:\n '%s'" % str(e))
+            if remove_zoom:
+                try:
+                    shutil.rmtree(filebase)
+                    logger.debug("Removed dir '%s' " % filebase)
+                except Exception as e:
+                    logger.critical("Cannot remove zoomified:\n '%s'" % str(e))
 
         # Build with 'convert' binary a filename.medium.jpg
         medium = filebase + '.medium.jpg'
