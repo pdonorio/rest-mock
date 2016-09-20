@@ -236,7 +236,7 @@ def expo_operations():
 #################################
 #################################
 
-def medium_expo_thumbnail(force=False, remove_zoom=False):
+def medium_expo_thumbnail(force=False, remove_zoom=False, rebuild_zoom=False):
 
     tag = 'expo'
     qfix = query.get_table_query('datadocs')
@@ -255,19 +255,19 @@ def medium_expo_thumbnail(force=False, remove_zoom=False):
         filebase, fileext = os.path.splitext(absf)
         small = filebase + '.small.jpg'
 
-        if not os.path.exists(small):
+        if not os.path.exists(small) or rebuild_zoom:
 
             ori = os.path.join(filebase, 'TileGroup0', '0-0-0.jpg')
 
             # Zoom if not exists
-            if not os.path.exists(filebase) or not os.path.exists(ori):
+            if not os.path.exists(filebase) or rebuild_zoom:
                 if not zoomer.process_zoom(absf):
                     raise BaseException("Failed to zoom file '%s'" % fname)
                 logger.info("Zoomed image '%s'" % filebase)
 
             # Copy 0.0.0 as filename.small.jpg
-            shutil.move(ori, small)
-            # shutil.copyfile(ori, small)
+            shutil.copyfile(ori, small)
+            # shutil.move(ori, small)
             logger.debug("Created thumb %s" % small)
 
             # Remove zoom dir
