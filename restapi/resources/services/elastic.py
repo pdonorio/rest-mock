@@ -129,7 +129,25 @@ class FastSearch(object):
             if len(filters) > 0:
                 musts = []
                 for key, value in filters.items():
-                    musts.append({'term': {key: value}})
+                    # Normal string query
+                    if '_date' not in key:
+                        musts.append({'term': {key: value}})
+                    # DATE string query
+                    else:
+                        compare = None
+                        if key.startswith('start'):
+                            compare = 'gte'
+                            key = 'end_date'
+                        elif key.startswith('end'):
+                            compare = 'lte'
+                            key = 'start_date'
+                        if len(value) == 4:
+                            value += '||/y'
+                        elif len(value) == 7:
+                            value += '||/M'
+                        elif len(value) == 10:
+                            value += '||/d'
+                        musts.append({'range': {key: {compare: value}}})
                 args['body']['query']['filtered']['filter'] = {
                     "bool": {
                         "must": musts

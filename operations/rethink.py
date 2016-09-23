@@ -288,7 +288,7 @@ def medium_expo_thumbnail(force=False, remove_zoom=False, rebuild_zoom=False):
 
 
 # def convert_tiff():
-def rebuild_zoom():
+def build_zoom(force=False):
 
     import re
     # pattern = re.compile("^[0-9]+$")
@@ -312,17 +312,19 @@ def rebuild_zoom():
 
         # Remove zoomified directory
         filebase, fileext = os.path.splitext(abs_file)
-        if os.path.exists(filebase):
+        if force and os.path.exists(filebase):
             try:
                 shutil.rmtree(filebase)
                 logger.debug("Removed dir '%s' " % filebase)
             except Exception as e:
                 logger.critical("Cannot remove zoomified:\n '%s'" % str(e))
 
-        logger.debug("Converting %s" % abs_file)
-        if not zoomer.process_zoom(abs_file):
-            raise BaseException("Failed to zoom file '%s'" % image['filename'])
-        logger.info("Zoomed image '%s'" % image['filename'])
+        if not os.path.exists(filebase):
+            logger.debug("Converting %s" % abs_file)
+            if not zoomer.process_zoom(abs_file):
+                raise BaseException(
+                    "Failed to zoom file '%s'" % image['filename'])
+            logger.info("Zoomed image '%s'" % image['filename'])
 
         ##################
         # FIX TIFF
@@ -335,10 +337,11 @@ def rebuild_zoom():
             raise BaseException("Cannot find registered path %s" % path)
         newpath = path.replace('.tif', '.jpg')
 
-        # Convert tif to jpg
-        from plumbum.cmd import convert
-        convert([path, newpath])
-        logger.info("Converted TIF to %s" % newpath)
+        if force or os.path.exists(newpath):
+            # Convert tif to jpg
+            from plumbum.cmd import convert
+            convert([path, newpath])
+            logger.info("Converted TIF to %s" % newpath)
 
         # Update
         image['filename'] = image['filename'].replace('.tif', '.jpg')

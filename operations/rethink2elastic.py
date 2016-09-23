@@ -79,6 +79,22 @@ INDEX_BODY1 = {
                     "index": "not_analyzed",
                     "include_in_all": False
                 },
+
+                ####################
+                "date": {
+                    "type": "string",
+                    "include_in_all": False
+                },
+                "start_date": {
+                    "type": "date",
+                    # "format": "yyyy-MM-dd"
+                    "include_in_all": False
+                },
+                "end_date": {
+                    "type": "date",
+                    # "format": "yyyy-MM-dd"
+                    "include_in_all": False
+                },
                 ####################
 
                 "sort_string": {
@@ -256,10 +272,14 @@ def make():
         for step in doc['steps']:
 
             current_step = int(step['step'])
+            # if current_step == 3:
+            #     pp(step)
+            #     exit(1)
             if not_valid:
                 break
             value = None
             key = None
+            date = {}
 
             #############################
             # Add extra search elements
@@ -270,26 +290,32 @@ def make():
                 if pos == 1:
                     value = element['value']
                     # break
-                elif current_step == 2:
-                    if pos == 2:
-                        extrakey = 'manuscrit'
-                elif current_step == 3:
-                    if pos == 4:
-                        extrakey = 'date'
-                    elif pos == 5:
-                        extrakey = 'lieu'
-                elif current_step == 4:
-                    if pos == 6:
-                        extrakey = 'apparato'
-                    elif pos == 4:
-                        extrakey = 'actions'
-                    elif pos == 3:
-                        extrakey = 'temps'
 
-                if extrakey is not None:
-                    # print("TEST", extrakey, "*" + element['value'] + "*")
-                    if 'value' in element and len(element['value']) > 0:
-                        elobj[extrakey] = element['value']
+                if 'value' in element and len(element['value']) > 0:
+                    if current_step == 2:
+                        if pos == 2:
+                            extrakey = 'manuscrit'
+                    elif current_step == 3:
+                        if pos == 4:
+                            # extrakey = 'date'
+                            date['year'] = int(element['value'])
+                        elif pos == 8:
+                            date['start'] = element['value']
+                        elif pos == 9:
+                            date['end'] = element['value']
+                        elif pos == 5:
+                            extrakey = 'lieu'
+                    elif current_step == 4:
+                        if pos == 6:
+                            extrakey = 'apparato'
+                        elif pos == 4:
+                            extrakey = 'actions'
+                        elif pos == 3:
+                            extrakey = 'temps'
+
+                    if extrakey is not None:
+                        # print("TEST", extrakey, "*" + element['value'] + "*")
+                            elobj[extrakey] = element['value']
 
             #############################
             if current_step == 1:
@@ -407,8 +433,27 @@ def make():
         # Insert the elasticsearch document!
         count += 1
         logger.info("[Count %s]\t%s" % (count, elobj['extrait']))
+
         # pp(elobj)
         # time.sleep(5)
+
+        if len(date) > 0:
+            pp(date)
+            if 'year' in date:
+                elobj['date'] = str(date['year'])
+# // TO FIX:
+# build the date string to show inside the search like 1622-03, 11-19
+                import datetime
+                x = datetime.datetime(
+                    year=date['year'], month=1, day=1).isoformat()
+                elobj['start_date'] = x + '.000Z'
+                x = datetime.datetime(
+                    year=date['year'], month=12, day=31).isoformat()
+                elobj['end_date'] = x + '.000Z'
+            if 'start' in date:
+                elobj['start_date'] = date['start']
+            if 'end' in date:
+                elobj['end_date'] = date['end']
 
         es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
         print("")
