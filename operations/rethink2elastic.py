@@ -81,10 +81,6 @@ INDEX_BODY1 = {
                 },
 
                 ####################
-                "date": {
-                    "type": "string",
-                    "include_in_all": False
-                },
                 "start_date": {
                     "type": "date",
                     # "format": "yyyy-MM-dd"
