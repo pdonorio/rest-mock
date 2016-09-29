@@ -135,6 +135,7 @@ class FastSearch(object):
                     # DATE string query
                     else:
                         compare = None
+                        mydateformat = "yyyy||MM-yyyy||dd-MM-yyyy"
                         if key.startswith('start'):
                             compare = 'gte'
                             key = 'end_date'
@@ -147,7 +148,10 @@ class FastSearch(object):
                             value += '||/M'
                         elif len(value) == 10:
                             value += '||/d'
-                        musts.append({'range': {key: {compare: value}}})
+                        musts.append({'range': {key: {
+                            compare: value,
+                            "format": mydateformat
+                        }}})
                 args['body']['query']['filtered']['filter'] = {
                     "bool": {
                         "must": musts

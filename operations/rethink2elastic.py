@@ -6,16 +6,28 @@ from restapi.resources.services.elastic import BASE_SETTINGS, ES_SERVICE, \
 from elasticsearch import Elasticsearch
 from restapi import get_logger
 from beeprint import pp
-import time
 import re
 import logging
+# import time
+import datetime
+import timestring
+import dateutil.parser
 
 RDB_TABLE1 = "datavalues"
 RDB_TABLE2 = "datadocs"
-
 toberemoved = [
     'd2d5fcb6-81cc-4654-9f65-a436f0780c67'  # prova
 ]
+
+
+def set_date_period(date, objdate, code='start'):
+    du = dateutil.parser.parse(date[code])
+    t = timestring.Date(du)
+    objdate['years'][code] = t.year
+    objdate['months'][code] = t.month
+    objdate['days'][code] = t.day
+    return objdate
+
 
 fields = [
     'extrait', 'source', 'fete',
@@ -265,6 +277,7 @@ def make():
         elobj = {}
         not_valid = False
 
+        date = {}
         for step in doc['steps']:
 
             current_step = int(step['step'])
@@ -275,7 +288,6 @@ def make():
                 break
             value = None
             key = None
-            date = {}
 
             #############################
             # Add extra search elements
@@ -295,12 +307,16 @@ def make():
                         if pos == 4:
                             # extrakey = 'date'
                             date['year'] = int(element['value'])
+                        elif pos == 5:
+                            extrakey = 'lieu'
                         elif pos == 8:
                             date['start'] = element['value']
                         elif pos == 9:
                             date['end'] = element['value']
-                        elif pos == 5:
-                            extrakey = 'lieu'
+                        # elif pos > 9:
+                        #     if len(date) < 1:
+                        #         pp(elobj)
+                        #         time.sleep(5)
                     elif current_step == 4:
                         if pos == 6:
                             extrakey = 'apparato'
@@ -434,22 +450,71 @@ def make():
         # time.sleep(5)
 
         if len(date) > 0:
-            pp(date)
+            objdate = {
+                'years': {'start': None, 'end': None},
+                'months': {'start': None, 'end': None},
+                'days': {'start': None, 'end': None}
+            }
+
             if 'year' in date:
-                elobj['date'] = str(date['year'])
-# // TO FIX:
-# build the date string to show inside the search like 1622-03, 11-19
-                import datetime
-                x = datetime.datetime(
-                    year=date['year'], month=1, day=1).isoformat()
-                elobj['start_date'] = x + '.000Z'
-                x = datetime.datetime(
-                    year=date['year'], month=12, day=31).isoformat()
-                elobj['end_date'] = x + '.000Z'
+
+                # Iso format
+                if 'start' not in date:
+                    x = datetime.datetime(
+                        year=date['year'], month=1, day=1).isoformat()
+                    elobj['start_date'] = x + '.000Z'
+                if 'end' not in date:
+                    x = datetime.datetime(
+                        year=date['year'], month=12, day=31).isoformat()
+                    elobj['end_date'] = x + '.000Z'
+
+                # String representation
+                tmp = str(date['year'])
+                objdate['years']['start'] = tmp
+                objdate['years']['end'] = tmp
+
             if 'start' in date:
                 elobj['start_date'] = date['start']
+                objdate = set_date_period(date, objdate, code='start')
+
             if 'end' in date:
                 elobj['end_date'] = date['end']
+                objdate = set_date_period(date, objdate, code='end')
+
+## // TO FIX:
+            # build the date string to show inside the search like
+            # 1622 / 03-04 / 11-19
+            newyear = str(objdate['years']['start'])
+            if objdate['years']['end'] != objdate['years']['start']:
+                newyear += '-' + str(objdate['years']['end'])
+
+            newmonth = ''
+            if objdate['months']['start'] is not None:
+                newmonth = str(objdate['months']['start']).zfill(2)
+            if objdate['months']['end'] is not None:
+                if objdate['months']['end'] != objdate['months']['start']:
+                    if newmonth != '':
+                        newmonth += '-'
+                    newmonth += str(objdate['months']['end']).zfill(2)
+            if newmonth != '':
+                newmonth += ' / '
+
+            newday = ''
+            if objdate['days']['start'] is not None:
+                newday = str(objdate['days']['start']).zfill(2)
+            if objdate['days']['end'] is not None:
+                if objdate['days']['end'] != objdate['days']['start']:
+                    if newday != '':
+                        newday += '-'
+                    newday += str(objdate['days']['end']).zfill(2)
+            if newday != '':
+                newday += ' / '
+
+            elobj['date'] = newday + newmonth + newyear
+
+        else:
+            print("FAIL", doc['steps'][2])
+            exit(1)
 
         es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
         print("")
