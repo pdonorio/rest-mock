@@ -62,6 +62,7 @@ def output_json(data, code, headers=None):
 # extending.html#custom-error-handlers
 def log_exception(sender, exception, **extra):
     """ Log an exception to our logging framework """
+    # print("UFF ERROR", sender, exception, extra)
     sender.logger.error(
         'Got exception during processing:' +
         '\nSender "%s"\nException "%s"' % (sender, exception))

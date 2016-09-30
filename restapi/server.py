@@ -64,6 +64,7 @@ def create_app(name=__name__, enable_security=True, debug=False, **kwargs):
     # Custom exceptions
     @microservice.errorhandler(RESTError)
     def handle_invalid_usage(error):
+        # print("ERROR", error)
         response = jsonify(error.to_dict())
         response.status_code = error.status_code
         return response

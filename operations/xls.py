@@ -19,7 +19,17 @@ class ExReader(object):
 
         super(ExReader, self).__init__()
         if filename is None:
-            filename = "/Users/paulie/Downloads/test_baroque.xlsx"
+            filename = "/uploads/data/test.xlsx"
+
+        import pandas as pd
+        xl = pd.ExcelFile(filename)
+        for name in xl.sheet_names:
+            df = xl.parse(name)
+            print("TEST", name, df.head())
+        # from beeprint import pp
+        # pp(xl)
+        exit(1)
+
         self._wb = load_workbook(filename=filename)  # , read_only=True)
 
     def get_data(self):
@@ -151,6 +161,7 @@ class ExReader(object):
             #     break
 
         return terms
+
 
 if __name__ == '__main__':
     xls = ExReader()
