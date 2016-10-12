@@ -25,6 +25,14 @@ class ZoomEnabling(object):
         filebase, fileext = os.path.splitext(filepath)
         return filebase, fileext.strip('.')
 
+    @staticmethod
+    def get_thumbname(f):
+        thumb = '/' + os.path.join(
+            'static', UPLOAD_FOLDER.strip('/'), f[:f.index('.', len(f) - 5)],
+            'TileGroup0', '0-0-0.jpg')
+        logger.debug("Thumb %s" % thumb)
+        return thumb
+
     def process_zoom(self, filename):
         """
         Make zoomify object + a small thumbnail
@@ -88,6 +96,7 @@ class Uploader(ZoomEnabling):
             if not os.path.exists(dir):
                 os.mkdir(dir)
         abs_file = os.path.join(UPLOAD_FOLDER, filename)  # filename.lower())
+        logger.debug("Absolute file is %s" % abs_file)
         if onlydir:
             return os.path.dirname(abs_file)
         return abs_file

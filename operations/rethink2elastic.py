@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from restapi.resources.services.rethink import RethinkConnection, RDBquery
-from restapi.resources.services.elastic import BASE_SETTINGS, ES_SERVICE, \
+from restapi.resources.services.uploader import ZoomEnabling
+from restapi.resources.services.elastic import \
+    BASE_SETTINGS, ES_SERVICE, \
     HTML_ANALYZER, EL_INDEX0, EL_INDEX1, EL_INDEX2, EL_TYPE1, EL_TYPE2
+
 from elasticsearch import Elasticsearch
 from restapi import get_logger
 from beeprint import pp
@@ -217,22 +220,6 @@ def suggest_transcription(transcription, key, probability=0.5):
 # MAIN
 #################################
 def make():
-    """
-    Elastic
-
-  {
-    id @record
-    extrait
-    source
-    fete
-    transcription @update
-    image_thumbnail_path @update
-
-## TO FIX: add vocabulary?
-
-  }
-
-    """
 
     q = query.get_table_query(RDB_TABLE1)
     cursor = q.run()
@@ -428,11 +415,7 @@ def make():
                     suggest_transcription(transcription, key, .20)
                     docobj[key] = translation
 
-            f = image['filename']
-            docobj['thumbnail'] = '/static/uploads/' + \
-                f[:f.index('.', len(f) - 5)] + \
-                '/TileGroup0/0-0-0.jpg'
-            # print(docobj)
+            docobj['thumbnail'] = ZoomEnabling.get_thumbname(image['filename'])
             elobj['doc'] = docobj
 
             # es.update(

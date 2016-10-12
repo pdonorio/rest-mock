@@ -91,6 +91,9 @@ HTML_ANALYZER = {
 #
 # ######################################
 class FastSearch(object):
+    """
+    A simple class to make important operations on full text search
+    """
 
     def get_instance(self):
         self._api = Elasticsearch(**ES_SERVICE)
@@ -190,3 +193,42 @@ class FastSearch(object):
         out = self._api.search(**args)
         # print("TEST", out)
         return out['hits']['hits']
+
+    def fast_update(self, id, data, image=False):
+
+        if not self.get_instance():
+            return False
+
+        if image:
+            from ..services.uploader import Uploader
+            data = {'doc': {'thumbnail': Uploader.get_thumbname(data)}}
+
+        args = {
+            'id': id, 'body': {'doc': data},
+            'index': EL_INDEX1, 'doc_type': EL_TYPE1,
+        }
+
+        try:
+            self._api.update(**args)
+            logger.info("Updated search %s" % id)
+        except Exception as e:
+            logger.error("Failed to execute fast update %s\n%s" % (id, e))
+            return False
+
+        return True
+
+    def fast_remove(self, id):
+
+        args = {
+            'id': id,
+            'index': EL_INDEX1,
+            'doc_type': EL_TYPE1,
+        }
+
+        try:
+            self._api.delete(**args)
+        except Exception as e:
+            logger.error("Failed to execute fast delete %s\n%s" % (id, e))
+            return False
+
+        return True
