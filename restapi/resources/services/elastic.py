@@ -219,6 +219,9 @@ class FastSearch(object):
 
     def fast_remove(self, id):
 
+        if not self.get_instance():
+            return False
+
         args = {
             'id': id,
             'index': EL_INDEX1,
