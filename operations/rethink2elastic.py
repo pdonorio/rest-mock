@@ -54,6 +54,10 @@ INDEX_BODY1 = {
                 "extrait": {
                     "type": "string",
                 },
+                "page": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                },
 
                 ####################
                 "source": {
@@ -287,6 +291,9 @@ def make():
                     # break
 
                 if 'value' in element and len(element['value']) > 0:
+                    if current_step == 1:
+                        if pos == 2:
+                            extrakey = 'page'
                     if current_step == 2:
                         if pos == 2:
                             extrakey = 'manuscrit'

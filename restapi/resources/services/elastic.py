@@ -18,6 +18,7 @@ http://elasticsearch-dsl.readthedocs.io/en/latest/search_dsl.html?highlight=aggr
 """
 
 from elasticsearch import Elasticsearch
+from beeprint import pp
 from ... import get_logger
 
 logger = get_logger(__name__)
@@ -105,6 +106,22 @@ class FastSearch(object):
             return False
         return self
 
+    def fast_query(self, field, value):
+
+        if not self.get_instance():
+            return []
+
+        args = {'index': EL_INDEX1, 'doc_type': EL_TYPE1, 'size': 10000}
+        args['body'] = {"query": {"bool": {"must": [
+                        {"term": {field: {"value": value}}}]}}}
+        try:
+            out = self._api.search(**args)
+        except Exception as e:
+            logger.error("Failed to execute fast get query\n%s" % e)
+            return None, False
+        # pp(out)
+        return out['hits']['hits']
+
     def fast_get(self, keyword, current=1, size=10, filters={}):
 
         args = {'index': EL_INDEX1, 'doc_type': EL_TYPE1}
@@ -161,7 +178,6 @@ class FastSearch(object):
                     }
                 }
 
-        # from beeprint import pp
         # pp(args)
 
         try:
