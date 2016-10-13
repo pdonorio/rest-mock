@@ -11,26 +11,18 @@ from restapi import get_logger
 from beeprint import pp
 import re
 import logging
-# import time
 import datetime
-import timestring
-import dateutil.parser
+# import time
+# import timestring
+# import dateutil.parser
+from restapi.dates import set_date_period
+
 
 RDB_TABLE1 = "datavalues"
 RDB_TABLE2 = "datadocs"
 toberemoved = [
     'd2d5fcb6-81cc-4654-9f65-a436f0780c67'  # prova
 ]
-
-
-def set_date_period(date, objdate, code='start'):
-    du = dateutil.parser.parse(date[code])
-    t = timestring.Date(du)
-    objdate['years'][code] = t.year
-    objdate['months'][code] = t.month
-    objdate['days'][code] = t.day
-    return objdate
-
 
 fields = [
     'extrait', 'source', 'fete',
@@ -439,6 +431,10 @@ def make():
         # pp(elobj)
         # time.sleep(5)
 
+############################
+############################
+
+        # Input date(year, start, end)
         if len(date) > 0:
             objdate = {
                 'years': {'start': None, 'end': None},
@@ -471,7 +467,6 @@ def make():
                 elobj['end_date'] = date['end']
                 objdate = set_date_period(date, objdate, code='end')
 
-## // TO FIX:
             # build the date string to show inside the search like
             # 1622 / 03-04 / 11-19
             newyear = str(objdate['years']['start'])
@@ -505,6 +500,8 @@ def make():
         else:
             print("FAIL", doc['steps'][2])
             exit(1)
+############################
+############################
 
         es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
         print("")
