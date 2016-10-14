@@ -6,6 +6,7 @@ Load xlxs file (2010)
 
 from openpyxl import load_workbook
 
+from beeprint import pp
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -23,27 +24,25 @@ class ExReader(object):
 
         import pandas as pd
         xl = pd.ExcelFile(filename)
+        worksheets = {}
         for name in xl.sheet_names:
-            df = xl.parse(name)
-            print("TEST", name, df.head())
-        # from beeprint import pp
-        # pp(xl)
-        exit(1)
-
-        self._wb = load_workbook(filename=filename)  # , read_only=True)
+            worksheets[name] = xl.parse(name)
+        self._wb = worksheets
+        # self._wb = load_workbook(filename=filename)  # , read_only=True)
 
     def get_data(self):
         newset = []
         counter = 0
-        for ws in self._wb.worksheets:
+        for name, ws in self._wb.items():
+            # print("TEST", name, ws.head())
             counter += 1
-            logger.debug("Sheet %s" % ws.title)
+            logger.debug("Sheet %s" % name)
             newset.append({
-                'name': ws.title,
+                'name': name,
                 'position': counter,  # Note: keep track of sheets order
                 'data': self.get_sheet_data(ws),
             })
-        print(newset)
+        pp(newset)
 
     def read_block(self, data, emit_error=False):
 
@@ -69,6 +68,11 @@ class ExReader(object):
         return (macro, micro, convention)
 
     def get_sheet_data(self, ws):
+
+        for i in range(0, len(ws)):
+            row = ws.loc[0]
+            print(row)
+            exit(1)
 
         row_num = 0
         languages = []
