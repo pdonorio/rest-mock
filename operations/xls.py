@@ -4,9 +4,9 @@
 Load xlxs file (2010)
 """
 
-from openpyxl import load_workbook
-
 from beeprint import pp
+# from openpyxl import load_workbook
+import pandas as pd
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -22,7 +22,6 @@ class ExReader(object):
         if filename is None:
             filename = "/uploads/data/test.xlsx"
 
-        import pandas as pd
         xl = pd.ExcelFile(filename)
         worksheets = {}
         for name in xl.sheet_names:
@@ -69,8 +68,17 @@ class ExReader(object):
 
     def get_sheet_data(self, ws):
 
-        for i in range(0, len(ws)):
-            row = ws.loc[0]
+        # print(ws.index, ws.shape, ws.count())
+        for i in ws.index:
+
+            # Skip empty lines
+            length = ws.loc[i].size
+            empty = sum(ws.loc[i].isnull()) == length
+            if empty:
+                continue
+
+            # Use current row
+            row = ws.loc[i]
             print(row)
             exit(1)
 
