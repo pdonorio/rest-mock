@@ -28,7 +28,7 @@ ES_SERVICE = {"host": ES_SERVER, "port": 9200}
 EL_INDEX0 = "split_html"
 EL_INDEX1 = "catalogue"
 EL_INDEX2 = "suggestions"
-EL_INDEX2 = "distinct"
+# EL_INDEX2 = "distinct"
 EL_TYPE1 = 'data'
 EL_TYPE2 = 'words'
 

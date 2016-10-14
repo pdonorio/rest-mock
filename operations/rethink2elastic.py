@@ -158,6 +158,7 @@ query = RDBquery()
 es = Elasticsearch(**ES_SERVICE)
 
 _cache = {}
+transcrpcache = []
 
 
 def add_suggestion(key, value, probability=1, extra=None):
@@ -166,6 +167,9 @@ def add_suggestion(key, value, probability=1, extra=None):
     """
     if value is None:
         return False
+
+# // TO FIX:
+# split on symbols and take the biggest word?
 
     if key not in _cache:
         _cache[key] = {}
@@ -198,8 +202,16 @@ def add_suggestion(key, value, probability=1, extra=None):
 
 
 def suggest_transcription(transcription, key, probability=0.5):
+
     if transcription.strip() == '':
         return False
+
+    if transcription in transcrpcache:
+        logger.debug("Suggestion already cached")
+        return False
+
+    # print("Suggest ", key)
+    transcrpcache.append(transcription)
 
     words = es.indices.analyze(
         index=EL_INDEX0, analyzer='my_html_analyzer', body=transcription)
