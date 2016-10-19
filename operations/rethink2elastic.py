@@ -354,6 +354,14 @@ def make():
                         prob = 2.5
                     else:
                         prob = .5 - (num / 250)
+                    if '_MS' in value:
+                        num += 10
+                        # print("I AM MS")
+                    elif '_np' in value:
+                        num += 500
+                        # print("I AM np")
+                    else:
+                        num += 1000
 
                     # suggest
                     add_suggestion(key, value, prob)
