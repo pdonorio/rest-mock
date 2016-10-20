@@ -17,7 +17,7 @@ class Utils(object):
         return group
 
     def get_numeric_extrait(self, group):
-        print("group", group)
+        # print("group", group)
         num = 0
         try:
             num = int(group[1].replace('_', ''))
@@ -36,7 +36,7 @@ class Utils(object):
         if '_titre' in extrait:
             num += 10
             suffix = extrait.split('_')[::-1][0]
-            print("UHM", extrait, suffix)
+            # print("UHM", extrait, suffix)
         elif '_np' in extrait:
             num += 500
         elif '_MS' in extrait:

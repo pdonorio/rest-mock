@@ -21,7 +21,7 @@ from operations import rethink
 
 #########################
 # RETHINKDB 2 ELASTICSEARCH
-r2e.make()
+r2e.make(only_xls=True)
 
 #########################
 print("Conversion completed")
