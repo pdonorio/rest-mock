@@ -9,13 +9,10 @@ from restapi.resources.services.elastic import \
 from elasticsearch import Elasticsearch
 from restapi import get_logger
 from beeprint import pp
-import re
 import logging
 import datetime
-# import time
-# import timestring
-# import dateutil.parser
 from restapi.dates import set_date_period
+from restapi.commons.conversions import Utils
 
 
 RDB_TABLE1 = "datavalues"
@@ -159,6 +156,7 @@ es = Elasticsearch(**ES_SERVICE)
 
 _cache = {}
 transcrpcache = []
+u = Utils()
 
 
 def add_suggestion(key, value, probability=1, extra=None):
@@ -338,34 +336,14 @@ def make():
 
                 key = 'extrait'
                 try:
-
-                    # Divide the value
-                    pattern = re.compile(r'^([^0-9]+)([\_0-9]+)([^\_]*)')
-                    m = pattern.match(value)
-                    if m:
-                        g = m.groups()
-                    else:
-                        g = ('Z', '_99999_')
-
-                    elobj['sort_string'] = g[0]
-
-                    num = int(g[1].replace('_', ''))
-                    if num < 2:
-                        prob = 2.5
-                    else:
-                        prob = .5 - (num / 250)
-                    if '_MS' in value:
-                        num += 10
-                        # print("I AM MS")
-                    elif '_np' in value:
-                        num += 500
-                        # print("I AM np")
-                    else:
-                        num += 1000
-
+                    # sorting stuff
+                    group = u.group_extrait(elobj['page'])
+                    elobj['sort_string'] = group[0]
+                    num, prob = u.get_numeric_extrait(group)
+                    elobj['sort_number'] = u.get_sort_value(value, num)
                     # suggest
                     add_suggestion(key, value, prob)
-                    elobj['sort_number'] = num
+
                 except Exception as e:
                     print("VALUES WAS", value, step)
                     raise e
