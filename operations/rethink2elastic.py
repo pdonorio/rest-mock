@@ -222,24 +222,23 @@ def suggest_transcription(transcription, key, probability=0.5):
     return True
 
 def read_xls(fix_suggest=False):
-    print("FIX SUGGEST", fix_suggest)
+    # print("FIX SUGGEST", fix_suggest)
     from .xls import ExReader
     obj = ExReader(rethink=query, elastic=None)
     if obj.check_empty():
         raise BaseException("Failed to load 'Lexique'")
     return obj.get_data()
 
+
 #################################
 # MAIN
 #################################
 def make(only_xls=False):
 
-######################
-# TO BE REMOVED
-    dictionary = read_xls(fix_suggest=(not only_xls))
-    print("DEBUG"); exit(1)
-# TO BE REMOVED
-######################
+    # dictionary = read_xls(fix_suggest=(not only_xls))
+    read_xls(fix_suggest=(not only_xls))
+    # print("DEBUG"); exit(1)
+# TO BE COMPLETED
 
     q = query.get_table_query(RDB_TABLE1)
     cursor = q.run()

@@ -22,14 +22,14 @@ class ExReader(object):
 
         if rethink is not None:
             q = rethink.get_query()
-            # drop table if exist
+            # drop table if exist
             if LEXIQUE_TABLE in q.table_list().run():
-                q.table_drop(LEXIQUE_TABLE)
-            # create table
-            q.table_create(LEXIQUE_TABLE, primary_key='titre')
+                q.table_drop(LEXIQUE_TABLE).run()
+            # create table
+            q.table_create(LEXIQUE_TABLE, primary_key='titre').run()
             # set index as convention/titre
 
-            # save the main object
+            # save the main object
             self._r = rethink.get_table_query(LEXIQUE_TABLE)
         else:
             self._r = None
@@ -45,7 +45,7 @@ class ExReader(object):
             for name in xl.sheet_names:
                 worksheets[name] = xl.parse(name)
         except Exception as e:
-            logger.error("Pandas could not load file '%s'" % filename)
+            logger.error("Pandas could not load file '%s'\n%s" % (filename, e))
         self._wb = worksheets
 
         # self._wb = load_workbook(filename=filename)  # , read_only=True)
@@ -62,28 +62,31 @@ class ExReader(object):
             # print("TEST", name, ws.head())
             counter += 1
             logger.debug("Reading sheet '%s'" % name)
-            # newset.append({
-            #     'name': name,
-            #     'position': counter,  # Note: keep track of sheets order
-            #     'data': self.get_sheet_data(ws),
-            # })
-            self.save_data(ws, name, counter)
+            newset.append({
+                'name': name,
+                'position': counter,  # Note: keep track of sheets order
+                # 'data': self.get_sheet_data(ws),
+                'data': self.save_data(ws, name)
+            })
 
         # pp(newset)
+        return newset
 
-    def save_data(self, ws, ws_name, position):
+    def save_data(self, ws, name):
 
-        # Headers
+        # Headers
         col_names = list(ws.columns.values)
         headers = {}
         for col_name in col_names:
+            if 'unnamed' in col_name:
+                continue
             headers[col_name] = col_name.lower().split(' ')[0]
 
         latest_macro = '-'
         latest_micro = '-'
+        total_data = []
 
-        # Content
-        # print(ws.index, ws.shape, ws.count())
+        # Content
         for i in ws.index:
 
             # Skip empty lines
@@ -94,7 +97,9 @@ class ExReader(object):
 
             # Use current row
             row = ws.loc[i]
-            data = {}
+            data = {
+                'sheet': name
+            }
             for key, value in row.items():
                 # print("UHM", key, value)
                 if pd.isnull(value):
@@ -109,17 +114,18 @@ class ExReader(object):
                 data['macro'] = latest_macro
             if data['micro'] is not None:
                 latest_micro = data['micro']
+            else:
+                data['micro'] = latest_micro
 
-            pp(data)
-            # print(self._r)
+            total_data.append(data)
 
-            # Save rethinkdb
-            q = self._r
-            pp(q)
+            # Save rethinkdb
+            self._r.insert(data).run()
 
-            # Update elastic suggest?
+            # Update elastic suggest?
+            # exit(1)
 
-            exit(1)
+        return total_data
 
 
 #     def read_block(self, data, emit_error=False):

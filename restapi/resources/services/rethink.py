@@ -216,12 +216,16 @@ class RDBquery(RDBdefaults):
     def list_tables(self):
         return list(self.get_query().table_list().run())
 
-    def execute_query(self, query, limit=0, timestamp=False):
+    def execute_query(self, query, limit=0, timestamp=False, group=None):
         count = 0
-        data = {}
+        final = {}
 
         if not query.is_empty().run():
+
             count = query.count().run()
+
+            if group is not None:
+                query = query.group(group)
             if limit > 0:
                 query = query.limit(limit)
             # Note: fix time as i has to be converted if available
@@ -231,7 +235,12 @@ class RDBquery(RDBdefaults):
             else:
                 data = query.run()
 
-        return count, list(data)
+            if group is not None:
+                final = dict(data)
+            else:
+                final = list(data)
+
+        return count, final
 
     def get_content(self, myid=None, limit=10, index='id'):
         """ For GET method, very simple """
