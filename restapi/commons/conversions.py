@@ -23,7 +23,8 @@ class Utils(object):
             num = int(group[1].replace('_', ''))
             # if needed: http://stackoverflow.com/a/10219553/2114395
         except:
-            print("*** FAILED WITH", group)
+            # print("*** FAILED WITH", group)
+            pass
         if num < 2:
             prob = 2.5
         else:
