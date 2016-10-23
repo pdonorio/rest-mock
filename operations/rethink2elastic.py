@@ -18,7 +18,7 @@ from restapi.commons.conversions import Utils
 RDB_TABLE1 = "datavalues"
 RDB_TABLE2 = "datadocs"
 toberemoved = [
-    'd2d5fcb6-81cc-4654-9f65-a436f0780c67'  # prova
+    # 'd2d5fcb6-81cc-4654-9f65-a436f0780c67'  # prova
 ]
 
 fields = [
@@ -221,6 +221,7 @@ def suggest_transcription(transcription, key, probability=0.5):
             add_suggestion(key, word, probability, extra=token)
     return True
 
+
 def read_xls(fix_suggest=False):
     # print("FIX SUGGEST", fix_suggest)
     from .xls import ExReader
@@ -238,7 +239,7 @@ def make(only_xls=False):
     # dictionary = read_xls(fix_suggest=(not only_xls))
     read_xls(fix_suggest=(not only_xls))
     # print("DEBUG"); exit(1)
-# TO BE COMPLETED
+## TO BE COMPLETED!!!
 
     q = query.get_table_query(RDB_TABLE1)
     cursor = q.run()
@@ -269,9 +270,13 @@ def make(only_xls=False):
     # MAIN CYCLE on single document
     count = 0
     noimages = {}
+
+    # SINGLE STEP
+    # TO MOVE SOMEWHERE ELSE and use it when a new record is created!
     for doc in cursor:
-## SINGLE STEP
-## TO MOVE SOMEWHERE ELSE and use it when a new record is created!
+
+###################
+## Record and init
 
         # print(doc)
         record = doc['record']
@@ -286,10 +291,9 @@ def make(only_xls=False):
         date = {}
         for step in doc['steps']:
 
+###################
+## Single step
             current_step = int(step['step'])
-            # if current_step == 3:
-            #     pp(step)
-            #     exit(1)
             if not_valid:
                 break
             value = None
@@ -377,18 +381,12 @@ def make(only_xls=False):
             if key is not None and value is not None:
                 elobj[key] = value
 
-        ###############################
-        # # print("object", record, elobj)
-        # # exit(1)
-        # if 'apparato' in elobj:
-        #     pp(elobj)
-        #     time.sleep(3)
+###################
+## Transcriptions and translations
 
-        # CHECK
         key = 'transcription'
         if key in elobj:
             elobj.pop(key)
-
         if not not_valid and ('fete' not in elobj or 'extrait' not in elobj):
             logger.warning("Invalid object %s" % elobj)
             continue
@@ -442,8 +440,8 @@ def make(only_xls=False):
         # pp(elobj)
         # time.sleep(5)
 
-############################
-############################
+###################
+## Date format
 
         # Input date(year, start, end)
         if len(date) > 0:
@@ -511,12 +509,12 @@ def make(only_xls=False):
         else:
             print("FAIL", doc['steps'][2])
             exit(1)
-############################
-############################
 
+###################
+## save
         es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
         print("")
 
     # print("TOTAL", es.search(index=EL_INDEX1))
-    print("Completed")
+    print("Completed. No images:")
     pp(noimages.keys())
