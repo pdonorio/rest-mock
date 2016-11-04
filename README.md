@@ -1,6 +1,6 @@
 
 # rest-mock
 
-This repository is old and unmantained.
+Old repository unmantained;
 
-Note: to be removed.
+To be removed.
