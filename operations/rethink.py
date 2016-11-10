@@ -98,6 +98,34 @@ def some_operation():
     pass
 
 
+def find_double_records():
+    table = query.get_table_query('datavalues')
+    elements = {}
+    for element in table.run():
+
+        extrait = None
+        for step in element['steps']:
+            if step['step'] == 1:
+                for piece in step['data']:
+                    if piece['position'] == 1:
+                        extrait = piece['value']
+
+        if extrait not in elements:
+            elements[extrait] = []
+        if extrait is not None:
+            elements[extrait].append(element['record'])
+
+        # print(elements)
+        # exit(1)
+
+    for key, records in elements.items():
+        if len(records) > 1:
+            print(key)
+            # pp(records); exit(1)
+
+    exit(1)
+
+
 def fix_sources():
 
     fixable = {
