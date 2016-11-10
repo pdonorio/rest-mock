@@ -70,6 +70,41 @@ class ExtendedApiResource(Resource):
     def get_endpoint(self):
         return (self.endpoint, self.endtype)
 
+    def get_input_new(self, forcing=True, single_parameter=None):
+        """
+        Recover parameters from current requests.
+
+        Note that we talk about JSON only when having a PUT method,
+        while there is URL encoding for GET, DELETE
+        and Headers encoding with POST.
+
+        Non-JSON Parameters are already parsed at this point,
+        while JSON parameters may be already saved from another previous call
+        """
+
+        if not len(self._args) > 0:
+            try:
+                self._args = request.get_json(force=forcing)
+                for key, value in self._args.items():
+                    if value is None:
+                        continue
+                    # if isinstance(value, str) and value == 'None':
+                    #     continue
+                    if key in self._args and self._args[key] is not None:
+                        # print("Key", key, "Value", value, self._args[key])
+                        key += '_json'
+                    self._args[key] = value
+            except Exception:  # as e:
+                # logger.debug("Failed to get JSON for current req: '%s'" % e)
+                pass
+
+        if single_parameter is not None:
+            return self._args.get(single_parameter)
+
+        if len(self._args) > 0:
+            logger.info("Parameters %s" % self._args)
+        return self._args
+
     def get_input(self, forcing=True):
         """ Get JSON. The power of having a real object in our hand. """
         return request.get_json(force=forcing)

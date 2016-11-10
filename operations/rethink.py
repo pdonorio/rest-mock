@@ -25,6 +25,7 @@ from rethinkdb.net import DefaultCursorEmpty
 from datetime import datetime
 from elasticsearch import Elasticsearch
 from confs.config import args, UPLOAD_FOLDER
+from beeprint import pp
 
 import logging
 logger = get_logger(__name__)
@@ -95,6 +96,47 @@ def convert_schema():
 
 def some_operation():
     pass
+
+
+def fix_sources():
+
+    fixable = {
+        "limoges": (
+            "Solemnité de la canonization... à Limoges...",
+            "canonization"
+        ),
+        "rennes": (
+            "Celebrité de la canonization... à Rennes...",
+            "de la"
+        ),
+        "rome": (
+            "Relatione della solenne processione fatta in Roma...",
+            "solenne processione"
+        )
+    }
+
+    table = query.get_table_query('datavalues')
+    data = list(table.run())
+
+    for element in data:
+        extrait = None
+        source = None
+        try:
+            extrait = element['steps'][0]['data'][0]['value']
+            source = element['steps'][1]['data'][0]['value']
+        except:
+            continue
+
+        for key, (right, wrong) in fixable.items():
+            # print(key, extrait, wrong, source)
+            if key in extrait.lower() and wrong in source:
+                # print("TEST", key, extrait, source)
+                print("FIX\n%s\n%s\n" % (source, right))
+
+                element['steps'][1]['data'][0]['value'] = right
+                table.get(element['record']).update(element).run()
+                logger.debug("Fixed %s" % element['record'])
+                # print("FOUND"); exit(1)
 
 
 def check_doubles():
