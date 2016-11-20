@@ -15,12 +15,12 @@ from operations import rethink
 
 # rethink.build_zoom(force=True)
 # rethink.medium_expo_thumbnail(force=False)
-
-rethink.some_operation()
-rethink.find_double_records()
 # rethink.fix_sources()
-# print("DEBUG"); exit(1)
 # rethink.convert_tiff()
+# rethink.find_double_records()
+rethink.some_operation()
+
+# print("DEBUG"); exit(1)
 
 #########################
 # RETHINKDB 2 ELASTICSEARCH
