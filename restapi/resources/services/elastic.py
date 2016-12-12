@@ -28,6 +28,7 @@ ES_SERVICE = {"host": ES_SERVER, "port": 9200}
 EL_INDEX0 = "split_html"
 EL_INDEX1 = "catalogue"
 EL_INDEX2 = "suggestions"
+EL_INDEX3 = "lexique"
 # EL_INDEX2 = "distinct"
 EL_TYPE1 = 'data'
 EL_TYPE2 = 'words'
@@ -121,6 +122,25 @@ class FastSearch(object):
             return None, False
         # pp(out)
         return out['hits']['hits']
+
+    def fast_get_all(self, keyword, size=5, index=EL_INDEX3, type=EL_TYPE1):
+
+        args = {'index': index, 'doc_type': type}
+        # args['sort'] = ["sort_string:asc", "sort_number:asc"]
+        # args['from_'] = current - 1
+        args['from_'] = 0
+        args['size'] = size
+        args['body'] = {
+            'query': {"match": {"_all": {"query": keyword}}}
+        }
+
+        try:
+            out = self._api.search(**args)
+        except Exception as e:
+            logger.error("Failed to execute fast get query\n%s" % e)
+            return None, False
+        pp(out)
+        return out['hits']['hits'], out['hits']['total']
 
     def fast_get(self, keyword, current=1, size=10, filters={}):
 

@@ -95,17 +95,18 @@ def convert_schema():
 
 
 def some_operation():
-    # pass
 
-    x = "48167161-d5ce-4ed0-afef-cb2a710eab17"
-    missing = "1er jour de l'octave"
-    t = query.get_table_query('stepstemplate')
-    res = t.get(x).run()
-    if missing not in res['extra']:
-        res['extra'] = missing + ', ' + res['extra']
-        t.get(x).update(res).run()
-        # print("TEST", res)
-    # exit(1)
+    # x = "48167161-d5ce-4ed0-afef-cb2a710eab17"
+    # missing = "1er jour de l'octave"
+    # t = query.get_table_query('stepstemplate')
+    # res = t.get(x).run()
+    # if missing not in res['extra']:
+    #     res['extra'] = missing + ', ' + res['extra']
+    #     t.get(x).update(res).run()
+    #     # print("TEST", res)
+    # # exit(1)
+
+    pass
 
 
 def find_double_records():

@@ -4,7 +4,8 @@ from restapi.resources.services.rethink import RethinkConnection, RDBquery
 from restapi.resources.services.uploader import ZoomEnabling
 from restapi.resources.services.elastic import \
     BASE_SETTINGS, ES_SERVICE, \
-    HTML_ANALYZER, EL_INDEX0, EL_INDEX1, EL_INDEX2, EL_TYPE1, EL_TYPE2
+    HTML_ANALYZER, EL_INDEX0, EL_INDEX1, EL_INDEX2, EL_INDEX3, \
+    EL_TYPE1, EL_TYPE2
 
 from elasticsearch import Elasticsearch
 from restapi import get_logger
@@ -226,7 +227,7 @@ def suggest_transcription(transcription, key, probability=0.5):
 def read_xls(fix_suggest=False):
     # print("FIX SUGGEST", fix_suggest)
     from .xls import ExReader
-    obj = ExReader(rethink=query, elastic=None)
+    obj = ExReader(rethink=query, elastic=es)
     if obj.check_empty():
         raise BaseException("Failed to load 'Lexique'")
     return obj.get_data()
@@ -250,7 +251,7 @@ def single_update(doc):
     for step in doc['steps']:
 
         ###################
-        ## Single step
+        # Single step
         current_step = int(step['step'])
         if not_valid:
             break
@@ -475,12 +476,6 @@ def single_update(doc):
 def make(only_xls=False):
 
     ###################
-#     # dictionary = read_xls(fix_suggest=(not only_xls))
-#     read_xls(fix_suggest=(not only_xls))
-#     # print("DEBUG"); exit(1)
-# ## TO BE COMPLETED!!!
-
-    ###################
     q = query.get_table_query(RDB_TABLE1)
     cursor = q.run()
     # print("SOME", cursor)
@@ -502,6 +497,12 @@ def make(only_xls=False):
     es.indices.create(index=EL_INDEX2, body=INDEX_BODY2)
     logger.info("Created index %s" % EL_INDEX2)
 
+    # LEXIQUE
+    if es.indices.exists(index=EL_INDEX3):
+        es.indices.delete(index=EL_INDEX3)
+    es.indices.create(index=EL_INDEX3, body={})
+    logger.info("Created index %s" % EL_INDEX3)
+
     # es.indices.put_mapping(
     #     index=EL_INDEX2, doc_type=EL_TYPE2, body=SUGGEST_MAPPINGS)
     # print(es.indices.stats(index=EL_INDEX2))
@@ -509,6 +510,11 @@ def make(only_xls=False):
 
     # print(es.indices.stats(index=EL_INDEX1))
     # print(es.info())
+
+    ##################
+    # READ FROM XLS FILE
+    # dictionary = read_xls(fix_suggest=(not only_xls))
+    read_xls(fix_suggest=(not only_xls))
 
     ###################
     count = 0

@@ -7,6 +7,7 @@ Load xlxs file (2010)
 from beeprint import pp
 # from openpyxl import load_workbook
 import pandas as pd
+from restapi.resources.services.elastic import EL_INDEX3, EL_TYPE1
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -34,7 +35,10 @@ class ExReader(object):
         else:
             self._r = None
 
-        self._el = elastic
+        if elastic is not None:
+            self._el = elastic
+        else:
+            self._el = None
 
         if filename is None:
             filename = "/uploads/data/test2.xlsx"
@@ -86,6 +90,7 @@ class ExReader(object):
         latest_micro = '-'
         total_data = []
 
+        counter = 0
         # Content
         for i in ws.index:
 
@@ -123,6 +128,13 @@ class ExReader(object):
             self._r.insert(data).run()
 
             # Update elastic suggest?
+
+            # Update elastic specific index
+            # save
+            self._el.index(
+                index=EL_INDEX3, id=counter, body=data, doc_type=EL_TYPE1)
+
+            counter += 1
             # exit(1)
 
         return total_data
