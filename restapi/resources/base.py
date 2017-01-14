@@ -179,10 +179,12 @@ class ExtendedApiResource(Resource):
         """ Handle a standard response following some criteria """
         # Do not apply if the object has already been used
         # as a 'standard response' from a parent call
-        if 'data_type' in obj and 'status' in obj:
+        if isinstance(obj, dict) and 'data_type' in obj and 'status' in obj:
             response = obj
         # Compute the elements
         else:
+            if obj is None:
+                obj = []
 
             #######################
             # Case of failure
