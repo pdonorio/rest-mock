@@ -168,8 +168,7 @@ def add_suggestion(key, value, probability=1, extra=None):
     if value is None:
         return False
 
-# // TO FIX:
-# split on symbols and take the biggest word?
+# // TO FIX: split on symbols and take the biggest word?
 
     if key not in _cache:
         _cache[key] = {}
@@ -304,19 +303,25 @@ def single_update(doc):
         #############################
         if current_step == 1:
             if value is None:
-                # print("ID", record, step)
-                q.get(record).delete().run()
-                logger.warn("Element '%s' invalid... Removed")
-                not_valid = True
-                break
+                logger.error("Invalid element %s" % record)
+                # # print("ID", record, step)
+                # q.get(record).delete().run()
+                # logger.warn("Element '%s' invalid... Removed")
+                # not_valid = True
+                # break
+                exit(1)
 
             key = 'extrait'
             try:
+                ##########################
                 # sorting stuff
+## TO FIX: Sort is a problem in baroque
                 group = u.group_extrait(elobj['page'])
                 elobj['sort_string'] = group[0]
                 num, prob = u.get_numeric_extrait(group)
                 elobj['sort_number'] = u.get_sort_value(value, num)
+                ##########################
+
                 # suggest
                 add_suggestion(key, value, prob)
 
