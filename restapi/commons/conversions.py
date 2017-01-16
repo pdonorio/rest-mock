@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+MYEXP = re.compile(r'^([A-Za-zàèéìòù]{2})[^0-9]+([0-9]+)[^0-9]*([0-9]*)')
 
 
 class Utils(object):
@@ -51,8 +52,8 @@ class Utils(object):
 
     def get_page(self, extrait):
         num = 0
-        exp = re.compile(r'^([A-Za-zàèéìòù]{2})[^0-9]+([0-9]+)[^0-9]*([0-9]*)')
-        m = exp.match(extrait)
+        alphanum = 0
+        m = MYEXP.match(extrait)
         if m:
             group = m.groups()
             # print(group)
@@ -62,8 +63,8 @@ class Utils(object):
 
             num = (150 - int(group[1])) * 27
             alphas = group[0].lower()
-            # print(alphas, num)
             alphanum = 0
+            # print(alphas, num)
             alphanum += ord(alphas[0]) - 90
             alphanum += (ord(alphas[1]) - 90) / 5
             num -= alphanum
@@ -72,8 +73,8 @@ class Utils(object):
             num = 1
             # exit(1)
         if num < 2:
-            prob = 2.5 - ((30 - alphanum) / 1000)
+            prob = 1 - ((30 - alphanum) / 10000)
         else:
-            prob = 0.75 - (num / 10000)
+            prob = 0.8 - ((10000 - num) / 10000)
         # print(num, prob)
         return 10000 - num, prob
