@@ -145,7 +145,8 @@ class FastSearch(object):
     def fast_get(self, keyword, current=1, size=10, filters={}):
 
         args = {'index': EL_INDEX1, 'doc_type': EL_TYPE1}
-        args['sort'] = ["sort_string:asc", "sort_number:asc"]
+        args['sort'] = ["sort_number:asc"]
+        # args['sort'] = ["sort_string:asc", "sort_number:asc"]
         args['from_'] = current - 1
         args['size'] = size
 

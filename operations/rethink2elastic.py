@@ -103,10 +103,10 @@ INDEX_BODY1 = {
                 },
                 ####################
 
-                "sort_string": {
-                    "type": "string",
-                    "include_in_all": False
-                },
+                # "sort_string": {
+                #     "type": "string",
+                #     "include_in_all": False
+                # },
                 "sort_number": {
                     "type": "integer",
                     "include_in_all": False
@@ -311,17 +311,27 @@ def single_update(doc):
                 # break
                 exit(1)
 
+            # if value != 'Bruxelles_41':
+            #     return
+
             key = 'extrait'
             try:
                 ##########################
                 # sorting stuff
-## TO FIX: Sort is a problem in baroque
-                group = u.group_extrait(elobj['page'])
-                elobj['sort_string'] = group[0]
-                num, prob = u.get_numeric_extrait(group)
-                elobj['sort_number'] = u.get_sort_value(value, num)
-                ##########################
 
+                # TO FIX: Sort is a problem in baroque
+                elobj['sort_number'], prob = u.get_page(value.strip())
+                # exit(1)
+
+                ##########################
+                # # WRONG SORT BY PAGE
+                # print(elobj)
+                # group = u.group_extrait(elobj['page'])
+                # elobj['sort_string'] = group[0]
+                # num, prob = u.get_numeric_extrait(group)
+                # elobj['sort_number'] = u.get_sort_value(value, num)
+
+                ##########################
                 # suggest
                 add_suggestion(key, value, prob)
 
@@ -516,10 +526,10 @@ def make(only_xls=False):
     # print(es.indices.stats(index=EL_INDEX1))
     # print(es.info())
 
-    ##################
-    # READ FROM XLS FILE
-    # dictionary = read_xls(fix_suggest=(not only_xls))
-    read_xls(fix_suggest=(not only_xls))
+    # ##################
+    # # READ FROM XLS FILE
+    # # dictionary = read_xls(fix_suggest=(not only_xls))
+    # read_xls(fix_suggest=(not only_xls))
 
     ###################
     count = 0
