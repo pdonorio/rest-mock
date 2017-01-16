@@ -526,10 +526,10 @@ def make(only_xls=False):
     # print(es.indices.stats(index=EL_INDEX1))
     # print(es.info())
 
-    # ##################
-    # # READ FROM XLS FILE
-    # # dictionary = read_xls(fix_suggest=(not only_xls))
-    # read_xls(fix_suggest=(not only_xls))
+    ##################
+    # READ FROM XLS FILE
+    # dictionary = read_xls(fix_suggest=(not only_xls))
+    read_xls(fix_suggest=(not only_xls))
 
     ###################
     count = 0
