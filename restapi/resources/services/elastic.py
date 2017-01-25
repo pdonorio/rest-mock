@@ -115,6 +115,7 @@ class FastSearch(object):
         args = {'index': EL_INDEX1, 'doc_type': EL_TYPE1, 'size': 10000}
         args['body'] = {"query": {"bool": {"must": [
                         {"term": {field: {"value": value}}}]}}}
+        # pp(args)
         try:
             out = self._api.search(**args)
         except Exception as e:

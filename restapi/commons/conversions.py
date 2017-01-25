@@ -53,13 +53,17 @@ class Utils(object):
     def get_page(self, extrait):
         num = 0
         alphanum = 0
+        extraitnum = 0
         m = MYEXP.match(extrait)
         if m:
             group = m.groups()
             # print(group)
+            # exit(1)
             if group[2].strip() != '':
                 print("FAILED double number")
                 exit(1)
+            else:
+                extraitnum = int(group[1])
 
             num = (150 - int(group[1])) * 27
             alphas = group[0].lower()
@@ -77,4 +81,4 @@ class Utils(object):
         else:
             prob = 0.8 - ((10000 - num) / 10000)
         # print(num, prob)
-        return 10000 - num, prob
+        return 10000 - num, prob, extraitnum

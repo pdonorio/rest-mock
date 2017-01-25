@@ -44,6 +44,7 @@ INDEX_BODY1 = {
             'properties': {
                 "extrait": {
                     "type": "string",
+                    "index": "not_analyzed"
                 },
                 "page": {
                     "type": "string",
@@ -107,6 +108,10 @@ INDEX_BODY1 = {
                 #     "type": "string",
                 #     "include_in_all": False
                 # },
+                "extrait_number": {
+                    "type": "integer",
+                    "include_in_all": False
+                },
                 "sort_number": {
                     "type": "integer",
                     "include_in_all": False
@@ -320,7 +325,8 @@ def single_update(doc):
                 # sorting stuff
 
                 # TO FIX: Sort is a problem in baroque
-                elobj['sort_number'], prob = u.get_page(value.strip())
+                elobj['sort_number'], prob, elobj['extrait_number'] = \
+                    u.get_page(value.strip())
                 # exit(1)
 
                 ##########################
@@ -512,12 +518,6 @@ def make(only_xls=False):
     es.indices.create(index=EL_INDEX2, body=INDEX_BODY2)
     logger.info("Created index %s" % EL_INDEX2)
 
-    # LEXIQUE
-    if es.indices.exists(index=EL_INDEX3):
-        es.indices.delete(index=EL_INDEX3)
-    es.indices.create(index=EL_INDEX3, body={})
-    logger.info("Created index %s" % EL_INDEX3)
-
     # es.indices.put_mapping(
     #     index=EL_INDEX2, doc_type=EL_TYPE2, body=SUGGEST_MAPPINGS)
     # print(es.indices.stats(index=EL_INDEX2))
@@ -527,9 +527,15 @@ def make(only_xls=False):
     # print(es.info())
 
     ##################
+    # LEXIQUE
+    if es.indices.exists(index=EL_INDEX3):
+        es.indices.delete(index=EL_INDEX3)
+    es.indices.create(index=EL_INDEX3, body={})
+    logger.info("Created index %s" % EL_INDEX3)
+
     # READ FROM XLS FILE
-    # dictionary = read_xls(fix_suggest=(not only_xls))
     read_xls(fix_suggest=(not only_xls))
+    # dictionary = read_xls(fix_suggest=(not only_xls))
 
     ###################
     count = 0
