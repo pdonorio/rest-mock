@@ -221,10 +221,10 @@ def suggest_transcription(transcription, key, probability=0.5):
         index=EL_INDEX0, analyzer='my_html_analyzer', body=transcription)
 
     for token in words['tokens']:
-        word = token['token']
-        token['cleanlabel'] = key.split('_')[0]
-        if len(word) > 3:
-            add_suggestion(key, word, probability, extra=token)
+        for word in token['token'].split("'"):
+            token['cleanlabel'] = key.split('_')[0]
+            if len(word) > 2:
+                add_suggestion(key, word, probability, extra=token)
     return True
 
 
