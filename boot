@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ########################################
-main_command="./run.py"
+main_command="python3.6 run.py"
 gworkers="4"
 gserver="gunicorn -w $gworkers --bind 0.0.0.0:5000 run:app"
 

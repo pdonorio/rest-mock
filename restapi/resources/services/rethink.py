@@ -5,7 +5,8 @@
 import os
 import time
 import glob
-import commentjson as json
+# import commentjson as json
+import json
 
 # This Rethinkdb reference is already connected at app init
 from rethinkdb import r, RqlDriverError
@@ -317,7 +318,8 @@ def schema_and_tables(fileschema):
     This function can recover basic data for my JSON resources
     """
     template = None
-    with open(os.path.join(JSONS_PATH, fileschema + JSONS_EXT)) as f:
+    fname = os.path.join(JSONS_PATH, fileschema + JSONS_EXT)
+    with open(fname) as f:
         template = json.load(f)
     reference_schema = convert_to_marshal(template)
     label = os.path.splitext(
