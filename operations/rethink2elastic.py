@@ -361,8 +361,8 @@ def single_update(doc):
         if key is not None and value is not None:
             elobj[key] = value
 
-###################
-## Transcriptions and translations
+    ###################
+    # Transcriptions and translations
 
     key = 'transcription'
     if key in elobj:
@@ -412,7 +412,6 @@ def single_update(doc):
 
     else:
         noimages[elobj['extrait']] = elobj
-
 
     ###################
     ## Date format

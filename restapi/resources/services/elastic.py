@@ -140,7 +140,7 @@ class FastSearch(object):
         except Exception as e:
             logger.error("Failed to execute fast get query\n%s" % e)
             return None, False
-        pp(out)
+        # pp(out)
         return out['hits']['hits'], out['hits']['total']
 
     def fast_get(self, keyword, current=1, size=10, filters={}):

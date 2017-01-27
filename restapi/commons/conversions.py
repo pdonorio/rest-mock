@@ -76,9 +76,13 @@ class Utils(object):
             print("FAILED to match *%s*" % extrait)
             num = 1
             # exit(1)
-        if num < 2:
-            prob = 1 - ((30 - alphanum) / 10000)
+
+        #######################
+        # Boost the first extrait
+        if extraitnum < 2:
+            prob = 1 - ((30 - alphanum) / 20000)
         else:
-            prob = 0.8 - ((10000 - num) / 10000)
-        # print(num, prob)
+            prob = 0.8 - ((20000 - num) / 20000)
+        #######################
+        print(extraitnum, num, prob)
         return 10000 - num, prob, extraitnum
