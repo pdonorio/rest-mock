@@ -18,7 +18,7 @@ class Utils(object):
         return group
 
     def get_numeric_extrait(self, group):
-        print("group", group)
+        # print("group", group)
         num = 0
         try:
             num = int(group[1].replace('_', ''))
@@ -34,7 +34,7 @@ class Utils(object):
 
     def get_sort_value(self, extrait, num):
 
-        print("TEST1", extrait, num)
+        # print("TEST1", extrait, num)
         if '_titre' in extrait:
             num += 10
             # suffix = extrait.split('_')[::-1][0]
