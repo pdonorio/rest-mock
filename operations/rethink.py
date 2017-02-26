@@ -28,8 +28,8 @@ from confs.config import args, UPLOAD_FOLDER
 from beeprint import pp
 
 import logging
-logger = get_logger(__name__)
-logger.setLevel(logging.DEBUG)
+log = get_logger(__name__)
+log.setLevel(logging.DEBUG)
 zoomer = ZoomEnabling()
 
 ES_HOST = {"host": "el", "port": 9200}
@@ -56,7 +56,7 @@ query = RDBquery()
 ######################
 # Parameters
 if args.rm:
-    logger.info("Remove previous data")
+    log.info("Remove previous data")
     tables = query.list_tables()
     if tin in tables:
         query.get_query().table_drop(tin).run()
@@ -174,7 +174,7 @@ def fix_sources():
 
                 element['steps'][1]['data'][0]['value'] = right
                 table.get(element['record']).update(element).run()
-                logger.debug("Fixed %s" % element['record'])
+                log.debug("Fixed %s" % element['record'])
                 # print("FOUND"); exit(1)
 
 
@@ -193,11 +193,11 @@ def check_doubles():
     # if check is None:
     #     tmp['record'] = new
     #     qfix.insert(tmp).run()
-    #     logger.debug("Duplicated into new %s" % new)
+    #     log.debug("Duplicated into new %s" % new)
     # else:
     #     qfix.get(old).delete().run()
     #     qdouble.get(old).delete().run()
-    #     logger.debug("Removed old %s" % old)
+    #     log.debug("Removed old %s" % old)
 
     ####################
     # Fix Doubles
@@ -215,7 +215,7 @@ def check_doubles():
                 wrong = key
 
         if wrong > 0:
-            logger.info("Wrong is %s in %s" % (wrong, record['record']))
+            log.info("Wrong is %s in %s" % (wrong, record['record']))
             index = 0
             to_be_removed = []
             original = len(record['steps'])
@@ -226,7 +226,7 @@ def check_doubles():
             for element in to_be_removed[::-1]:
                 del record['steps'][element]
             final = len(record['steps'])
-            logger.debug("From %s to %s" % (original, final))
+            log.debug("From %s to %s" % (original, final))
 
             qdouble.get(record['record']).replace(record).run()
 
@@ -287,7 +287,7 @@ def expo_operations():
     for single in q2.run():
         if 'details' not in single or len(single['details']) < 2:
             continue
-        logger.debug("Updating %s" % single['record'])
+        log.debug("Updating %s" % single['record'])
         # print(single['details'])
         new = {}
         for key, value in single['details'].items():
@@ -344,20 +344,20 @@ def medium_expo_thumbnail(force=False, remove_zoom=False, rebuild_zoom=False):
             if not os.path.exists(filebase) or rebuild_zoom:
                 if not zoomer.process_zoom(absf):
                     raise BaseException("Failed to zoom file '%s'" % fname)
-                logger.info("Zoomed image '%s'" % filebase)
+                log.info("Zoomed image '%s'" % filebase)
 
             # Copy 0.0.0 as filename.small.jpg
             shutil.copyfile(ori, small)
             # shutil.move(ori, small)
-            logger.debug("Created thumb %s" % small)
+            log.debug("Created thumb %s" % small)
 
             # Remove zoom dir
             if remove_zoom:
                 try:
                     shutil.rmtree(filebase)
-                    logger.debug("Removed dir '%s' " % filebase)
+                    log.debug("Removed dir '%s' " % filebase)
                 except Exception as e:
-                    logger.critical("Cannot remove zoomified:\n '%s'" % str(e))
+                    log.critical("Cannot remove zoomified:\n '%s'" % str(e))
 
         # Build with 'convert' binary a filename.medium.jpg
         medium = filebase + '.medium.jpg'
@@ -365,13 +365,61 @@ def medium_expo_thumbnail(force=False, remove_zoom=False, rebuild_zoom=False):
         if force or not os.path.exists(medium):
             from plumbum.cmd import convert
             convert(['-resize', size + '%', absf, medium])
-            logger.info("Builded %s with %s %s dimension" % (medium, '%', size))
+            log.info("Builded %s with %s %s dimension" % (medium, '%', size))
+
+
+def verify_image(path):
+    """
+    https://opensource.com/article/17/2/python-tricks-artists
+    """
+
+    from PIL import Image
+    try:
+        img = Image.open(path)
+        img.verify()
+        return True
+    except (IOError, SyntaxError):  # as e:
+        pass
+
+    return False
+
+
+def fix_symbols(sym, image, record, q):
+
+        if sym not in image['filename']:
+            return
+
+        log.warning("found '%s' in %s" % (sym, image['filename']))
+
+        # Remove zoomify
+        filebase = os.path.join(UPLOAD_FOLDER, image['code'])
+        if os.path.exists(filebase):
+            try:
+                shutil.rmtree(filebase)
+            except Exception as e:
+                log.critical("Failed removing zoom: '%s'" % str(e))
+
+        # Rename file
+        old = os.path.join(UPLOAD_FOLDER, image['filename'])
+        image['filename'] = image['filename'].replace(sym, '.')
+        new = os.path.join(UPLOAD_FOLDER, image['filename'])
+        try:
+            os.rename(old, new)
+        except Exception as e:
+            log.warning("Failed renaming bug: '%s'" % str(e))
+
+        # Fix record
+        sym = sym[:-1]
+        image['code'] = image['code'].rstrip(sym)
+        record['images'] = [image]
+        # print("New record", record['images'])
+        update_image_name(q, record)
 
 
 # def convert_tiff():
 def build_zoom(force=False):
 
-    import re
+    # import re
     # pattern = re.compile("^[0-9]+$")
 
     q = query.get_table_query(t3in)
@@ -382,36 +430,83 @@ def build_zoom(force=False):
             continue
         image = images.pop()
 
+        if 'bad' in record:
+            print(
+                "*** Bad %s %s/%s" %
+                (record['bad'], image['filename'], image['code'])
+            )
+
         ##################
         # FIX ZOOM for files like [0-9]+.jpg
         # match = pattern.match(image['code'])
         # if match is None:
         #     continue
 
-        ##################
-        abs_file = os.path.join(UPLOAD_FOLDER, image['filename'])
+        # BUG FIX
+        fix_symbols('..', image, record, q)
+        fix_symbols('_.', image, record, q)
 
+        ##################
+        # Verify image
+        abs_file = os.path.join(UPLOAD_FOLDER, image['filename'])
+        if 'bad' not in record:
+            # print("FILE IS", abs_file)
+
+            if not verify_image(abs_file):
+                print("Bad", abs_file)
+                record['bad'] = 'image'
+                record['images'] = [image]
+                update_image_name(q, record)
+
+        ##################
         # Remove zoomified directory
-        filebase, fileext = os.path.splitext(abs_file)
+
+        filebase = os.path.join(UPLOAD_FOLDER, image['code'])
+        # filebase, fileext = os.path.splitext(abs_file)
+        # print("ZOOM IS", filebase, thumbpath)
+        thumbpath = os.path.join(filebase, 'TileGroup0', '0-0-0.jpg')
+
         if force and os.path.exists(filebase):
             try:
                 shutil.rmtree(filebase)
-                logger.debug("Removed dir '%s' " % filebase)
+                log.debug("Removed dir '%s' " % filebase)
             except Exception as e:
-                logger.critical("Cannot remove zoomified:\n '%s'" % str(e))
+                log.critical("Cannot remove zoomified:\n '%s'" % str(e))
 
-        if not os.path.exists(filebase):
-            logger.debug("Converting %s" % abs_file)
+        # remove empty zooms
+        missing_zoom = False
+        if os.path.exists(filebase):
+            # print("Check", thumbpath)
+            if os.path.exists(thumbpath):
+                import glob
+                files = glob.glob(filebase + "/*/*.jpg")
+                if len(files) < 2:
+                    raise AttributeError("How is this possible?\n%s" % files)
+            else:
+                shutil.rmtree(filebase)
+                missing_zoom = True
+        else:
+            missing_zoom = True
+
+        if missing_zoom and 'bad' not in record:
+            log.debug("Converting %s" % abs_file)
             if not zoomer.process_zoom(abs_file):
                 raise BaseException(
                     "Failed to zoom file '%s'" % image['filename'])
-            logger.info("Zoomed image '%s'" % image['filename'])
+            log.info("Zoomed image '%s'" % image['filename'])
+
+        if 'bad' not in record:
+            if not verify_image(thumbpath):
+                record['bad'] = 'zoom'
+                record['images'] = [image]
+                update_image_name(q, record)
+                print("Bad zoom")
 
         ##################
         # FIX TIFF
         if not image['filename'][-4:] == '.tif':
             continue
-        logger.warning("Converting current image as tiff")
+        log.warning("May convert current image from tiff")
 
         path = os.path.join('/uploads', image['filename'])
         if not os.path.exists(path):
@@ -422,14 +517,21 @@ def build_zoom(force=False):
             # Convert tif to jpg
             from plumbum.cmd import convert
             convert([path, newpath])
-            logger.info("Converted TIF to %s" % newpath)
+            log.info("Converted TIF to %s" % newpath)
+
+            print("Should remove?", path)
 
         # Update
         image['filename'] = image['filename'].replace('.tif', '.jpg')
         record['images'] = [image]
+        update_image_name(q, record)
+        exit(1)
+
+
+def update_image_name(q, record):
         changes = q.get(record['record']).replace(record).run()
-        print("Changes", changes)
-        logger.debug("Updated %s" % record['record'])
+        print("Changed document:", changes)
+        log.debug("Updated %s" % record['record'])
 
 
 def convert_pending_images():
@@ -442,7 +544,7 @@ def convert_pending_images():
                 {'file': images['filename'], 'record': images['recordid']}
          ).distinct().run()
 
-    logger.info("Obtained pending data")
+    log.info("Obtained pending data")
     images = glob.glob(os.path.join(UPLOAD_FOLDER, "*.jpg"))
 
     # Missing
@@ -455,7 +557,7 @@ def convert_pending_images():
         elif len(obj['record']) > 0:
             # Remove images which are not physical uploaded
             q.get(obj['record'].pop()).delete().run()
-            logger.debug("Removed pending file '%s' from table", absfile)
+            log.debug("Removed pending file '%s' from table", absfile)
 
 # // TO FIX:
 # MAKE A TABLE OF DRAFTS INSTEAD
@@ -464,7 +566,7 @@ def convert_pending_images():
     # # Remove physical images which do not belong to any record?
     # for image in images:
     #     os.unlink(image)
-    #     logger.debug("Removed unused image '%s'" % image)
+    #     log.debug("Removed unused image '%s'" % image)
     # REMOVE
 
 
@@ -479,7 +581,7 @@ def convert_docs():
     if t3in in list(q.table_list().run()):
         q.table_drop(t3in).run()
     q.table_create(t3in, primary_key=pkey).run()
-    logger.info("Startup table '%s'" % t3in)
+    log.info("Startup table '%s'" % t3in)
 
     # Query
     res = qt1.group('recordid').order_by('code').run()
@@ -502,7 +604,7 @@ def convert_docs():
             'images': images,
             'type': image_destination({})
         }).run()
-        logger.info("Insert of record '%s'" % record)
+        log.info("Insert of record '%s'" % record)
 
 
 def convert_search():
@@ -517,7 +619,7 @@ def convert_search():
     if t2in in list(q.table_list().run()):
         q.table_drop(t2in).run()
     q.table_create(t2in, primary_key=pkey).run()
-    logger.info("Startup table '%s'" % t2in)
+    log.info("Startup table '%s'" % t2in)
 
     # Query
     res = qt1.group('recordid').order_by('step').run()
@@ -548,7 +650,7 @@ def convert_search():
                 try:
                     fields = cursor.next()['fields']
                 except DefaultCursorEmpty:
-                    logger.warning("No original hash for '%s'" % myhash)
+                    log.warning("No original hash for '%s'" % myhash)
 
                 for field in fields:
                     if field['original_hash'] == myhash:
@@ -597,7 +699,7 @@ def convert_search():
 
         # Save the record
         qtin.insert({'record': record, 'steps': steps}).run()
-        logger.info("Worked off document '%s'" % record)
+        log.info("Worked off document '%s'" % record)
 
     # # Create indexes
     # indexes = ['record']
@@ -605,7 +707,7 @@ def convert_search():
     # for index in indexes:
     #     if index not in existing_indexes:
     #         qtin.index_create(index).run()
-    #         logger.info("Added index '%s'" % index)
+    #         log.info("Added index '%s'" % index)
 
 
 def check_indexes(table):
@@ -629,7 +731,7 @@ def convert_submission():
     for step in sorted(list(data)):
         new = {"step": None, "fields": None}
         myfilter = {'step': step}
-        logger.info("*** STEP: %s" % step)
+        log.info("*** STEP: %s" % step)
 
         # Single step elements
         element = list(qt2.filter(myfilter).run()).pop()
@@ -657,9 +759,9 @@ def convert_submission():
         new["fields"] = element
 
         # INSERT
-        logger.debug("To insert!\n%s" % new)
+        log.debug("To insert!\n%s" % new)
         qtin.insert(new).run()
-        logger.info("Added row")
+        log.info("Added row")
         tmp = new['step']
         STEPS[tmp['num']] = tmp['name']
     print(STEPS)

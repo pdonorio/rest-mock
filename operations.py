@@ -13,14 +13,14 @@ from operations import rethink
 #########################
 # RETHINKDB
 
-# rethink.build_zoom(force=True)
-# rethink.medium_expo_thumbnail(force=False)
 # rethink.fix_sources()
 # rethink.convert_tiff()
 # rethink.find_double_records()
-rethink.some_operation()
+rethink.build_zoom(force=False)
+# print("Exit DEBUG"); exit(1)
 
-# print("DEBUG"); exit(1)
+# rethink.medium_expo_thumbnail(force=False)
+# rethink.some_operation()
 
 #########################
 # RETHINKDB 2 ELASTICSEARCH
