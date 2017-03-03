@@ -16,11 +16,9 @@ from operations import rethink
 # rethink.fix_sources()
 # rethink.convert_tiff()
 # rethink.find_double_records()
-rethink.build_zoom(force=False)
-# print("Exit DEBUG"); exit(1)
-
+# rethink.build_zoom(force=False)
 # rethink.medium_expo_thumbnail(force=False)
-# rethink.some_operation()
+rethink.some_operation()
 
 #########################
 # RETHINKDB 2 ELASTICSEARCH

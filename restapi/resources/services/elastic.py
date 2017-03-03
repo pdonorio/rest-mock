@@ -143,6 +143,17 @@ class FastSearch(object):
         # pp(out)
         return out['hits']['hits'], out['hits']['total']
 
+    def fast_id(self, id):
+
+        if not self.get_instance():
+            return []
+        out = {}
+        try:
+            out = self._api.get(index=EL_INDEX1, doc_type=EL_TYPE1, id=id)
+        except Exception as e:
+            logger.error("Failed to execute fast get query\n%s" % e)
+        return [out]
+
     def fast_get(self, keyword, current=1, size=10, filters={}):
 
         args = {'index': EL_INDEX1, 'doc_type': EL_TYPE1}
