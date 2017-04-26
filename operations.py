@@ -22,7 +22,9 @@ rethink.some_operation()
 
 #########################
 # RETHINKDB 2 ELASTICSEARCH
-r2e.make(only_xls=True)
+
+r2e.make(skip_lexique=True)
+# r2e.make(only_xls=True)
 
 #########################
 print("Conversion completed")

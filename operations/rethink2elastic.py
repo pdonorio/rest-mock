@@ -90,6 +90,16 @@ INDEX_BODY1 = {
                     "index": "not_analyzed",
                     "include_in_all": False
                 },
+                "gravure": {
+                    "type": "boolean",
+                    "index": "not_analyzed",
+                    "include_in_all": False
+                },
+                "langue": {
+                    "type": "string",
+                    "index": "not_analyzed",
+                    "include_in_all": False
+                },
 
                 ####################
                 "start_date": {
@@ -276,6 +286,18 @@ def single_update(doc):
                 if current_step == 1:
                     if pos == 2:
                         extrakey = 'page'
+                    if pos == 3:
+                        # element['value'] = False
+                        extrakey = 'gravure'
+                        if 'gravure' in element['value'].lower():
+                            element['value'] = True
+                            # print("FOUND!\n\n")
+                        else:
+                            element['value'] = False
+                    # if pos == 5:
+                    #     print("TEST!\n\n", element)
+                    #     exit(1)
+                    #     extrakey = 'gravure'
                 if current_step == 2:
                     if pos == 2:
                         extrakey = 'manuscrit'
@@ -383,12 +405,15 @@ def single_update(doc):
         image = data['images'].pop(0)
         # print(image)
 
+        langue = ''
+
         # TRANSCRIPT
         if "transcriptions" in image and len(image["transcriptions"]) > 0:
             logger.debug("Found transcription")
             key = 'transcription'
             if 'language' in image:
                 key += '_' + image['language'].lower()
+                langue = image['language']
 
             transcription = image["transcriptions"].pop(0)
             suggest_transcription(transcription, key, .25)
@@ -402,9 +427,11 @@ def single_update(doc):
                 logger.debug("Found translations: %s" % language)
                 suggest_transcription(transcription, key, .20)
                 docobj[key] = translation
+                langue += ' ' + language
 
         docobj['thumbnail'] = ZoomEnabling.get_thumbname(image['filename'])
         elobj['doc'] = docobj
+        elobj['langue'] = langue.lower()
 
         # es.update(
         #     index=EL_INDEX1, id=record,
@@ -493,7 +520,7 @@ def single_update(doc):
 #################################
 # MAIN
 #################################
-def make(only_xls=False):
+def make(only_xls=False, skip_lexique=False):
 
     ###################
     q = query.get_table_query(RDB_TABLE1)
@@ -527,14 +554,15 @@ def make(only_xls=False):
 
     ##################
     # LEXIQUE
-    if es.indices.exists(index=EL_INDEX3):
-        es.indices.delete(index=EL_INDEX3)
-    es.indices.create(index=EL_INDEX3, body={})
-    logger.info("Created index %s" % EL_INDEX3)
+    if not skip_lexique:
+        if es.indices.exists(index=EL_INDEX3):
+            es.indices.delete(index=EL_INDEX3)
+        es.indices.create(index=EL_INDEX3, body={})
+        logger.info("Created index %s" % EL_INDEX3)
 
-    # READ FROM XLS FILE
-    read_xls(fix_suggest=(not only_xls))
-    # dictionary = read_xls(fix_suggest=(not only_xls))
+        # READ FROM XLS FILE
+        read_xls(fix_suggest=(not only_xls))
+        # dictionary = read_xls(fix_suggest=(not only_xls))
 
     ###################
     count = 0

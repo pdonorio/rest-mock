@@ -131,9 +131,10 @@ class FastSearch(object):
         # args['from_'] = current - 1
         args['from_'] = 0
         args['size'] = size
-        args['body'] = {
-            'query': {"match": {"_all": {"query": keyword}}}
-        }
+        if keyword is not None and len(keyword) > 0:
+            args['body'] = {
+                'query': {"match": {"_all": {"query": keyword}}}
+            }
 
         try:
             out = self._api.search(**args)

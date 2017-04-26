@@ -73,7 +73,7 @@ class Utils(object):
             alphanum += (ord(alphas[1]) - 90) / 5
             num -= alphanum
         else:
-            print("FAILED to match *%s*" % extrait)
+            # print("FAILED to match *%s*" % extrait)
             num = 1
             # exit(1)
 
