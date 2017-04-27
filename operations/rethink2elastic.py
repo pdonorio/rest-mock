@@ -217,11 +217,11 @@ def add_suggestion(key, value, probability=1, extra=None):
 
 def suggest_transcription(transcription, key, probability=0.5):
 
-    if transcription.strip() == '':
+    if transcription is None or transcription.strip() == '':
         return False
 
     if transcription in transcrpcache:
-        logger.debug("Suggestion already cached")
+        # logger.debug("Suggestion already cached")
         return False
 
     # print("Suggest ", key)

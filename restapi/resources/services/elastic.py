@@ -124,17 +124,38 @@ class FastSearch(object):
         # pp(out)
         return out['hits']['hits']
 
-    def fast_get_all(self, keyword, size=5, index=EL_INDEX3, type=EL_TYPE1):
+    def fast_get_all(
+        self, keyword, size=5, index=EL_INDEX3, type=EL_TYPE1, category=False
+    ):
 
         args = {'index': index, 'doc_type': type}
-        # args['sort'] = ["sort_string:asc", "sort_number:asc"]
-        # args['from_'] = current - 1
         args['from_'] = 0
         args['size'] = size
+        # args['sort'] = ["sort_string:asc", "sort_number:asc"]
+
         if keyword is not None and len(keyword) > 0:
+
+            categories = ['sheet', 'macro', 'micro']
+            languages = ['titre', 'latin', 'italien', 'français']
+
+            possibilities = []
+            if category:
+                for category in categories:
+                    possibilities.append({"match": {category: keyword}})
+                # print("POSSIBILITIES", possibilities)
+            else:
+                for language in languages:
+                    possibilities.append(
+                        {"match_phrase_prefix": {language: keyword}})
+
             args['body'] = {
-                'query': {"match": {"_all": {"query": keyword}}}
+                'query': {
+                    "bool": {
+                        "should": possibilities
+                    }
+                }
             }
+            # pp(args)
 
         try:
             out = self._api.search(**args)
