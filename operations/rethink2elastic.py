@@ -238,13 +238,19 @@ def suggest_transcription(transcription, key, probability=0.5):
     return True
 
 
-def read_xls(fix_suggest=False):
-    # print("FIX SUGGEST", fix_suggest)
-    from .xls import ExReader
-    obj = ExReader(rethink=query, elastic=es)
-    if obj.check_empty():
-        raise BaseException("Failed to load 'Lexique'")
-    return obj.get_data()
+def read_xls():
+
+    # NEW
+    from .gxls import GExReader
+    obj = GExReader(rethink=query, elastic=es)
+    obj.get_data()
+
+    # # OLD
+    # from .xls import ExReader
+    # obj = ExReader(rethink=query, elastic=es)
+    # if obj.check_empty():
+    #     raise BaseException("Failed to load 'Lexique'")
+    # return obj.get_data()
 
 
 def single_update(doc):
@@ -523,46 +529,52 @@ def single_update(doc):
 def make(only_xls=False, skip_lexique=False):
 
     ###################
-    q = query.get_table_query(RDB_TABLE1)
-    cursor = q.run()
-    # print("SOME", cursor)
+    if not only_xls:
 
-    # HTML STRIPPER
-    if es.indices.exists(index=EL_INDEX0):
-        es.indices.delete(index=EL_INDEX0)
-    es.indices.create(index=EL_INDEX0, body=HTML_ANALYZER)
+        q = query.get_table_query(RDB_TABLE1)
+        cursor = q.run()
+        # print("SOME", cursor)
 
-    # MULTI INDEX FILTERING
-    if es.indices.exists(index=EL_INDEX1):
-        es.indices.delete(index=EL_INDEX1)
-    es.indices.create(index=EL_INDEX1, body=INDEX_BODY1)
-    logger.info("Created index %s" % EL_INDEX1)
+        # HTML STRIPPER
+        if es.indices.exists(index=EL_INDEX0):
+            es.indices.delete(index=EL_INDEX0)
+        es.indices.create(index=EL_INDEX0, body=HTML_ANALYZER)
 
-    # SUGGESTIONS
-    if es.indices.exists(index=EL_INDEX2):
-        es.indices.delete(index=EL_INDEX2)
-    es.indices.create(index=EL_INDEX2, body=INDEX_BODY2)
-    logger.info("Created index %s" % EL_INDEX2)
+        # MULTI INDEX FILTERING
+        if es.indices.exists(index=EL_INDEX1):
+            es.indices.delete(index=EL_INDEX1)
+        es.indices.create(index=EL_INDEX1, body=INDEX_BODY1)
+        logger.info("Created index %s" % EL_INDEX1)
 
-    # es.indices.put_mapping(
-    #     index=EL_INDEX2, doc_type=EL_TYPE2, body=SUGGEST_MAPPINGS)
-    # print(es.indices.stats(index=EL_INDEX2))
-    # exit(1)
+        # SUGGESTIONS
+        if es.indices.exists(index=EL_INDEX2):
+            es.indices.delete(index=EL_INDEX2)
+        es.indices.create(index=EL_INDEX2, body=INDEX_BODY2)
+        logger.info("Created index %s" % EL_INDEX2)
 
-    # print(es.indices.stats(index=EL_INDEX1))
-    # print(es.info())
+        # es.indices.put_mapping(
+        #     index=EL_INDEX2, doc_type=EL_TYPE2, body=SUGGEST_MAPPINGS)
+        # print(es.indices.stats(index=EL_INDEX2))
+        # exit(1)
+
+        # print(es.indices.stats(index=EL_INDEX1))
+        # print(es.info())
 
     ##################
     # LEXIQUE
     if not skip_lexique:
+
         if es.indices.exists(index=EL_INDEX3):
             es.indices.delete(index=EL_INDEX3)
         es.indices.create(index=EL_INDEX3, body={})
         logger.info("Created index %s" % EL_INDEX3)
 
         # READ FROM XLS FILE
-        read_xls(fix_suggest=(not only_xls))
+        read_xls()
         # dictionary = read_xls(fix_suggest=(not only_xls))
+
+        if only_xls:
+            return False
 
     ###################
     count = 0
@@ -575,3 +587,4 @@ def make(only_xls=False, skip_lexique=False):
     # print("TOTAL", es.search(index=EL_INDEX1))
     print("Completed. No images:")
     pp(noimages.keys())
+    return True

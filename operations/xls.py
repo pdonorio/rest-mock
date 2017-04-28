@@ -16,9 +16,8 @@ LEXIQUE_TABLE = 'lexique'
 
 
 class ExReader(object):
-    """
-    Reading spreadsheets from a file
-    """
+    """ Reading spreadsheets from a file """
+
     def __init__(self, filename=None, rethink=None, elastic=None):
 
         if rethink is not None:
@@ -124,16 +123,16 @@ class ExReader(object):
 
             total_data.append(data)
 
+            ######################
+            # SAVE
+
             # Save rethinkdb
             self._r.insert(data).run()
-
-            # Update elastic suggest?
-
             # Update elastic specific index
-            # save
             self._el.index(
                 index=EL_INDEX3, id=counter, body=data, doc_type=EL_TYPE1)
 
+            ######################
             counter += 1
             # exit(1)
 
