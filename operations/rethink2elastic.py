@@ -418,20 +418,25 @@ def single_update(doc):
             logger.debug("Found transcription")
             key = 'transcription'
             if 'language' in image:
-                key += '_' + image['language'].lower()
+                # key += '_' + image['language'].lower()
                 langue = image['language']
 
             transcription = image["transcriptions"].pop(0)
             suggest_transcription(transcription, key, .25)
+            if 'language' in image:
+                key += '_' + image['language'].lower()
             docobj[key] = transcription
 
         # TRANSLATE
         if "translations" in image and len(image["translations"]) > 0:
 
             for language, translation in image["translations"].items():
+                key = 'traduction'
+                suggest_transcription(transcription, key, .20)
+
                 key = 'traduction_' + language.lower()
                 logger.debug("Found translations: %s" % language)
-                suggest_transcription(transcription, key, .20)
+                # suggest_transcription(transcription, key, .20)
                 docobj[key] = translation
                 langue += ' ' + language
 
