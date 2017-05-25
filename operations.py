@@ -18,7 +18,8 @@ from operations import rethink
 # rethink.find_double_records()
 # rethink.build_zoom(force=False)
 # rethink.medium_expo_thumbnail(force=False)
-rethink.some_operation()
+rethink.fix_languages()
+# rethink.some_operation()
 
 #########################
 # RETHINKDB 2 ELASTICSEARCH

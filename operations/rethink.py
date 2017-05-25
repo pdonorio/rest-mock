@@ -233,10 +233,16 @@ def check_doubles():
 
 #################################
 #################################
-def check_translations():
+def fix_languages():
 
-    q2 = query.get_table_query('datadocs')
-    for record in q2.run():
+    conversion = {
+        "francais": "français",
+        "latino": "latin",
+        "italiano": "italien"
+    }
+
+    q = query.get_table_query('datadocs')
+    for record in q.run():
 
         if record['type'] != 'documents':
             continue
@@ -251,15 +257,41 @@ def check_translations():
         if len(images) < 1:
             continue
         image = images.pop()
+
+        # if 'translations' in image:
+        #     x = query.get_table_query('datavalues') \
+        #    .get(record['record']).run()
+        #     for step in x['steps']:
+        #         if step['step'] == 1:
+        #             for y in step['data']:
+        #                 if y['position'] == 1:
+        #                     print(y['value'])
+        #                     break
+        #             break
+
+        flag = False
+
+        if 'language' in image:
+            new = conversion.get(image['language'].lower())
+            image['language'] = new
+            if new is not None:
+                flag = True
+
         if 'translations' in image:
-            x = query.get_table_query('datavalues').get(record['record']).run()
-            for step in x['steps']:
-                if step['step'] == 1:
-                    for y in step['data']:
-                        if y['position'] == 1:
-                            print(y['value'])
-                            break
-                    break
+            tmp = {}
+            for language, value in image.pop('translations', {}).items():
+                new = conversion.get(language.lower())
+                tmp[new] = value
+                if new is not None:
+                    flag = True
+            image['translations'] = tmp
+
+        if flag:
+            record['images'] = [image]
+            q.get(record['record']).replace(record).run()
+            # if 'translations' in image:
+            #     print("DEBUG")
+            #     exit(1)
 
 
 def expo_operations():
