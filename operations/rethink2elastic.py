@@ -226,6 +226,8 @@ def suggest_transcription(transcription, key, probability=0.5):
 
     # print("Suggest ", key)
     transcrpcache.append(transcription)
+    # if '[Non transcrit]' in transcription:
+    #     return False
 
     words = es.indices.analyze(
         index=EL_INDEX0, analyzer='my_html_analyzer', body=transcription)

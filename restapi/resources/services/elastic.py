@@ -18,13 +18,16 @@ http://elasticsearch-dsl.readthedocs.io/en/latest/search_dsl.html?highlight=aggr
 """
 
 from elasticsearch import Elasticsearch
-from beeprint import pp
+# from beeprint import pp
 from ... import get_logger
 
 logger = get_logger(__name__)
 
 ES_SERVER = 'el'
-ES_SERVICE = {"host": ES_SERVER, "port": 9200}
+ES_SERVICE = {
+    "host": ES_SERVER, "port": 9200,
+    # 'http_auth': ('elastic', 'changeme')
+}
 EL_INDEX0 = "split_html"
 EL_INDEX1 = "catalogue"
 EL_INDEX2 = "suggestions"
@@ -85,6 +88,24 @@ HTML_ANALYZER = {
         }
     }
 }
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-htmlstrip-charfilter.html
+#     "settings": {
+#         "analysis": {
+#             "analyzer": {
+#                 "my_html_analyzer": {
+#                     "tokenizer": "keyword",
+#                     "char_filter": ["my_char_filter"]
+#                 }
+#             },
+#             "char_filter": {
+#                 "my_char_filter": {
+#                     "type": "html_strip",
+#                     # "escaped_tags": ["b"]
+#                 }
+#             }
+#         }
+#     }
+# }
 
 
 # ######################################
