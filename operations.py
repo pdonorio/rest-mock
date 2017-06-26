@@ -18,14 +18,14 @@ from operations import rethink
 # rethink.find_double_records()
 # rethink.build_zoom(force=False)
 # rethink.medium_expo_thumbnail(force=False)
-rethink.fix_languages()
+# rethink.fix_languages()
 # rethink.some_operation()
 
 #########################
 # RETHINKDB 2 ELASTICSEARCH
 
-r2e.make()
-# r2e.make(skip_lexique=True)
+# r2e.make()
+r2e.make(skip_lexique=True)
 # r2e.make(only_xls=True)
 
 #########################

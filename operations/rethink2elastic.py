@@ -126,9 +126,16 @@ INDEX_BODY1 = {
                     "type": "integer",
                     "include_in_all": False
                 },
-
-                "transcription": {"type": "string"},
-                "traduction": {"type": "string"},
+                "transcription": {
+                    "type": "string",
+                    "analyzer": "nGram_analyzer",
+                    "search_analyzer": "whitespace_analyzer"
+                },
+                "traduction": {
+                    "type": "string",
+                    "analyzer": "nGram_analyzer",
+                    "search_analyzer": "whitespace_analyzer"
+                },
                 "thumbnail": {
                     "type": "string",
                     "index": "no",
