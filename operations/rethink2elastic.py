@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import re
+import logging
+import datetime
+from beeprint import pp
 from restapi.resources.services.rethink import RethinkConnection, RDBquery
 from restapi.resources.services.uploader import ZoomEnabling
 from restapi.resources.services.elastic import \
@@ -9,12 +13,8 @@ from restapi.resources.services.elastic import \
 
 from elasticsearch import Elasticsearch
 from restapi import get_logger
-from beeprint import pp
-import logging
-import datetime
 from restapi.dates import set_date_period
 from restapi.commons.conversions import Utils
-
 
 RDB_TABLE1 = "datavalues"
 RDB_TABLE2 = "datadocs"
@@ -139,9 +139,8 @@ INDEX_BODY1 = {
     }
 }
 
-# INDEX 2 is SUGGESTIONs
-
 INDEX_BODY2 = {
+    # INDEX 2 is SUGGESTIONs!!
     'settings': BASE_SETTINGS,
     'mappings': {
         EL_INDEX2: {
@@ -149,6 +148,11 @@ INDEX_BODY2 = {
                 "suggest": {
                     "type": "string",
                     "analyzer": "nGram_analyzer"
+                    # tokenizers?
+                },
+                "original": {
+                    "type": "string",
+                    "index": "not_analyzed"
                 },
                 "label": {
                     "type": "string",
@@ -176,46 +180,75 @@ transcrpcache = []
 u = Utils()
 
 
-def add_suggestion(key, value, probability=1, extra=None):
+def add_suggestion(key, value, probability=1, extra=None, is_extrait=False):
     """
     Add to suggestion only if not available already
     """
+
+    # Handle empty
     if value is None:
         return False
+    else:
+        original = value
 
-# // TO FIX: split on symbols and take the biggest word?
+    # 1. lower?
+    value = value.lower()
+    # 2. strip quotes?
+    value.strip('"')
+    # 3. split on any symbols and take the biggest word? 
+    if is_extrait:
+        pass
+    elif not value.isalpha():
 
+        max_len = 0
+        # myword = None
+        for word in re.split(r'[^a-z]+', value):
+            cur_len = len(word)
+            if cur_len > max_len:
+                max_len = cur_len
+                # myword = word
+                value = word
+
+        # print("TEST!", original, myword)
+        # import time
+        # time.sleep(3)
+
+    # Handle cache
     if key not in _cache:
         _cache[key] = {}
-
-    # Check if suggestion is already there
-    # if extra is None:
-    #     out = es.search(
-    #         index=EL_INDEX2, body={'query': {'match': {SUGGEST: value}}})
-    #     # If no hits, add this
-    #     if out['hits']['total'] > 0:
-    #         return False
-
-    if extra is None:
-        extra = {'cleanlabel': key}
-
     if value in _cache[key]:
         # print("Skipping")
         return False
 
-    body = {'label': key, SUGGEST: value, 'prob': probability}
-    if extra is not None:
-        body['extra'] = extra
+    # 4. check length
+    value_len = len(value)
 
-    # ADD
-    es.index(index=EL_INDEX2, doc_type=EL_TYPE2, body=body)
+    if value_len > 3:
+        if extra is None:
+            extra = {'cleanlabel': key}
+
+        body = {
+            SUGGEST: value,
+            'original': original,
+            'label': key,
+            'prob': probability,
+            'extra': extra
+        }
+
+        # ADD
+        es.index(index=EL_INDEX2, doc_type=EL_TYPE2, body=body)
+
     _cache[key][value] = True
+    # cache also with ending s?
+    last_char = value_len - 1
+    if value[last_char] in 'aeiou':
+        _cache[key][value + 's'] = True
 
     # print("Suggest adding", key, value, probability)
     return True
 
 
-def suggest_transcription(transcription, key, probability=0.5):
+def suggest_transcription(transcription, key, probability=0.5, extrait=None):
 
     if transcription is None or transcription.strip() == '':
         return False
@@ -235,7 +268,13 @@ def suggest_transcription(transcription, key, probability=0.5):
     for token in words['tokens']:
         for word in token['token'].split("'"):
             token['cleanlabel'] = key.split('_')[0]
+
             if len(word) > 2:
+
+                # if 'scytalosagittipelliger' in word:
+                #     print("TEST", extrait, word.encode())
+                #     # exit(1)
+
                 add_suggestion(key, word, probability, extra=token)
     return True
 
@@ -346,8 +385,17 @@ def single_update(doc):
                 # break
                 exit(1)
 
-            # if value != 'Bruxelles_41':
+            # if 'Paler' in value:
+            #     if 'idea' in value:
+            #         if '39' in value:
+            #             pass
+            #         else:
+            #             return
+            #     else:
+            #         return
+            # else:
             #     return
+            # https://stackoverflow.com/a/34378962
 
             key = 'extrait'
             try:
@@ -368,8 +416,24 @@ def single_update(doc):
                 # elobj['sort_number'] = u.get_sort_value(value, num)
 
                 ##########################
-                # suggest
-                add_suggestion(key, value, prob)
+                # Suggest EXTRAIT
+
+                # Forget about numbers in that case
+                suggest_value = re.sub(
+                    r'_[0-9]+', '',
+                    value)
+
+                if '_' in suggest_value:
+                    if suggest_value.endswith('_MS'):
+                        pass
+                    else:
+                        suggest_value = suggest_value.replace('_', '_*_')
+                else:
+                    suggest_value += '_'
+                    if ' ' in suggest_value:
+                        suggest_value = '"%s"' % suggest_value
+                # print("TEST ME", suggest_value)
+                add_suggestion(key, suggest_value, prob, is_extrait=True)
 
             except Exception as e:
                 print("VALUES WAS", value, step)
@@ -424,7 +488,7 @@ def single_update(doc):
                 langue = image['language']
 
             transcription = image["transcriptions"].pop(0)
-            suggest_transcription(transcription, key, .25)
+            suggest_transcription(transcription, key, .25, elobj['extrait'])
             if 'language' in image:
                 key += '_' + image['language'].lower()
             docobj[key] = transcription
@@ -434,7 +498,7 @@ def single_update(doc):
 
             for language, translation in image["translations"].items():
                 key = 'traduction'
-                suggest_transcription(transcription, key, .20)
+                suggest_transcription(transcription, key, .20, elobj['extrait'])
 
                 key = 'traduction_' + language.lower()
                 logger.debug("Found translations: %s" % language)

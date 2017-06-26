@@ -79,10 +79,12 @@ class Utils(object):
 
         #######################
         # Boost the first extrait
-        if extraitnum < 2:
-            prob = 1 - ((30 - alphanum) / 20000)
-        else:
-            prob = 0.8 - ((20000 - num) / 20000)
+        prob = 1 - ((30 - alphanum) / 20000)
+        # if extraitnum < 2:
+        #     prob = 1 - ((30 - alphanum) / 20000)
+        # else:
+        #     prob = 0.8 - ((20000 - num) / 20000)
+
         #######################
-        print(extraitnum, num, prob)
+        # print("PROBABILITY", extraitnum, num, prob)
         return 10000 - num, prob, extraitnum
