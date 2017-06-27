@@ -20,6 +20,7 @@ RDB_TABLE1 = "datavalues"
 RDB_TABLE2 = "datadocs"
 noimages = {}
 toberemoved = [
+    'e03aa189-b244-4782-8517-2a3edb3010fd',
     # 'd2d5fcb6-81cc-4654-9f65-a436f0780c67'  # prova
 ]
 
@@ -307,10 +308,11 @@ def single_update(doc):
     record = doc['record']
     # print(doc)
 
-    # if record in toberemoved:
-    #     q.get(record).delete().run()
-    #     logger.info("Removed useless %s" % record)
-    #     continue
+    if record in toberemoved:
+        q = query.get_table_query(RDB_TABLE1)
+        q.get(record).delete().run()
+        logger.info("Removed useless %s" % record)
+        return None
 
     elobj = {}
     not_valid = False
