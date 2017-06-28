@@ -25,6 +25,7 @@ from operations import rethink
 # RETHINKDB 2 ELASTICSEARCH
 
 # r2e.make()
+# FIXME
 r2e.make(skip_lexique=True)
 # r2e.make(only_xls=True)
 

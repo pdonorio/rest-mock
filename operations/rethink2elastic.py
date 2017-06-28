@@ -3,6 +3,7 @@
 import re
 import logging
 import datetime
+from operations import html
 from beeprint import pp
 from restapi.resources.services.rethink import RethinkConnection, RDBquery
 from restapi.resources.services.uploader import ZoomEnabling
@@ -20,7 +21,6 @@ RDB_TABLE1 = "datavalues"
 RDB_TABLE2 = "datadocs"
 noimages = {}
 toberemoved = [
-    'e03aa189-b244-4782-8517-2a3edb3010fd',
     # 'd2d5fcb6-81cc-4654-9f65-a436f0780c67'  # prova
 ]
 
@@ -276,14 +276,9 @@ def suggest_transcription(transcription, key, probability=0.5, extrait=None):
     for token in words['tokens']:
         for word in token['token'].split("'"):
             token['cleanlabel'] = key.split('_')[0]
-
             if len(word) > 2:
-
-                # if 'scytalosagittipelliger' in word:
-                #     print("TEST", extrait, word.encode())
-                #     # exit(1)
-
                 add_suggestion(key, word, probability, extra=token)
+
     return True
 
 
@@ -497,7 +492,7 @@ def single_update(doc):
                 langue = image['language']
 
             transcription = image["transcriptions"].pop(0)
-            suggest_transcription(transcription, key, .25, elobj['extrait'])
+            # suggest_transcription(transcription, key, .25, elobj['extrait'])
             if 'language' in image:
                 key += '_' + image['language'].lower()
             docobj[key] = transcription
@@ -507,13 +502,21 @@ def single_update(doc):
 
             for language, translation in image["translations"].items():
                 key = 'traduction'
-                suggest_transcription(transcription, key, .20, elobj['extrait'])
+                # suggest_transcription(transcription, key, .20, elobj['extrait'])
 
                 key = 'traduction_' + language.lower()
                 logger.debug("Found translations: %s" % language)
                 # suggest_transcription(transcription, key, .20)
                 docobj[key] = translation
                 langue += ' ' + language
+
+        # before completing
+        for key, value in docobj.items():
+            # clean html
+            docobj[key] = html.convert(value)
+            # add suggestion
+            name = key.split('_')[0]
+            suggest_transcription(docobj[key], name, .3, elobj['extrait'])
 
         docobj['thumbnail'] = ZoomEnabling.get_thumbname(image['filename'])
         elobj['doc'] = docobj
