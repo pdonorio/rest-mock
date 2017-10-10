@@ -55,7 +55,7 @@ query = RDBquery()
 
 ######################
 # Parameters
-if args.rm:
+if args is not None and args.rm:
     log.info("Remove previous data")
     tables = query.list_tables()
     if tin in tables:
@@ -92,6 +92,32 @@ def convert_schema():
     convert_pending_images()
 
     # check_indexes(t2in)
+
+
+def find_word(tofind=[]):
+
+    def find(words):
+        for word in tofind:
+            if word in words.lower():
+                log.info("ID: %s has %s", element.get('record'), word)
+                return True
+        return False
+
+    table = query.get_table_query('datadocs')
+
+    for element in table.run():
+        try:
+            image = element.get('images', []).pop()
+        except IndexError:
+            continue
+        # pp(image)
+
+        texts = image.get('transcriptions', [])
+        texts.extend(list(image.get('translations', {}).values()))
+        for words in texts:
+            if words is not None:
+                if find(words):
+                    break
 
 
 def some_operation():

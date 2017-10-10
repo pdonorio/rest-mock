@@ -24,12 +24,12 @@ toberemoved = [
     # 'd2d5fcb6-81cc-4654-9f65-a436f0780c67'  # prova
 ]
 
-fields = [
-    'extrait', 'source', 'fete',
-    'transcription', 'traduction',
-    'date', 'lieu', 'manuscrit',
-    'temps', 'actions', 'apparato',
-]
+# fields = [
+#     'extrait', 'source', 'fete',
+#     'transcription', 'traduction',
+#     'date', 'lieu', 'manuscrit',
+#     'temps', 'actions', 'apparato',
+# ]
 
 # INDEX 1 is NORMAL SEARCH FILTER
 
@@ -127,21 +127,59 @@ INDEX_BODY1 = {
                     "type": "integer",
                     "include_in_all": False
                 },
-                "transcription": {
-                    "type": "string",
-                    "analyzer": "nGram_analyzer",
-                    "search_analyzer": "whitespace_analyzer"
+                "doc": {
+                    # "type": "nested", # does not work as expected
+                    "properties": {
+                        "thumbnail": {
+                            "type": "string",
+                            "index": "no",
+                            "include_in_all": False
+                        },
+                        "transcription": {
+                            "analyzer": "simple",
+                            "type": "string",
+                        },
+                        "traduction_français": {
+                            "analyzer": "simple",
+                            "type": "string",
+                        },
+                        "traduction_latin": {
+                            "analyzer": "simple",
+                            "type": "string",
+                        },
+                        "traduction_italien": {
+                            "analyzer": "simple",
+                            "type": "string",
+                        },
+                        "transcription_latin": {
+                            "analyzer": "simple",
+                            "type": "string",
+                        },
+                        "transcription_français": {
+                            "analyzer": "simple",
+                            "type": "string",
+                        },
+                        "transcription_italien": {
+                            "analyzer": "simple",
+                            "type": "string",
+                        }
+                    }
                 },
-                "traduction": {
-                    "type": "string",
-                    "analyzer": "nGram_analyzer",
-                    "search_analyzer": "whitespace_analyzer"
-                },
-                "thumbnail": {
-                    "type": "string",
-                    "index": "no",
-                    "include_in_all": False
-                },
+                # "transcription": {
+                #     "type": "string",
+                #     "analyzer": "nGram_analyzer",
+                #     "search_analyzer": "whitespace_analyzer"
+                # },
+                # "traduction": {
+                #     "type": "string",
+                #     "analyzer": "nGram_analyzer",
+                #     "search_analyzer": "whitespace_analyzer"
+                # },
+                # "thumbnail": {
+                #     "type": "string",
+                #     "index": "no",
+                #     "include_in_all": False
+                # },
             }
         }
     }
@@ -173,8 +211,8 @@ INDEX_BODY2 = {
 
 SUGGEST = 'suggest'
 
-logger = get_logger(__name__)
-logger.setLevel(logging.DEBUG)
+log = get_logger(__name__)
+log.setLevel(logging.DEBUG)
 
 # Connection
 RethinkConnection()
@@ -262,7 +300,7 @@ def suggest_transcription(transcription, key, probability=0.5, extrait=None):
         return False
 
     if transcription in transcrpcache:
-        # logger.debug("Suggestion already cached")
+        # log.debug("Suggestion already cached")
         return False
 
     # print("Suggest ", key)
@@ -306,7 +344,7 @@ def single_update(doc):
     if record in toberemoved:
         q = query.get_table_query(RDB_TABLE1)
         q.get(record).delete().run()
-        logger.info("Removed useless %s" % record)
+        log.info("Removed useless %s" % record)
         return None
 
     elobj = {}
@@ -332,6 +370,12 @@ def single_update(doc):
             if pos == 1:
                 value = element['value']
                 # break
+
+            if isinstance(element['value'], bool):
+                log.warning("Boolean: %s", record)
+                continue
+                pp(element)
+                exit(1)
 
             if 'value' in element and len(element['value']) > 0:
                 if current_step == 1:
@@ -381,10 +425,10 @@ def single_update(doc):
         #############################
         if current_step == 1:
             if value is None:
-                logger.error("Invalid element %s" % record)
+                log.error("Invalid element %s" % record)
                 # # print("ID", record, step)
                 # q.get(record).delete().run()
-                # logger.warn("Element '%s' invalid... Removed")
+                # log.warn("Element '%s' invalid... Removed")
                 # not_valid = True
                 # break
                 exit(1)
@@ -454,7 +498,7 @@ def single_update(doc):
             #     print("STOP!")
             #     pp(record)
             #     exit(1)
-            logger.debug(value)
+            log.debug(value)
 
         if key is not None and value is not None:
             elobj[key] = value
@@ -466,7 +510,7 @@ def single_update(doc):
     if key in elobj:
         elobj.pop(key)
     if not not_valid and ('fete' not in elobj or 'extrait' not in elobj):
-        logger.warning("Invalid object %s" % elobj)
+        log.warning("Invalid object %s" % elobj)
         return
 
     # Update with data from the images and translations + transcriptions
@@ -474,7 +518,17 @@ def single_update(doc):
         .get_all(record).count().run()
 
     if exist:
-        docobj = {}
+        # docobj = {}
+        docobj = {
+            "thumbnail": None,
+            "transcription": None,
+            "traduction_français": None,
+            "traduction_latin": None,
+            "traduction_italien": None,
+            "transcription_latin": None,
+            "transcription_français": None,
+            "transcription_italien": None,
+        }
         doc_cursor = query.get_table_query(RDB_TABLE2) \
             .get_all(record).run()
         data = list(doc_cursor).pop(0)
@@ -485,7 +539,7 @@ def single_update(doc):
 
         # TRANSCRIPT
         if "transcriptions" in image and len(image["transcriptions"]) > 0:
-            logger.debug("Found transcription")
+            log.debug("Found transcription")
             key = 'transcription'
             if 'language' in image:
                 # key += '_' + image['language'].lower()
@@ -502,10 +556,11 @@ def single_update(doc):
 
             for language, translation in image["translations"].items():
                 key = 'traduction'
-                # suggest_transcription(transcription, key, .20, elobj['extrait'])
+                # suggest_transcription(
+                #     transcription, key, .20, elobj['extrait'])
 
                 key = 'traduction_' + language.lower()
-                logger.debug("Found translations: %s" % language)
+                log.debug("Found translations: %s" % language)
                 # suggest_transcription(transcription, key, .20)
                 docobj[key] = translation
                 langue += ' ' + language
@@ -517,8 +572,9 @@ def single_update(doc):
             # add suggestion
             name = key.split('_')[0]
             suggest_transcription(docobj[key], name, .3, elobj['extrait'])
-
         docobj['thumbnail'] = ZoomEnabling.get_thumbname(image['filename'])
+        # pp(docobj)
+        # exit(1)
         elobj['doc'] = docobj
         elobj['langue'] = langue.lower()
 
@@ -530,7 +586,7 @@ def single_update(doc):
         noimages[elobj['extrait']] = elobj
 
     ###################
-    ## Date format
+    # Date format
 
     # Input date(year, start, end)
     if len(date) > 0:
@@ -601,7 +657,13 @@ def single_update(doc):
 
     ###################
     # save
-    es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
+    try:
+        es.index(index=EL_INDEX1, id=record, body=elobj, doc_type=EL_TYPE1)
+    except Exception as e:
+        # raise e
+        pp(elobj)
+        pp(e)
+        exit(1)
     print("")
     return elobj
 
@@ -627,13 +689,13 @@ def make(only_xls=False, skip_lexique=False):
         if es.indices.exists(index=EL_INDEX1):
             es.indices.delete(index=EL_INDEX1)
         es.indices.create(index=EL_INDEX1, body=INDEX_BODY1)
-        logger.info("Created index %s" % EL_INDEX1)
+        log.info("Created index %s" % EL_INDEX1)
 
         # SUGGESTIONS
         if es.indices.exists(index=EL_INDEX2):
             es.indices.delete(index=EL_INDEX2)
         es.indices.create(index=EL_INDEX2, body=INDEX_BODY2)
-        logger.info("Created index %s" % EL_INDEX2)
+        log.info("Created index %s" % EL_INDEX2)
 
         # es.indices.put_mapping(
         #     index=EL_INDEX2, doc_type=EL_TYPE2, body=SUGGEST_MAPPINGS)
@@ -650,7 +712,7 @@ def make(only_xls=False, skip_lexique=False):
         if es.indices.exists(index=EL_INDEX3):
             es.indices.delete(index=EL_INDEX3)
         es.indices.create(index=EL_INDEX3, body={})
-        logger.info("Created index %s" % EL_INDEX3)
+        log.info("Created index %s" % EL_INDEX3)
 
         # READ FROM XLS FILE
         read_xls()
@@ -665,7 +727,7 @@ def make(only_xls=False, skip_lexique=False):
         elobj = single_update(doc)
         if elobj is not None:
             count += 1
-            logger.info("[Count %s]\t%s" % (count, elobj['extrait']))
+            log.info("[Count %s]\t%s" % (count, elobj['extrait']))
 
     # print("TOTAL", es.search(index=EL_INDEX1))
     print("Completed. No images:")
