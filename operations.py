@@ -11,9 +11,9 @@ from operations import rethink
 from restapi import get_logger
 log = get_logger(__name__)
 
-skip_lexique = True
+lexique = False
 if len(sys.argv) > 1:
-    skip_lexique = bool(int(sys.argv[1]))
+    lexique = bool(int(sys.argv[1]))
 
 #########################
 # RETHINKDB
@@ -30,12 +30,14 @@ rethink.some_operation()
 
 #########################
 # RETHINKDB 2 ELASTICSEARCH
-log.info("Skipping Lexique creation? %s", skip_lexique)
 
 # r2e.make()
-# FIXME
-r2e.make(skip_lexique=True)
-# r2e.make(only_xls=True)
+if lexique:
+    log.info("Do only lexique")
+    r2e.make(only_xls=True)
+else:
+    log.info("Rebuild elasticsearch indexes")
+    r2e.make(skip_lexique=True)
 
 #########################
 print("Conversion completed")
