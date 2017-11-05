@@ -341,11 +341,11 @@ def single_update(doc):
     record = doc['record']
     # print(doc)
 
-    if record in toberemoved:
-        q = query.get_table_query(RDB_TABLE1)
-        q.get(record).delete().run()
-        log.info("Removed useless %s" % record)
-        return None
+    # if record in toberemoved:
+    #     q = query.get_table_query(RDB_TABLE1)
+    #     q.get(record).delete().run()
+    #     log.info("Removed useless %s" % record)
+    #     return None
 
     elobj = {}
     not_valid = False
@@ -374,8 +374,8 @@ def single_update(doc):
             if isinstance(element['value'], bool):
                 log.warning("Boolean: %s", record)
                 continue
-                pp(element)
-                exit(1)
+                # pp(element)
+                # exit(1)
 
             if 'value' in element and len(element['value']) > 0:
                 if current_step == 1:
@@ -431,7 +431,7 @@ def single_update(doc):
                 # log.warn("Element '%s' invalid... Removed")
                 # not_valid = True
                 # break
-                exit(1)
+                return None
 
             # if 'Paler' in value:
             #     if 'idea' in value:
@@ -511,7 +511,7 @@ def single_update(doc):
         elobj.pop(key)
     if not not_valid and ('fete' not in elobj or 'extrait' not in elobj):
         log.warning("Invalid object %s" % elobj)
-        return
+        return None
 
     # Update with data from the images and translations + transcriptions
     exist = query.get_table_query(RDB_TABLE2) \
@@ -653,7 +653,8 @@ def single_update(doc):
 
     else:
         print("FAIL", doc['steps'][2])
-        exit(1)
+        return None
+        # exit(1)
 
     ###################
     # save
@@ -663,7 +664,7 @@ def single_update(doc):
         # raise e
         pp(elobj)
         pp(e)
-        exit(1)
+        return None
     print("")
     return elobj
 
