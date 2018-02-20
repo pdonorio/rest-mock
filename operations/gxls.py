@@ -8,6 +8,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 LEXIQUE_TABLE = 'lexique'
+XLS_COUNTER_FILENAME = 'xlscounter'
+TMP_DEBUG_PATH = "/uploads/data/test2.xlsx"
 ENCODING = 'utf-8'
 keys = ['sheet', 'macro', 'micro', 'titre', 'latin', 'italien', 'français']
 
@@ -17,8 +19,9 @@ class GExReader(object):
 
     def __init__(self, filename=None, rethink=None, elastic=None):
 
+        self.write_counter(0)
         if filename is None:
-            filename = "/uploads/data/test2.xlsx"
+            filename = TMP_DEBUG_PATH
 
         if rethink is not None:
             q = rethink.get_query()
@@ -50,18 +53,33 @@ class GExReader(object):
         client = gspread.authorize(creds)
         self._xls = client.open(filename)
 
+    @staticmethod
+    def read_counter():
+        output = 0
+        with open(XLS_COUNTER_FILENAME, 'r') as f:
+            output = f.read()
+        return int(output)
+
+    def write_counter(self, count):
+        with open(XLS_COUNTER_FILENAME, 'w') as f:
+            f.write(str(count))
+        return True
+
     def get_data(self):
 
-        print("Getting data")
+        logger.info("Getting data")
         sheet = self._xls.sheet1
 
         for row_num in range(2, sheet.row_count):
 
-            print("ROW", row_num - 1)
-            row = sheet.row_values(row_num)
+            count = row_num - 1
+            self.write_counter(count)
+            logger.info("row: %s", count)
 
             term = {}
             empty = True
+            row = sheet.row_values(row_num)
+
             for cell_num in range(0, len(keys)):
                 value = row[cell_num].strip()
                 if value != '':
@@ -73,7 +91,7 @@ class GExReader(object):
                 term[key] = value
 
             if empty:
-                return False
+                break
 
             ######################
             # SAVE
@@ -87,5 +105,7 @@ class GExReader(object):
             # print(term)
             # return False
 
+        logger.info("Completed")
+        self.write_counter(0)
         return True
         # print(list_of_hashes)
