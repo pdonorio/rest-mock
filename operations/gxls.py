@@ -55,9 +55,11 @@ class GExReader(object):
 
     @staticmethod
     def read_counter():
-        output = 0
-        with open(XLS_COUNTER_FILENAME, 'r') as f:
-            output = f.read()
+        try:
+            with open(XLS_COUNTER_FILENAME, 'r') as f:
+                output = f.read()
+        except FileNotFoundError:
+            output = 0
         return int(output)
 
     def write_counter(self, count):
