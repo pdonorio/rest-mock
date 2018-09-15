@@ -679,7 +679,6 @@ def make(only_xls=False, skip_lexique=False):
 
         q = query.get_table_query(RDB_TABLE1)
         cursor = q.run()
-        # print("SOME", cursor)
 
         # HTML STRIPPER
         if es.indices.exists(index=EL_INDEX0):
@@ -731,6 +730,8 @@ def make(only_xls=False, skip_lexique=False):
             log.info("[Count %s]\t%s" % (count, elobj['extrait']))
 
     # print("TOTAL", es.search(index=EL_INDEX1))
-    print("Completed. No images:")
-    pp(noimages.keys())
+
+    # print("Completed. No images:")
+    # pp(noimages.keys())
+
     return True
